@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+jwt:
+  secret: WS5y43NO8hme4sbPyEgIcCaR7G5NgSXlXKyc159gLhloaNAP/28XZKPCQCCDd8vp3v1NJpIic4uMX0CVbPR7+A==
+  accessTokenLifetime: 15m
+  refreshTokenLifetime: 30d
+
+spring:
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:postgresql://userDB:5432/userService
+    username: user
+    password: ilia
+  flyway:
+    jdbc-properties:
+      enabled: true
+      locations:
+        - db.migration
+
+springdoc:
+  swagger-ui:
+    enabled: true

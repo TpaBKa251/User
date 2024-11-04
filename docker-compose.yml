@@ -1,0 +1,32 @@
+version: '3.9'
+services:
+  postgres:
+    container_name: userDB
+    image: postgres:15
+    hostname: userDB
+    environment:
+      - POSTGRES_DB=userService
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=ilia
+    ports:
+      - "5430:5432" # Внешний порт 5430, внутренний порт 5432 PostgreSQL
+
+  webapi:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    hostname: webapi
+    ports:
+      - "8081:8080" # Внешний порт 8081, внутренний порт приложения 8080
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://userDB:5432/userService
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=ilia
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
