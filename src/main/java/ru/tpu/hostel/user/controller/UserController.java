@@ -16,6 +16,7 @@ import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,18 +32,23 @@ public class UserController {
         return userService.registerUser(userRegisterDto);
     }
 
-    @GetMapping("/profile")
-    public UserResponseDto getUser(UUID id) {
+    @GetMapping("/profile/{id}")
+    public UserResponseDto getUser(@PathVariable UUID id) {
         return userService.getUser(id);
     }
 
-    @GetMapping("/get_by_id/{id}")
+    @GetMapping("/get/by/id/{id}")
     public UserShortResponseDto getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
     }
 
-    @GetMapping("get_with_roles")
-    public UserResponseWithRoleDto getUserWithRoles(UUID id) {
+    @GetMapping("/get/with/roles/{id}")
+    public UserResponseWithRoleDto getUserWithRoles(@PathVariable UUID id) {
         return userService.getUserWithRole(id);
+    }
+
+    @GetMapping("/get/all")
+    public List<UserResponseDto> getAllUsers() {
+        return userService.getAllUsers();
     }
 }

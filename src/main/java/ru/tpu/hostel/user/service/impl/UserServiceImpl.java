@@ -18,6 +18,7 @@ import ru.tpu.hostel.user.mapper.UserMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -42,21 +43,31 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public UserResponseDto getUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
     public UserShortResponseDto getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
 
         return UserMapper.mapUserToUserShortResponseDto(user);
     }
 
     public UserResponseWithRoleDto getUserWithRole(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("User not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
 
         return UserMapper.mapUserToUserResponseWithRoleDto(user);
+    }
+
+    public List<UserResponseDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+
+        if (users.isEmpty()) {
+            throw new UserNotFound("Пользователи не найден");
+        }
+
+        return users.stream().map(UserMapper::mapUserToUserResponseDto).toList();
     }
 
     @Override

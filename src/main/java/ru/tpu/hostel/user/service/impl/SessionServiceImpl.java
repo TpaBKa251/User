@@ -35,7 +35,7 @@ public class SessionServiceImpl implements SessionService {
     public SessionResponseDto login(SessionLoginDto sessionLoginDto, HttpServletResponse response) {
         User user = userRepository.findByEmail(sessionLoginDto.email())
                 .filter(user1 -> passwordEncoder.matches(sessionLoginDto.password(), user1.getPassword()))
-                .orElseThrow(() -> new IncorrectLogin("Email or password incorrect"));
+                .orElseThrow(() -> new IncorrectLogin("Email или пароль не верны"));
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -64,7 +64,7 @@ public class SessionServiceImpl implements SessionService {
     @Override
     public ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response) {
         Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new SessionNotFound("Session not found"));
+                .orElseThrow(() -> new SessionNotFound("Сессия не найдена"));
 
         if (!session.getUserId().getId().equals(userId)) {
             throw new AccessException("Вы не можете выйти из чужой сессии");

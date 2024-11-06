@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +28,8 @@ public class SessionController {
         return sessionService.login(sessionLoginDto, response);
     }
 
-    @PatchMapping("/logout")
-    public ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response) {
+    @PatchMapping("/logout/{sessionId}/{userId}")
+    public ResponseEntity<?> logout(@PathVariable UUID sessionId, @PathVariable UUID userId, HttpServletResponse response) {
         return sessionService.logout(sessionId, userId, response);
     }
 }
