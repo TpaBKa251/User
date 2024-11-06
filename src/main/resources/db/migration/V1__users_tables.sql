@@ -1,6 +1,6 @@
 CREATE TABLE "users"
 (
-    id           UUID         NOT NULL,
+    id           UUID         NOT NULL UNIQUE,
     first_name   VARCHAR(255) NOT NULL,
     last_name    VARCHAR(255) NOT NULL,
     middle_name  VARCHAR(255),
@@ -13,7 +13,7 @@ CREATE TABLE "users"
 
 CREATE TABLE "sessions"
 (
-    id              UUID                        NOT NULL,
+    id              UUID                        NOT NULL UNIQUE,
     "user"          UUID                        NOT NULL,
     create_date     TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     expiration_date TIMESTAMP WITHOUT TIME ZONE,
@@ -24,7 +24,7 @@ CREATE TABLE "sessions"
 
 CREATE TABLE "roles"
 (
-    id     UUID         NOT NULL,
+    id     UUID         NOT NULL UNIQUE,
     "user" UUID         NOT NULL,
     role   VARCHAR(255) NOT NULL,
     CONSTRAINT pk_roles PRIMARY KEY (id),

@@ -9,15 +9,18 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=ilia
     ports:
-      - "5430:5432" # Внешний порт 5430, внутренний порт 5432 PostgreSQL
+      - "5430:5432"
+    networks:
+      - shared-network
 
-  webapi:
+  userservice:
+    container_name: userservice
     build:
       dockerfile: Dockerfile
       context: .
-    hostname: webapi
+    hostname: userservice
     ports:
-      - "8081:8080" # Внешний порт 8081, внутренний порт приложения 8080
+      - "8081:8080"
     depends_on:
       - postgres
     environment:
@@ -30,3 +33,9 @@ services:
       retries: 5
       start_period: 15s
       timeout: 10s
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true
