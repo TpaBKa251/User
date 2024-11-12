@@ -12,4 +12,6 @@ public interface SessionService {
     SessionResponseDto login(SessionLoginDto sessionLoginDto, HttpServletResponse response);
 
     ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response);
+
+    ResponseEntity<String> refresh(String refreshToken);
 }

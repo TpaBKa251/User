@@ -84,4 +84,14 @@ public class SessionServiceImpl implements SessionService {
 
         return ResponseEntity.ok().build();
     }
+
+    @Override
+    public ResponseEntity<String> refresh(String refreshToken) {
+        Session session = sessionRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new SessionNotFound("Сессия не найдена"));
+
+        String accessToken = jwtService.generateAccessToken(session.getUserId());
+
+        return ResponseEntity.ok(accessToken);
+    }
 }
