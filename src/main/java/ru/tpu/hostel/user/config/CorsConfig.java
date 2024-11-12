@@ -14,10 +14,10 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("https://5025-85-143-79-87.ngrok-free.app") // Принимает запросы от всех источников
                         .allowedMethods("*")
                         .allowedHeaders("*")
-                        .allowCredentials(false);
+                        .allowCredentials(true); // Позволяет отправку токенов, если это нужно клиенту
             }
         };
     }

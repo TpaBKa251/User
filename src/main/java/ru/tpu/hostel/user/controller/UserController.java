@@ -3,6 +3,7 @@ package ru.tpu.hostel.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
+import ru.tpu.hostel.user.dto.response.AdminUserResponse;
+import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
@@ -50,5 +53,15 @@ public class UserController {
     @GetMapping("/get/all")
     public List<UserResponseDto> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/get/super/user/nah")
+    public SuperUserResponseDto getSuperUsers(Authentication authentication) {
+        return userService.getSuperUser(authentication);
+    }
+
+    @PostMapping("/get/all")
+    public List<AdminUserResponse> getAllSuperUsers(Authentication authentication) {
+        return userService.getUsersForAdmin(authentication);
     }
 }

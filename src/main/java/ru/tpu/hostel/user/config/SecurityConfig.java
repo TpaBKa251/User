@@ -28,14 +28,17 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // Включение CORS с использованием настроек из CorsConfig
+                .cors(Customizer.withDefaults()) // Подключение CORS
                 .authorizeHttpRequests(c -> c
-                        .anyRequest().permitAll()
+                        .anyRequest().permitAll() // Разрешение всех запросов без авторизации
                 )
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.I_AM_A_TEAPOT))); // Это код ошибки для тестирования
+
         return http.build();
     }
+
+
 
 
     @Bean

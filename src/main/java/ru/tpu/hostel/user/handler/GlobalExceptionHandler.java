@@ -6,6 +6,7 @@ import org.apache.coyote.Response;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tpu.hostel.user.exception.AccessException;
@@ -13,6 +14,7 @@ import ru.tpu.hostel.user.exception.IncorrectLogin;
 import ru.tpu.hostel.user.exception.SessionNotFound;
 import ru.tpu.hostel.user.exception.UserNotFound;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +76,17 @@ public class GlobalExceptionHandler {
         Map<String, String> map = new HashMap<>();
 
         map.put("code", "400");
-        map.put("message", ex.getMessage());
+        map.put("message", ex.getConstraintViolations().toString());
+
+        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("code", "400");
+        map.put("message", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
     }
@@ -85,6 +97,7 @@ public class GlobalExceptionHandler {
 
         map.put("code", "500");
         map.put("message", ex.getMessage());
+        map.put("stackTrace", Arrays.toString(ex.getStackTrace()));
 
         return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
     }
