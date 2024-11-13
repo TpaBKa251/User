@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,9 +30,9 @@ public class SessionController {
         return sessionService.login(sessionLoginDto, response);
     }
 
-    @PatchMapping("/logout/{sessionId}/{userId}")
-    public ResponseEntity<?> logout(@PathVariable UUID sessionId, @PathVariable UUID userId, HttpServletResponse response) {
-        return sessionService.logout(sessionId, userId, response);
+    @PatchMapping("/logout/{sessionId}")
+    public ResponseEntity<?> logout(@PathVariable UUID sessionId, Authentication authentication, HttpServletResponse response) {
+        return sessionService.logout(sessionId, authentication, response);
     }
 
     @PostMapping("/auth/token")

@@ -2,6 +2,7 @@ package ru.tpu.hostel.user.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
 import ru.tpu.hostel.user.dto.response.SessionResponseDto;
 
@@ -11,7 +12,7 @@ public interface SessionService {
 
     SessionResponseDto login(SessionLoginDto sessionLoginDto, HttpServletResponse response);
 
-    ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response);
+    ResponseEntity<?> logout(UUID sessionId, Authentication authentication, HttpServletResponse response);
 
     ResponseEntity<String> refresh(String refreshToken);
 }

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
@@ -62,9 +63,11 @@ public class SessionServiceImpl implements SessionService {
 
 
     @Override
-    public ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response) {
+    public ResponseEntity<?> logout(UUID sessionId, Authentication authentication, HttpServletResponse response) {
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new SessionNotFound("Сессия не найдена"));
+
+        UUID userId = jwtService.getUserIdFromToken(authentication);
 
         if (!session.getUserId().getId().equals(userId)) {
             throw new AccessException("Вы не можете выйти из чужой сессии");
