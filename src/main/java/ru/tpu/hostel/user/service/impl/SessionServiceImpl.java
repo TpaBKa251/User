@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
+import ru.tpu.hostel.user.dto.response.SessionRefreshResponse;
 import ru.tpu.hostel.user.dto.response.SessionResponseDto;
 import ru.tpu.hostel.user.entity.Session;
 import ru.tpu.hostel.user.entity.User;
@@ -89,12 +90,28 @@ public class SessionServiceImpl implements SessionService {
     }
 
     @Override
-    public ResponseEntity<String> refresh(String refreshToken) {
+    public SessionRefreshResponse refresh(String refreshToken, HttpServletResponse response) {
         Session session = sessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new SessionNotFound("Сессия не найдена"));
 
         String accessToken = jwtService.generateAccessToken(session.getUserId());
 
-        return ResponseEntity.ok(accessToken);
+        SessionRefreshResponse sessionRefreshResponse = new SessionRefreshResponse(accessToken);
+
+        String newRefreshToken = jwtService.generateRefreshToken(session.getUserId());
+
+        session.setRefreshToken(newRefreshToken);
+        sessionRepository.save(session);
+
+        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(60 * 60 * 24 * 30)
+                .build();
+
+        response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        return sessionRefreshResponse;
     }
 }

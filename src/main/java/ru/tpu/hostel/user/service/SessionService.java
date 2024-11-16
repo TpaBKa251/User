@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
+import ru.tpu.hostel.user.dto.response.SessionRefreshResponse;
 import ru.tpu.hostel.user.dto.response.SessionResponseDto;
 
 import java.util.UUID;
@@ -14,5 +15,5 @@ public interface SessionService {
 
     ResponseEntity<?> logout(UUID sessionId, Authentication authentication, HttpServletResponse response);
 
-    ResponseEntity<String> refresh(String refreshToken);
+    SessionRefreshResponse refresh(String refreshToken, HttpServletResponse response);
 }
