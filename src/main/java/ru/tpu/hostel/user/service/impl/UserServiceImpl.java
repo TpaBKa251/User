@@ -167,32 +167,15 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public List<String> getNamesLike(String firstName, String lastName, String middleName) {
-        List<String> names = new ArrayList<>();
-        List<User> users;
-
         if (firstName != null) {
-            users = userRepository.findDistinctByFirstNameLikeIgnoreCase(firstName);
-
-            for (User user : users) {
-                names.add(user.getFirstName());
-            }
+            return userRepository.findDistinctByFirstNameLikeIgnoreCase(firstName);
         } else if (lastName != null) {
-            users = userRepository.findDistinctByLastNameLikeIgnoreCase(lastName);
-
-            for (User user : users) {
-                names.add(user.getLastName());
-            }
+            return userRepository.findDistinctByLastNameLikeIgnoreCase(lastName);
         } else if (middleName != null) {
-            users = userRepository.findDistinctByMiddleNameLikeIgnoreCase(middleName);
-
-            for (User user : users) {
-                names.add(user.getMiddleName());
-            }
-        } else {
-            return List.of();
+            return userRepository.findDistinctByMiddleNameLikeIgnoreCase(middleName);
         }
 
-        return names;
+        return List.of();
     }
 
     @Override

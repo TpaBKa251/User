@@ -1,6 +1,8 @@
 package ru.tpu.hostel.user.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.tpu.hostel.user.entity.User;
 
@@ -13,9 +15,12 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
 
-    List<User> findDistinctByFirstNameLikeIgnoreCase(String firstName);
+    @Query("select distinct u.firstName from User u where lower(u.firstName) like lower(concat('%', :firstName, '%'))")
+    List<String> findDistinctByFirstNameLikeIgnoreCase(@Param("firstName") String firstName);
 
-    List<User> findDistinctByLastNameLikeIgnoreCase(String lastName);
+    @Query("select distinct u.lastName from User u where lower(u.lastName) like lower(concat('%', :lastName, '%'))")
+    List<String> findDistinctByLastNameLikeIgnoreCase(@Param("lastName") String lastName);
 
-    List<User> findDistinctByMiddleNameLikeIgnoreCase(String middleName);
+    @Query("select distinct u.middleName from User u where lower(u.middleName) like lower(concat('%', :middleName, '%'))")
+    List<String> findDistinctByMiddleNameLikeIgnoreCase(@Param("middleName") String middleName);
 }
