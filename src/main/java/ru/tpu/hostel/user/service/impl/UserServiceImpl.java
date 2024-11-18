@@ -1,13 +1,9 @@
 package ru.tpu.hostel.user.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -36,11 +32,8 @@ import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -173,6 +166,34 @@ public class UserServiceImpl implements UserDetailsService {
         return adminUserResponses;
     }
 
+    public List<String> getNamesLike(String firstName, String lastName, String middleName) {
+        List<String> names = new ArrayList<>();
+        List<User> users;
+
+        if (firstName != null) {
+            users = userRepository.findDistinctByFirstNameLikeIgnoreCase(firstName);
+
+            for (User user : users) {
+                names.add(user.getFirstName());
+            }
+        } else if (lastName != null) {
+            users = userRepository.findDistinctByLastNameLikeIgnoreCase(lastName);
+
+            for (User user : users) {
+                names.add(user.getLastName());
+            }
+        } else if (middleName != null) {
+            users = userRepository.findDistinctByMiddleNameLikeIgnoreCase(middleName);
+
+            for (User user : users) {
+                names.add(user.getMiddleName());
+            }
+        } else {
+            return List.of();
+        }
+
+        return names;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
