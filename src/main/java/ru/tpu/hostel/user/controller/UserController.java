@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.AdminUserResponse;
@@ -53,15 +52,5 @@ public class UserController {
     @GetMapping("/get/all")
     public List<UserResponseDto> getAllUsers() {
         return userService.getAllUsers();
-    }
-
-    @GetMapping("/get/super/user/nah")
-    public SuperUserResponseDto getSuperUsers(Authentication authentication) {
-        return userService.getSuperUser(authentication);
-    }
-
-    @PostMapping("/get/all")
-    public List<AdminUserResponse> getAllSuperUsers(Authentication authentication) {
-        return userService.getUsersForAdmin(authentication);
     }
 }

@@ -104,7 +104,8 @@ public class UserServiceImpl implements UserDetailsService {
 
         // Получение баланса
         String responseBalance = adminService.getBalanceShort(userId).toString();
-        String jsonBody = responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
+        String jsonBody =
+                responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
         JSONObject jsonObject;
         try {
             jsonObject = new JSONObject(jsonBody);
@@ -148,7 +149,8 @@ public class UserServiceImpl implements UserDetailsService {
 
         for (User user : users) {
             String responseBalance = adminService.getBalanceShort(user.getId()).toString();
-            String jsonBody = responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
+            String jsonBody =
+                    responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
             JSONObject jsonObject;
             try {
                 jsonObject = new JSONObject(jsonBody);

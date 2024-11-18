@@ -1,10 +1,8 @@
 package ru.tpu.hostel.user.mapper;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Component;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.ActiveEventDto;
 import ru.tpu.hostel.user.dto.response.AdminUserResponse;
@@ -13,7 +11,6 @@ import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
-import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 
 import java.math.BigDecimal;
