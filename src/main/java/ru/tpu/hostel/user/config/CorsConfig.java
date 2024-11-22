@@ -11,22 +11,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.Arrays;
 import java.util.List;
 
-@Configuration
-public class CorsConfig {
-
-    @Bean
-    public CorsFilter corsFilter() {
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowCredentials(true); // Разрешает отправку куки
-        corsConfig.addAllowedHeader("*"); // Разрешает все заголовки
-        corsConfig.addAllowedMethod("*"); // Разрешает все HTTP-методы
-        corsConfig.setAllowedOriginPatterns(List.of("*")); // Динамическое определение источников
-        corsConfig.addExposedHeader("Authorization"); // Если нужно отправлять кастомные заголовки клиенту
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-
-        return new CorsFilter(source);
-    }
-}
+//@Configuration
+//public class CorsConfig {
+//
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        CorsConfiguration corsConfig = new CorsConfiguration();
+//        corsConfig.setAllowCredentials(true); // Разрешает отправку куки
+//        corsConfig.addAllowedHeader("*"); // Разрешает все заголовки
+//        corsConfig.addAllowedMethod("*"); // Разрешает все HTTP-методы
+//        corsConfig.setAllowedOriginPatterns(List.of("*")); // Динамическое определение источников
+//        corsConfig.addExposedHeader("Authorization"); // Если нужно отправлять кастомные заголовки клиенту
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", corsConfig);
+//
+//        return new CorsFilter(source);
+//    }
+//}
 

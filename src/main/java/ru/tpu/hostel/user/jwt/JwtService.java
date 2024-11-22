@@ -44,6 +44,7 @@ public class JwtService {
                 .claim("userId", user.getId().toString())
                 .claim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
+                        .map(role -> role.replace("ROLE_", ""))
                         .collect(Collectors.toList()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration.toMillis()))

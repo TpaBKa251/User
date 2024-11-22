@@ -27,7 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // Подключение CORS
+                //.cors(Customizer.withDefaults()) // Подключение CORS
                 .authorizeHttpRequests(c -> c
                         .anyRequest().permitAll() // Разрешение всех запросов без авторизации
                 )
