@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "sessions")
+@Table(name = "sessions", schema = "\"user\"")
 public class Session {
 
     @Id

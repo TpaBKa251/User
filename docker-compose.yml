@@ -1,18 +1,5 @@
 version: '3.9'
 services:
-  postgres:
-    container_name: userDB
-    image: postgres:15
-    hostname: userDB
-    environment:
-      - POSTGRES_DB=userService
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=ilia
-    ports:
-      - "5430:5432"
-    networks:
-      - shared-network
-
   userservice:
     container_name: userservice
     build:
@@ -21,11 +8,9 @@ services:
     hostname: userservice
     ports:
       - "8081:8080"
-    depends_on:
-      - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://userDB:5432/userService
-      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://hostelDB:5432/hostelService
+      - SPRING_DATASOURCE_USERNAME=hostel
       - SPRING_DATASOURCE_PASSWORD=ilia
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]

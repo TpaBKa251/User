@@ -1,4 +1,6 @@
-CREATE TABLE "users"
+CREATE SCHEMA IF NOT EXISTS "user";
+
+CREATE TABLE "user"."users"
 (
     id           UUID         NOT NULL UNIQUE,
     first_name   VARCHAR(255) NOT NULL,
@@ -11,7 +13,7 @@ CREATE TABLE "users"
     CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
-CREATE TABLE "sessions"
+CREATE TABLE "user"."sessions"
 (
     id              UUID                        NOT NULL UNIQUE,
     "user"          UUID                        NOT NULL,
@@ -19,14 +21,14 @@ CREATE TABLE "sessions"
     expiration_date TIMESTAMP WITHOUT TIME ZONE,
     refresh_token   VARCHAR(1024),
     CONSTRAINT pk_session PRIMARY KEY (id),
-    CONSTRAINT fk_user FOREIGN KEY ("user") REFERENCES "users" (id) ON DELETE CASCADE
+    CONSTRAINT fk_user FOREIGN KEY ("user") REFERENCES "user"."users" (id) ON DELETE CASCADE
 );
 
-CREATE TABLE "roles"
+CREATE TABLE "user"."roles"
 (
     id     UUID         NOT NULL UNIQUE,
     "user" UUID         NOT NULL,
     role   VARCHAR(255) NOT NULL,
     CONSTRAINT pk_roles PRIMARY KEY (id),
-    CONSTRAINT fk_roles FOREIGN KEY ("user") REFERENCES "users" (id) ON DELETE CASCADE
+    CONSTRAINT fk_roles FOREIGN KEY ("user") REFERENCES "user"."users" (id) ON DELETE CASCADE
 );
