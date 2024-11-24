@@ -98,6 +98,7 @@ public class SessionServiceImpl implements SessionService {
         String newRefreshToken = jwtService.generateRefreshToken(session.getUserId());
 
         session.setRefreshToken(newRefreshToken);
+        session.setExpirationTime(LocalDateTime.now().plusDays(30));
         sessionRepository.save(session);
 
         ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)

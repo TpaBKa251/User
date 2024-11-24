@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tpu.hostel.user.exception.AccessException;
 import ru.tpu.hostel.user.exception.IncorrectLogin;
+import ru.tpu.hostel.user.exception.RoleNotFound;
 import ru.tpu.hostel.user.exception.SessionNotFound;
 import ru.tpu.hostel.user.exception.UserNotFound;
 
@@ -31,6 +32,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(SessionNotFound.class)
     public ResponseEntity<Map<String, String>> handleSessionNotFound(SessionNotFound ex) {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("code", "404");
+        map.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(RoleNotFound.class)
+    public ResponseEntity<Map<String, String>> handleRoleNotFound(RoleNotFound ex) {
         Map<String, String> map = new HashMap<>();
 
         map.put("code", "404");

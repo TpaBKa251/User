@@ -90,6 +90,10 @@ public class UserServiceImpl implements UserDetailsService {
                 .toList();
     }
 
+    /**
+     * @deprecated функционал перенесен в API Gateway
+     */
+    @Deprecated
     public SuperUserResponseDto getSuperUser(Authentication authentication) {
         UUID userId = jwtService.getUserIdFromToken(authentication);
         User user = userRepository.findById(userId)
@@ -124,6 +128,11 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.SuperMapper(user, balance, certificateFluorography, certificatePediculosis, activeEvents);
     }
 
+
+    /**
+     * @deprecated функционал перенесен в API Gateway
+     */
+    @Deprecated
     public List<AdminUserResponse> getUsersForAdmin(Authentication authentication) {
         UUID userId = jwtService.getUserIdFromToken(authentication);
         List<String> roles = jwtService.getRolesFromToken(authentication);
