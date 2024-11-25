@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -78,8 +82,17 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.mapUserToUserResponseWithRoleDto(user);
     }
 
-    public List<UserResponseDto> getAllUsers() {
-        List<User> users = userRepository.findAll();
+    public List<UserResponseDto> getAllUsers(
+            int page,
+            int size,
+            String firstName,
+            String lastName,
+            String middleName,
+            String room
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+        Page<User> users = userRepository.findAllByFilter(firstName, lastName, middleName, room, pageable);
 
         if (users.isEmpty()) {
             throw new UserNotFound("Пользователи не найден");
@@ -123,7 +136,6 @@ public class UserServiceImpl implements UserDetailsService {
         List<ActiveEventDto> activeEvents = new ArrayList<>();
         activeEvents.addAll((bookingService.getAllByStatus(BookingStatus.BOOKED, userId)));
         activeEvents.addAll((bookingService.getAllByStatus(BookingStatus.IN_PROGRESS, userId)));
-
 
         return UserMapper.SuperMapper(user, balance, certificateFluorography, certificatePediculosis, activeEvents);
     }
@@ -185,6 +197,13 @@ public class UserServiceImpl implements UserDetailsService {
         }
 
         return List.of();
+    }
+
+    public List<UserResponseDto> getAllUsersByIds(List<UUID> ids) {
+        return userRepository.findByIdInOrderById(ids)
+                .stream()
+                .map(UserMapper::mapUserToUserResponseDto)
+                .toList();
     }
 
     @Override

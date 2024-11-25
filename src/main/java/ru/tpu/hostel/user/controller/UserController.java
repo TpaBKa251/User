@@ -16,6 +16,7 @@ import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,8 +49,22 @@ public class UserController {
     }
 
     @GetMapping("/get/all")
-    public List<UserResponseDto> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserResponseDto> getAllUsers(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "1000000000") int size,
+            @RequestParam(required = false, defaultValue = "") String firstName,
+            @RequestParam(required = false, defaultValue = "") String lastName,
+            @RequestParam(required = false, defaultValue = "") String middleName,
+            @RequestParam(required = false, defaultValue = "") String room
+    ) {
+        return userService.getAllUsers(
+                page,
+                size,
+                firstName,
+                lastName,
+                middleName,
+                room
+        );
     }
 
     @GetMapping("/get")
@@ -59,5 +74,10 @@ public class UserController {
             @RequestParam(required = false) String middleName
     ) {
         return userService.getNamesLike(firstName, lastName, middleName);
+    }
+
+    @GetMapping("/get/all/by/ids")
+    public List<UserResponseDto> getAllUsersWithIds(@RequestParam UUID[] ids) {
+        return userService.getAllUsersByIds(Arrays.stream(ids).toList());
     }
 }

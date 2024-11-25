@@ -1,9 +1,12 @@
 package ru.tpu.hostel.user.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.entity.User;
 
 import java.util.List;
@@ -23,4 +26,22 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("select distinct u.middleName from User u where lower(u.middleName) like lower(concat('%', :middleName, '%'))")
     List<String> findDistinctByMiddleNameLikeIgnoreCase(@Param("middleName") String middleName);
+
+    @Query("""
+                SELECT u
+                FROM User u
+                WHERE (:firstName LIKE '' OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%') ))
+                  AND (:lastName LIKE '' OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%') ) )
+                  AND (:middleName LIKE '' OR LOWER(u.middleName) LIKE LOWER(CONCAT('%', :middleName, '%') ) )
+                  AND (:roomNumber LIKE '' OR LOWER(u.roomNumber) LIKE LOWER(CONCAT('%', :roomNumber, '%') ) )
+            """)
+    Page<User> findAllByFilter(
+            @Param("firstName") String firstName,
+            @Param("lastName") String lastName,
+            @Param("middleName") String middleName,
+            @Param("roomNumber") String roomNumber,
+            Pageable pageable
+    );
+
+    List<User> findByIdInOrderById(List<UUID> ids);
 }

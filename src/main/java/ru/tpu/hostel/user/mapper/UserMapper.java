@@ -66,10 +66,17 @@ public class UserMapper {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRoomNumber(),
-                user.getRoles().stream().map(role -> role.getRole().getRoleName()).toList()
+                user.getRoles()
+                        .stream()
+                        .map(role -> role.getRole().getRoleName())
+                        .toList()
         );
     }
 
+    /**
+     * @deprecated логика перенесена в API Gateway
+     */
+    @Deprecated
     public static SuperUserResponseDto SuperMapper(
             User user,
             BigDecimal balance,
@@ -83,7 +90,10 @@ public class UserMapper {
                 user.getLastName(),
                 user.getMiddleName(),
                 user.getRoomNumber(),
-                user.getRoles().stream().map(role -> role.getRole().getRoleName()).toList(),
+                user.getRoles()
+                        .stream()
+                        .map(role -> role.getRole().getRoleName())
+                        .toList(),
                 balance,
                 cert1,
                 cert2,
@@ -91,6 +101,10 @@ public class UserMapper {
         );
     }
 
+    /**
+     * @deprecated логика перенесена в API Gateway
+     */
+    @Deprecated
     public static AdminUserResponse mapUserToAdminUserResponse(
             User user,
             CertificateDto pediculosis,
