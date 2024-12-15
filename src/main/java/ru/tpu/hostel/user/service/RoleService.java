@@ -21,5 +21,5 @@ public interface RoleService {
 
     List<RoleResponseDto> getUsersWithRole(Roles role);
 
-    ResponseEntity<?> deleteRole(UUID roleId);
+    ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> role, UUID userId);
 }

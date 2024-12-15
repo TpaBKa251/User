@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.entity.User;
+import ru.tpu.hostel.user.enums.Roles;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,5 +50,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
             "LIKE LOWER(CONCAT('%', :fullName, '%'))")
     Page<User> findAllByFullName(@Param("fullName") String fullName, Pageable pageable);
+
+    @Query("SELECT u FROM User u " +
+            "LEFT JOIN u.roles r " +
+            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "LIKE LOWER(CONCAT('%', :fullName, '%')) " +
+            "AND (r.role IS NULL OR r.role != :role)")
+    Page<User> findAllByFullNameWithoutRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);
+
+    @Query("SELECT u FROM User u " +
+            "JOIN u.roles r " +
+            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "LIKE LOWER(CONCAT('%', :fullName, '%')) " +
+            "AND r.role = :role")
+    Page<User> findAllByFullNameWithRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);
+
 
 }

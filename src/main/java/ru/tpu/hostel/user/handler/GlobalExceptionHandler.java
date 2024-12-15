@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tpu.hostel.user.exception.AccessException;
 import ru.tpu.hostel.user.exception.IncorrectLogin;
+import ru.tpu.hostel.user.exception.ManageRoleException;
 import ru.tpu.hostel.user.exception.RoleNotFound;
 import ru.tpu.hostel.user.exception.SessionNotFound;
 import ru.tpu.hostel.user.exception.UserNotFound;
@@ -102,6 +103,16 @@ public class GlobalExceptionHandler {
         map.put("message", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ManageRoleException.class)
+    public ResponseEntity<Map<String, String>> handleManageRoleException(ManageRoleException ex) {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("code", "507");
+        map.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(map, HttpStatus.INSUFFICIENT_STORAGE);
     }
 
     @ExceptionHandler(Exception.class)

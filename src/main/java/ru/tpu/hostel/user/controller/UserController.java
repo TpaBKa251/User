@@ -15,6 +15,7 @@ import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
+import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
 import java.util.Arrays;
@@ -39,6 +40,10 @@ public class UserController {
         return userService.getUser(id);
     }
 
+    /**
+     * @deprecated используется устаревшее ДТО, актуальное: {@link UserShortResponseDto2}
+     */
+    @Deprecated
     @GetMapping("/get/by/id/{id}")
     public UserShortResponseDto getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
@@ -90,5 +95,25 @@ public class UserController {
 
     ) {
         return userService.getUserByName(name, page, size);
+    }
+
+    @GetMapping("/get/by/name/with/role")
+    public List<UserShortResponseDto2> getUsersByNameWithRole(
+            @RequestParam String name,
+            @RequestParam Roles role,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        return userService.getUserByNameWithRole(name, role, page, size);
+    }
+
+    @GetMapping("/get/by/name/without/role")
+    public List<UserShortResponseDto2> getUsersByNameWithoutRole(
+            @RequestParam String name,
+            @RequestParam Roles role,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        return userService.getUserByNameWithoutRole(name, role, page, size);
     }
 }

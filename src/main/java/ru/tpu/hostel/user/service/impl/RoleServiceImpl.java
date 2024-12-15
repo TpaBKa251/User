@@ -11,6 +11,7 @@ import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.exception.AccessException;
+import ru.tpu.hostel.user.exception.ManageRoleException;
 import ru.tpu.hostel.user.exception.RoleNotFound;
 import ru.tpu.hostel.user.exception.UserNotFound;
 import ru.tpu.hostel.user.mapper.RoleMapper;
@@ -31,25 +32,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponseDto setRole(RoleSetDto roleSetDto, List<Roles> userRole, UUID userId) {
-        boolean canSetRole = false;
-
-        for (Roles role : userRole) {
-            log.info("{}", role.getAllInheritedRoles());
-            canSetRole = role.hasPermissionToSetRole(roleSetDto.role());
-            if (canSetRole) {
-                break;
-            }
-        }
-
-        if (!canSetRole) {
-            throw new AccessException("У вас нет прав управлять этой ролью");
-        }
-
-        User user = userRepository.findById(roleSetDto.user()).orElseThrow(UserNotFound::new);
-
-        Role role = new Role();
-        role.setRole(roleSetDto.role());
-        role.setUser(user);
+        checkAccessToManageRole(roleSetDto, userRole);
 
         if (userRole.contains(roleSetDto.role())) {
             log.info("Передаю роль");
@@ -61,10 +44,18 @@ public class RoleServiceImpl implements RoleService {
 
             log.info("{}", curRole.getId());
 
-            curUser.getRoles().removeIf(r -> r.getId().equals(curRole.getId()));
+            if (!curUser.getRoles().removeIf(r -> r.getId().equals(curRole.getId()))) {
+                throw new ManageRoleException("Не удалось передать роль");
+            }
+
             roleRepository.deleteById(curRole.getId());
-            roleRepository.flush();
         }
+
+        User user = userRepository.findById(roleSetDto.user()).orElseThrow(UserNotFound::new);
+
+        Role role = new Role();
+        role.setRole(roleSetDto.role());
+        role.setUser(user);
 
         roleRepository.save(role);
 
@@ -107,11 +98,28 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public ResponseEntity<?> deleteRole(UUID roleId) {
-        Role role = roleRepository.findById(roleId).orElseThrow(RoleNotFound::new );
+    public ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> userRole, UUID userId) {
+        checkAccessToManageRole(roleSetDto, userRole);
 
-        roleRepository.delete(role);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+        if (!user.getRoles().removeIf(r -> r.getRole().equals(roleSetDto.role()))) {
+            throw new ManageRoleException("Не удалось снять пользователя с роли");
+        }
+
+        roleRepository.deleteByUserAndRole(user, roleSetDto.role());
 
         return ResponseEntity.ok().build();
+    }
+
+    private void checkAccessToManageRole(RoleSetDto roleSetDto, List<Roles> userRole) {
+        for (Roles role : userRole) {
+            log.info("{}", role.getAllInheritedRoles());
+            if (role.hasPermissionToManageRole(roleSetDto.role())) {
+                return;
+            }
+        }
+
+        throw new AccessException("У вас нет прав для управления этой ролью");
     }
 }

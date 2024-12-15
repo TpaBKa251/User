@@ -61,8 +61,13 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteRole(@PathVariable UUID id) {
-        return roleService.deleteRole(id);
+    @DeleteMapping("/delete/{userId}/{userRoles}")
+    public ResponseEntity<?> deleteRole(
+            @RequestBody @Valid RoleSetDto roleSetDto,
+            @PathVariable Roles[] userRoles,
+            @PathVariable UUID userId
+    ) {
+        List<Roles> role = Arrays.stream(userRoles).toList();
+        return roleService.deleteRole(roleSetDto, role, userId);
     }
 }

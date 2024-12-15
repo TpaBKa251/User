@@ -71,6 +71,10 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
+    /**
+     * @deprecated используется устаревшее ДТО, актуальное: {@link UserShortResponseDto2}
+     */
+    @Deprecated
     public UserShortResponseDto getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
 
@@ -218,5 +222,23 @@ public class UserServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
+    }
+
+    public List<UserShortResponseDto2> getUserByNameWithRole(String name, Roles role, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+
+        return userRepository.findAllByFullNameWithRole(name, role, pageable)
+                .stream()
+                .map(UserMapper::mapUserToUserShortResponseDto2)
+                .toList();
+    }
+
+    public List<UserShortResponseDto2> getUserByNameWithoutRole(String name, Roles role, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+
+        return userRepository.findAllByFullNameWithoutRole(name, role, pageable)
+                .stream()
+                .map(UserMapper::mapUserToUserShortResponseDto2)
+                .toList();
     }
 }

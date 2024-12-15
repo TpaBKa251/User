@@ -50,7 +50,7 @@ public enum Roles {
     /**
      * Проверяет, имеет ли текущая роль права на выполнение действия, которое доступно для другой роли.
      */
-    public boolean hasPermissionToSetRole(Roles targetRole) {
+    public boolean hasPermissionToManageRole(Roles targetRole) {
         return getAllInheritedRoles().contains(targetRole);
     }
 }
