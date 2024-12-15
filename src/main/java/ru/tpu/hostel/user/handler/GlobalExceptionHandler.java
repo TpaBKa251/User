@@ -10,9 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tpu.hostel.user.exception.AccessException;
 import ru.tpu.hostel.user.exception.IncorrectLogin;
 import ru.tpu.hostel.user.exception.ManageRoleException;
-import ru.tpu.hostel.user.exception.RoleNotFound;
-import ru.tpu.hostel.user.exception.SessionNotFound;
-import ru.tpu.hostel.user.exception.UserNotFound;
+import ru.tpu.hostel.user.exception.NotFoundException;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,31 +19,11 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserNotFound.class)
-    public ResponseEntity<Map<String, String>> handleUserNotFound(UserNotFound ex) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleUserNotFound(NotFoundException ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "404");
-        map.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(SessionNotFound.class)
-    public ResponseEntity<Map<String, String>> handleSessionNotFound(SessionNotFound ex) {
-        Map<String, String> map = new HashMap<>();
-
-        map.put("code", "404");
-        map.put("message", ex.getMessage());
-
-        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(RoleNotFound.class)
-    public ResponseEntity<Map<String, String>> handleRoleNotFound(RoleNotFound ex) {
-        Map<String, String> map = new HashMap<>();
-
-        map.put("code", "404");
+        map.put("code", String.valueOf(HttpStatus.NOT_FOUND.value()));
         map.put("message", ex.getMessage());
 
         return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
@@ -55,7 +33,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleIncorrectLogin(IncorrectLogin ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "401");
+        map.put("code", String.valueOf(HttpStatus.UNAUTHORIZED.value()));
         map.put("message", ex.getMessage());
 
         return new ResponseEntity<>(map, HttpStatus.UNAUTHORIZED);
@@ -65,7 +43,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleAccessException(AccessException ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "403");
+        map.put("code", String.valueOf(HttpStatus.FORBIDDEN.value()));
         map.put("message", ex.getMessage());
 
         return new ResponseEntity<>(map, HttpStatus.FORBIDDEN);
@@ -77,7 +55,7 @@ public class GlobalExceptionHandler {
     ) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "409");
+        map.put("code", String.valueOf(HttpStatus.CONFLICT.value()));
         map.put("message", ex.getMessage());
 
         return new ResponseEntity<>(map, HttpStatus.CONFLICT);
@@ -87,7 +65,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "400");
+        map.put("code", String.valueOf(HttpStatus.BAD_REQUEST.value()));
         map.put("message", ex.getConstraintViolations().toString());
 
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
@@ -99,7 +77,7 @@ public class GlobalExceptionHandler {
     ) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "400");
+        map.put("code", String.valueOf(HttpStatus.BAD_REQUEST.value()));
         map.put("message", ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
@@ -109,7 +87,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleManageRoleException(ManageRoleException ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "507");
+        map.put("code", String.valueOf(HttpStatus.INSUFFICIENT_STORAGE.value()));
         map.put("message", ex.getMessage());
 
         return new ResponseEntity<>(map, HttpStatus.INSUFFICIENT_STORAGE);
@@ -119,7 +97,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", "500");
+        map.put("code", String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         map.put("message", ex.getMessage());
         map.put("stackTrace", Arrays.toString(ex.getStackTrace()));
 

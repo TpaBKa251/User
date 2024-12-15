@@ -10,6 +10,10 @@ import ru.tpu.hostel.user.enums.DocumentType;
 
 import java.util.UUID;
 
+/**
+ * @deprecated функционал перенесен в API Gateway
+ */
+@Deprecated
 @Component
 @FeignClient(name = "administration-administrationservice", url = "http://administrationservice:8080")
 public interface ClientAdminService {

@@ -1,6 +1,7 @@
 package ru.tpu.hostel.user.exception;
 
-public class SessionNotFound extends RuntimeException {
+public class SessionNotFound extends NotFoundException {
+
     public SessionNotFound(String message) {
         super(message);
     }

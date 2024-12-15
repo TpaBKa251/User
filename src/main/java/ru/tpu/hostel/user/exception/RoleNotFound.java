@@ -1,6 +1,7 @@
 package ru.tpu.hostel.user.exception;
 
-public class RoleNotFound extends RuntimeException {
+public class RoleNotFound extends NotFoundException {
+
     public RoleNotFound(String message) {
         super(message);
     }

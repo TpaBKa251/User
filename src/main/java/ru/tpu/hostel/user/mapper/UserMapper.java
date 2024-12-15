@@ -48,7 +48,7 @@ public class UserMapper {
     }
 
     /**
-     * @deprecated функционал перенесен в {@link UserMapper#mapUserToUserShortResponseDto2(User)}
+     * @deprecated заменен на метод {@link #mapUserToUserShortResponseDto2(User)}
      */
     @Deprecated
     public static UserShortResponseDto mapUserToUserShortResponseDto(User user) {

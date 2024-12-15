@@ -18,6 +18,10 @@ import ru.tpu.hostel.user.repository.UserRepository;
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * @deprecated аутентификация перенесена в API Gateway
+ */
+@Deprecated
 @Component
 @RequiredArgsConstructor
 @Slf4j
