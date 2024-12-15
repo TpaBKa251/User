@@ -20,5 +20,6 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
 
     Optional<Role> findByRoleAndUser(Roles role, User user);
 
+    @Transactional
     void deleteByUserAndRole(User user, Roles role);
 }

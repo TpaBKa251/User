@@ -47,20 +47,20 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 
     @Query("SELECT u FROM User u " +
-            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "WHERE LOWER(CONCAT(u.lastName, ' ', u.firstName, ' ', COALESCE(u.middleName, ''))) " +
             "LIKE LOWER(CONCAT('%', :fullName, '%'))")
     Page<User> findAllByFullName(@Param("fullName") String fullName, Pageable pageable);
 
     @Query("SELECT u FROM User u " +
             "LEFT JOIN u.roles r " +
-            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "WHERE LOWER(CONCAT(u.lastName, ' ', u.firstName, ' ', COALESCE(u.middleName, ''))) " +
             "LIKE LOWER(CONCAT('%', :fullName, '%')) " +
             "AND (r.role IS NULL OR r.role != :role)")
     Page<User> findAllByFullNameWithoutRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);
 
     @Query("SELECT u FROM User u " +
             "JOIN u.roles r " +
-            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "WHERE LOWER(CONCAT(u.lastName, ' ', u.firstName, ' ', COALESCE(u.middleName, ''))) " +
             "LIKE LOWER(CONCAT('%', :fullName, '%')) " +
             "AND r.role = :role")
     Page<User> findAllByFullNameWithRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);

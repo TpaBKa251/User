@@ -89,7 +89,7 @@ public class UserController {
 
     @GetMapping("/get/by/name")
     public List<UserShortResponseDto2> getUsersByName(
-            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "") String name,
             @RequestParam int page,
             @RequestParam int size
 
@@ -99,7 +99,7 @@ public class UserController {
 
     @GetMapping("/get/by/name/with/role")
     public List<UserShortResponseDto2> getUsersByNameWithRole(
-            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "") String name,
             @RequestParam Roles role,
             @RequestParam int page,
             @RequestParam int size
@@ -109,7 +109,7 @@ public class UserController {
 
     @GetMapping("/get/by/name/without/role")
     public List<UserShortResponseDto2> getUsersByNameWithoutRole(
-            @RequestParam String name,
+            @RequestParam(required = false, defaultValue = "") String name,
             @RequestParam Roles role,
             @RequestParam int page,
             @RequestParam int size

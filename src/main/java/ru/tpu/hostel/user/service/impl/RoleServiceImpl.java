@@ -101,7 +101,7 @@ public class RoleServiceImpl implements RoleService {
     public ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> userRole, UUID userId) {
         checkAccessToManageRole(roleSetDto, userRole);
 
-        User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        User user = userRepository.findById(roleSetDto.user()).orElseThrow(UserNotFound::new);
 
         if (!user.getRoles().removeIf(r -> r.getRole().equals(roleSetDto.role()))) {
             throw new ManageRoleException("Не удалось снять пользователя с роли");
