@@ -11,6 +11,7 @@ import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
+import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.entity.User;
 
 import java.math.BigDecimal;
@@ -46,6 +47,10 @@ public class UserMapper {
         );
     }
 
+    /**
+     * @deprecated функционал перенесен в {@link UserMapper#mapUserToUserShortResponseDto2(User)}
+     */
+    @Deprecated
     public static UserShortResponseDto mapUserToUserShortResponseDto(User user) {
         return new UserShortResponseDto(
                 user.getFirstName(),
@@ -54,6 +59,15 @@ public class UserMapper {
                 user.getEmail(),
                 user.getPhone(),
                 user.getRoomNumber()
+        );
+    }
+
+    public static UserShortResponseDto2 mapUserToUserShortResponseDto2(User user) {
+        return new UserShortResponseDto2(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getMiddleName()
         );
     }
 

@@ -7,6 +7,7 @@ import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.Roles;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -15,4 +16,6 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
     List<Role> findByUser(User user);
 
     List<Role> findByRole(Roles role);
+
+    Optional<Role> findByRoleAndUser(Roles role, User user);
 }

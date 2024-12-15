@@ -11,7 +11,7 @@ import java.util.UUID;
 
 public interface RoleService {
 
-    RoleResponseDto setRole(RoleSetDto roleSetDto);
+    RoleResponseDto setRole(RoleSetDto roleSetDto, List<Roles> role, UUID userId);
 
     RoleResponseDto editRole(RoleEditDto roleEditDto);
 

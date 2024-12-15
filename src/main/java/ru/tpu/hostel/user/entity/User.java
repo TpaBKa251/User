@@ -54,7 +54,7 @@ public class User implements UserDetails {
     @Column(name = "room_number", nullable = false)
     private String roomNumber;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Role> roles;
 
     @Override

@@ -18,6 +18,7 @@ import ru.tpu.hostel.user.dto.response.RoleResponseDto;
 import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.service.RoleService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,9 +30,15 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @PostMapping
-    public RoleResponseDto setRoleToUser(@RequestBody @Valid RoleSetDto roleSetDto) {
-        return roleService.setRole(roleSetDto);
+    @PostMapping("/{userId}/{userRoles}")
+    public RoleResponseDto setRoleToUser(
+            @RequestBody @Valid RoleSetDto roleSetDto,
+            @PathVariable Roles[] userRoles,
+            @PathVariable UUID userId
+    ) {
+        List<Roles> role = Arrays.stream(userRoles).toList();
+        log.info(role.toString());
+        return roleService.setRole(roleSetDto, role, userId);
     }
 
     @PatchMapping("/edit")

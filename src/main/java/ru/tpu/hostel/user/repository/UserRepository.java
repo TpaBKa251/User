@@ -44,4 +44,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     );
 
     List<User> findByIdInOrderById(List<UUID> ids);
+
+
+    @Query("SELECT u FROM User u " +
+            "WHERE LOWER(CONCAT(u.firstName, ' ', u.lastName, ' ', COALESCE(u.middleName, ''))) " +
+            "LIKE LOWER(CONCAT('%', :fullName, '%'))")
+    Page<User> findAllByFullName(@Param("fullName") String fullName, Pageable pageable);
+
 }

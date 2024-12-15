@@ -23,6 +23,7 @@ import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
+import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.BookingStatus;
@@ -65,19 +66,19 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public UserResponseDto getUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
     public UserShortResponseDto getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
 
         return UserMapper.mapUserToUserShortResponseDto(user);
     }
 
     public UserResponseWithRoleDto getUserWithRole(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
 
         return UserMapper.mapUserToUserResponseWithRoleDto(user);
     }
@@ -95,11 +96,19 @@ public class UserServiceImpl implements UserDetailsService {
         Page<User> users = userRepository.findAllByFilter(firstName, lastName, middleName, room, pageable);
 
         if (users.isEmpty()) {
-            throw new UserNotFound("Пользователи не найден");
+            throw new UserNotFound();
         }
 
         return users.stream()
                 .map(UserMapper::mapUserToUserResponseDto)
+                .toList();
+    }
+
+    public List<UserShortResponseDto2> getUserByName(String name, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+
+        return userRepository.findAllByFullName(name, pageable).stream()
+                .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
     }
 
@@ -110,7 +119,7 @@ public class UserServiceImpl implements UserDetailsService {
     public SuperUserResponseDto getSuperUser(Authentication authentication) {
         UUID userId = jwtService.getUserIdFromToken(authentication);
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFound("Пользователь не найден"));
+                .orElseThrow(UserNotFound::new);
 
         // Получение баланса
         String responseBalance = adminService.getBalanceShort(userId).toString();

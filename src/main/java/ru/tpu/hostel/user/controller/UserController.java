@@ -14,6 +14,7 @@ import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
+import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
 import java.util.Arrays;
@@ -79,5 +80,15 @@ public class UserController {
     @GetMapping("/get/all/by/ids")
     public List<UserResponseDto> getAllUsersWithIds(@RequestParam UUID[] ids) {
         return userService.getAllUsersByIds(Arrays.stream(ids).toList());
+    }
+
+    @GetMapping("/get/by/name")
+    public List<UserShortResponseDto2> getUsersByName(
+            @RequestParam String name,
+            @RequestParam int page,
+            @RequestParam int size
+
+    ) {
+        return userService.getUserByName(name, page, size);
     }
 }
