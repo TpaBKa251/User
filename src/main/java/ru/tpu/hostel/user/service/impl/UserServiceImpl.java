@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UserShortResponseDto2> getUserByName(String name, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 
-        return userRepository.findAllByFullName(name, pageable).stream()
+        return userRepository.findAllByFullName(name == null ? "" : name, pageable).stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
     }
@@ -227,7 +227,7 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UserShortResponseDto2> getUserByNameWithRole(String name, Roles role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 
-        return userRepository.findAllByFullNameWithRole(name, role, pageable)
+        return userRepository.findAllByFullNameWithRole(name == null ? "" : name, role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
@@ -236,7 +236,7 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UserShortResponseDto2> getUserByNameWithoutRole(String name, Roles role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 
-        return userRepository.findAllByFullNameWithoutRole(name, role, pageable)
+        return userRepository.findAllByFullNameWithoutRole(name == null ? "" : name, role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();

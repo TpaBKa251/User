@@ -14,6 +14,7 @@ public enum Roles {
     FLOOR_SUPERVISOR("Староста этажа", HOSTEL_SUPERVISOR),
     RESPONSIBLE_KITCHEN("Ответственный за кухню", FLOOR_SUPERVISOR),
     RESPONSIBLE_HALL("Ответственный за зал", HOSTEL_SUPERVISOR),
+    RESPONSIBLE_GYM("Ответственный за спортзал", HOSTEL_SUPERVISOR),
     RESPONSIBLE_FIRE_SAFETY("Ответственный за пожарную безопасность", HOSTEL_SUPERVISOR),
     RESPONSIBLE_SANITARY("Ответственный за санитарную проверку", FLOOR_SUPERVISOR),
     RESPONSIBLE_INTERNET("Ответственный за подключение к Интернету", HOSTEL_SUPERVISOR),
@@ -39,16 +40,17 @@ public enum Roles {
 
         roles.add(this);
 
-        for (Roles role : Roles.values()) {
+        for (Roles role : values()) {
             if (role.parentRole == this) {
                 roles.addAll(role.getAllInheritedRoles());
             }
         }
+
         return roles;
     }
 
     /**
-     * Проверяет, имеет ли текущая роль права на выполнение действия, которое доступно для другой роли.
+     * Проверяет, имеет ли текущая роль права на управление другой ролью (назначение, снятие, редактирование)
      */
     public boolean hasPermissionToManageRole(Roles targetRole) {
         return getAllInheritedRoles().contains(targetRole);
