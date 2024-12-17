@@ -74,11 +74,11 @@ public class JwtService {
 
     public UUID getUserIdFromToken(String token) {
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())  // Используем секретный ключ для проверки подписи
+                .setSigningKey(getSigningKey())
                 .build()
-                .parseClaimsJws(token)  // Парсим токен и получаем его данные
+                .parseClaimsJws(token)
                 .getBody();
-        return UUID.fromString(claims.get("userId", String.class));  // Извлекаем и возвращаем userId из токена
+        return UUID.fromString(claims.get("userId", String.class));
     }
 
 

@@ -27,12 +27,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                //.cors(Customizer.withDefaults()) // Подключение CORS
+                //.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(c -> c
-                        .anyRequest().permitAll() // Разрешение всех запросов без авторизации
+                        .anyRequest().permitAll()
                 )
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.I_AM_A_TEAPOT))); // Это код ошибки для тестирования
+                .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.I_AM_A_TEAPOT)));
 
         return http.build();
     }

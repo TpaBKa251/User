@@ -28,9 +28,6 @@ public enum Roles {
     private final String roleName;
     private final Roles parentRole;
 
-    /**
-     * Возвращает все роли, которые наследуются от текущей роли (включая саму роль).
-     */
     public List<Roles> getAllInheritedRoles() {
         List<Roles> roles = new ArrayList<>();
 
@@ -49,9 +46,6 @@ public enum Roles {
         return roles;
     }
 
-    /**
-     * Проверяет, имеет ли текущая роль права на управление другой ролью (назначение, снятие, редактирование)
-     */
     public boolean hasPermissionToManageRole(Roles targetRole) {
         return getAllInheritedRoles().contains(targetRole);
     }
