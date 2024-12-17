@@ -61,7 +61,7 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
-    @DeleteMapping("/delete/{userId}/{userRoles}")
+    @PostMapping("/delete/{userId}/{userRoles}")
     public ResponseEntity<?> deleteRole(
             @RequestBody @Valid RoleSetDto roleSetDto,
             @PathVariable Roles[] userRoles,

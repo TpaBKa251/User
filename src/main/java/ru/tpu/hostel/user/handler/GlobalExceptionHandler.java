@@ -65,10 +65,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, String> map = new HashMap<>();
 
-        map.put("code", String.valueOf(HttpStatus.BAD_REQUEST.value()));
+        map.put("code", String.valueOf(HttpStatus.CONFLICT.value()));
         map.put("message", ex.getConstraintViolations().toString());
 
-        return new ResponseEntity<>(map, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(map, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
