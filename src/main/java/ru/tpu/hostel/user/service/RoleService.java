@@ -19,6 +19,8 @@ public interface RoleService {
 
     List<RoleResponseDto> getUserRoles(UUID userId);
 
+    List<String> getAllUserRoles(UUID userId);
+
     List<RoleResponseDto> getUsersWithRole(Roles role);
 
     ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> role, UUID userId);

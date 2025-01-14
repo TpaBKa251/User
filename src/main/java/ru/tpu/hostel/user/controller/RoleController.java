@@ -55,6 +55,11 @@ public class RoleController {
         return roleService.getUserRoles(userId);
     }
 
+    @GetMapping("/get/user/roles/all/{userId}")
+    public List<String> getAllRolesByUserId(@PathVariable UUID userId) {
+        return roleService.getAllUserRoles(userId);
+    }
+
     @GetMapping("/get/roles/{role}")
     public List<RoleResponseDto> getRolesByRole(@PathVariable Roles role) {
         return roleService.getUsersWithRole(role);

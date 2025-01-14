@@ -40,10 +40,7 @@ public class UserController {
         return userService.getUser(id);
     }
 
-    /**
-     * @deprecated используется устаревшее ДТО, актуальное: {@link UserShortResponseDto2}
-     */
-    @Deprecated
+
     @GetMapping("/get/by/id/{id}")
     public UserShortResponseDto getUserById(@PathVariable UUID id) {
         return userService.getUserById(id);
@@ -85,6 +82,11 @@ public class UserController {
     @GetMapping("/get/all/by/ids")
     public List<UserResponseDto> getAllUsersWithIds(@RequestParam UUID[] ids) {
         return userService.getAllUsersByIds(Arrays.stream(ids).toList());
+    }
+
+    @GetMapping("/get/all/by/ids/short")
+    public List<UserShortResponseDto2> getAllUsersWithIdsShort(@RequestParam UUID[] ids) {
+        return userService.getAllUsersByIdsShort(Arrays.stream(ids).toList());
     }
 
     @GetMapping("/get/by/name")

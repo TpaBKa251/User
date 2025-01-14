@@ -47,10 +47,6 @@ public class UserMapper {
         );
     }
 
-    /**
-     * @deprecated заменен на метод {@link #mapUserToUserShortResponseDto2(User)}
-     */
-    @Deprecated
     public static UserShortResponseDto mapUserToUserShortResponseDto(User user) {
         return new UserShortResponseDto(
                 user.getFirstName(),

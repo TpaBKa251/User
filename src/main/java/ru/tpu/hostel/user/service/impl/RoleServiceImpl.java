@@ -19,8 +19,12 @@ import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.RoleService;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -87,6 +91,29 @@ public class RoleServiceImpl implements RoleService {
                 .stream()
                 .map(RoleMapper::mapRoleToRoleResponseDto)
                 .toList();
+    }
+
+    @Override
+    public List<String> getAllUserRoles(UUID userId) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+
+        List<Role> roles = roleRepository.findByUser(user);
+
+        log.info("{}", roles);
+
+        List<String> allRolesDistinct = new ArrayList<>();
+
+        for (Role role : roles) {
+            allRolesDistinct.addAll(role.getRole().getAllInheritedRoles().stream().map(Enum::toString).toList());
+        }
+
+        log.info("{}", allRolesDistinct);
+
+        allRolesDistinct = allRolesDistinct.stream().distinct().toList();
+
+        log.info("{}", allRolesDistinct);
+
+        return allRolesDistinct;
     }
 
     @Override

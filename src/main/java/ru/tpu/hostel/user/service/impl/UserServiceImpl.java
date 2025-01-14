@@ -38,6 +38,7 @@ import ru.tpu.hostel.user.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -71,10 +72,7 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
-    /**
-     * @deprecated используется устаревшее ДТО, актуальное: {@link UserShortResponseDto2}
-     */
-    @Deprecated
+
     public UserShortResponseDto getUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
 
@@ -237,6 +235,13 @@ public class UserServiceImpl implements UserDetailsService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 
         return userRepository.findAllByFullNameWithoutRole(name == null ? "" : name, role, pageable)
+                .stream()
+                .map(UserMapper::mapUserToUserShortResponseDto2)
+                .toList();
+    }
+
+    public List<UserShortResponseDto2> getAllUsersByIdsShort(List<UUID> ids) {
+        return userRepository.findAllById(ids)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
