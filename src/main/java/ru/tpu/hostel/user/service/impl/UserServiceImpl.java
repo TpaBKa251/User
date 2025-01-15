@@ -246,4 +246,8 @@ public class UserServiceImpl implements UserDetailsService {
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
     }
+
+    public UserShortResponseDto2 getUserByIdShort(UUID id) {
+        return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id).orElseThrow(UserNotFound::new));
+    }
 }

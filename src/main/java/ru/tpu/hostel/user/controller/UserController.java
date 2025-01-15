@@ -46,6 +46,11 @@ public class UserController {
         return userService.getUserById(id);
     }
 
+    @GetMapping("/get/by/id/short/{id}")
+    public UserShortResponseDto2 getUserByIdShort(@PathVariable UUID id) {
+        return userService.getUserByIdShort(id);
+    }
+
     @GetMapping("/get/with/roles/{id}")
     public UserResponseWithRoleDto getUserWithRoles(@PathVariable UUID id) {
         return userService.getUserWithRole(id);
