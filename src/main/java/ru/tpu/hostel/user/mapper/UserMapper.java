@@ -8,6 +8,7 @@ import ru.tpu.hostel.user.dto.response.ActiveEventDto;
 import ru.tpu.hostel.user.dto.response.AdminUserResponse;
 import ru.tpu.hostel.user.dto.response.CertificateDto;
 import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
+import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
@@ -130,6 +131,15 @@ public class UserMapper {
                 pediculosis,
                 fluorography,
                 balance
+        );
+    }
+
+    public static UserNameResponseDto mapUserToUserNameResponseDto(User user) {
+        return new UserNameResponseDto(
+                user.getFirstName(),
+                user.getLastName(),
+                user.getMiddleName(),
+                user.getRoomNumber()
         );
     }
 }

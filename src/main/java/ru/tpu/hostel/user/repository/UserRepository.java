@@ -1,11 +1,15 @@
 package ru.tpu.hostel.user.repository;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.validation.annotation.Validated;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.Roles;
 
@@ -13,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@Repository()
+@Repository
+@Validated
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
@@ -65,5 +70,16 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "AND r.role = :role")
     Page<User> findAllByFullNameWithRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);
 
+    @Query("select u.roomNumber from User u where u.id = :id")
+    Optional<String> findRoomNumberById(@Param("id") UUID id);
 
+    Page<User> findAllByRoomNumberStartingWithOrderByRoomNumber(
+            @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой") String floor,
+            Pageable pageable
+    );
+
+    List<User> findAllByRoomNumberInOrderByRoomNumber(List<String> roomNumbers);
+
+    @Query("select distinct u.id from User u where u.roomNumber in :roomNumbers")
+    List<UUID> findAllIdsOfUsersInRooms(@Param("roomNumbers") List<String> roomNumbers);
 }

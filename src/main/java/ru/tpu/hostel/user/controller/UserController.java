@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
+import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
@@ -122,5 +123,29 @@ public class UserController {
             @RequestParam int size
     ) {
         return userService.getUserByNameWithoutRole(name, role, page, size);
+    }
+
+    @GetMapping("/get/all/on/floor/{userId}")
+    public List<UserNameResponseDto> getAllOnFloor(
+            @PathVariable UUID userId,
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "10") int size
+    ) {
+        return userService.getAllUsersOnFloor(userId, page, size);
+    }
+
+    @GetMapping("/get/room/{userId}")
+    public String getRoomNumber(@PathVariable UUID userId) {
+        return userService.getRoomNumberByUserId(userId);
+    }
+
+    @GetMapping("/get/all/in/rooms")
+    public List<UserNameResponseDto> getAllInRooms(@RequestParam String[] roomNumbers) {
+        return userService.getAllUsersInRooms(Arrays.stream(roomNumbers).toList());
+    }
+
+    @GetMapping("/users/get/all/in/rooms/with/id")
+    List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers) {
+        return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
     }
 }

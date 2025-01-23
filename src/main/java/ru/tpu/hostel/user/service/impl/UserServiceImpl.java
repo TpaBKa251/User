@@ -13,13 +13,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.user.client.ClientAdminService;
 import ru.tpu.hostel.user.client.ClientBookingService;
+import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
+import ru.tpu.hostel.user.dto.request.DocumentRequestDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.ActiveEventDto;
 import ru.tpu.hostel.user.dto.response.AdminUserResponse;
 import ru.tpu.hostel.user.dto.response.CertificateDto;
 import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
+import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
@@ -37,6 +41,8 @@ import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,8 +66,22 @@ public class UserServiceImpl implements UserDetailsService {
         role.setUser(user);
         role.setRole(Roles.STUDENT);
 
-        userRepository.save(user);
+        user = userRepository.save(user);
         roleRepository.save(role);
+
+        adminService.addBalance(new BalanceRequestDto(user.getId(), BigDecimal.ZERO));
+        adminService.addDocument(new DocumentRequestDto(
+                user.getId(),
+                "CERTIFICATE",
+                LocalDate.of(0, 1, 1),
+                LocalDate.now()
+        ));
+        adminService.addDocument(new DocumentRequestDto(
+                user.getId(),
+                "FLUOROGRAPHY",
+                LocalDate.of(0, 1, 1),
+                LocalDate.now()
+        ));
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
@@ -249,5 +269,32 @@ public class UserServiceImpl implements UserDetailsService {
 
     public UserShortResponseDto2 getUserByIdShort(UUID id) {
         return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id).orElseThrow(UserNotFound::new));
+    }
+
+    public List<UserNameResponseDto> getAllUsersOnFloor(UUID userId, int page, int size) {
+        User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        String roomNumber = user.getRoomNumber();
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("roomNumber"));
+
+        return userRepository
+                .findAllByRoomNumberStartingWithOrderByRoomNumber(String.valueOf(roomNumber.charAt(0)), pageable)
+                .stream()
+                .map(UserMapper::mapUserToUserNameResponseDto)
+                .toList();
+    }
+
+    public String getRoomNumberByUserId(UUID userId) {
+        return userRepository.findRoomNumberById(userId).orElseThrow(UserNotFound::new);
+    }
+
+    public List<UserNameResponseDto> getAllUsersInRooms(List<String> roomNumbers) {
+        return userRepository.findAllByRoomNumberInOrderByRoomNumber(roomNumbers).stream()
+                .map(UserMapper::mapUserToUserNameResponseDto)
+                .toList();
+    }
+
+    public List<UUID> getAllIdsOfUsersInRooms(List<String> roomNumbers) {
+        return userRepository.findAllIdsOfUsersInRooms(roomNumbers);
     }
 }
