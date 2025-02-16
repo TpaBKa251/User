@@ -42,7 +42,7 @@ sonarqube {
 }
 
 checkstyle {
-    toolVersion = "10.7" // Версия Checkstyle
+    toolVersion = "10.12.3" // Версия Checkstyle
     configFile = file("${rootDir}/config/checkstyle/checkstyle.xml") // Путь к конфигурации Checkstyle
 }
 
@@ -74,6 +74,7 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
     spotbugs 'com.github.spotbugs:spotbugs:4.7.3'
+    checkstyle 'com.puppycrawl.tools:checkstyle:10.12.3'
 
     compileOnly 'org.projectlombok:lombok'
 

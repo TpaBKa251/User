@@ -30,9 +30,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # Шаг 4: Сборка проекта
-      - name: Build project
-        run: ./gradlew build
+#      # Шаг 4: Сборка проекта
+#      - name: Build project
+#        run: ./gradlew build
 
       # Шаг 5: Прогон unit-тестов
       - name: Run unit tests
