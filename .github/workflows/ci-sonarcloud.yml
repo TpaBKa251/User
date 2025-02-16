@@ -1,0 +1,53 @@
+name: CI with SonarCloud for Gradle
+
+on:
+  push: # Триггер на все push-события
+    branches:
+      - '**' # Все ветки
+  pull_request: # Триггер на pull request
+    branches:
+      - '**' # Все ветки
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонирование репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Необходимо для анализа истории изменений
+
+      # Шаг 2: Настройка JDK
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Шаг 3: Кэширование зависимостей Gradle
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Шаг 4: Прогон unit-тестов
+      - name: Run unit tests
+        run: ./gradlew test
+
+      # Шаг 5: Настройка SonarCloud
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      # Шаг 6: Публикация результатов анализа
+      - name: Publish results to SonarCloud
+        run: ./gradlew sonarqube
