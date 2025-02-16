@@ -30,11 +30,15 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # Шаг 4: Прогон unit-тестов
+      # Шаг 4: Сборка проекта
+      - name: Build project
+        run: ./gradlew build
+
+      # Шаг 5: Прогон unit-тестов
       - name: Run unit tests
         run: ./gradlew test
 
-      # Шаг 5: Настройка SonarCloud
+      # Шаг 6: Настройка SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         with:
@@ -42,10 +46,7 @@ jobs:
             -Dsonar.projectKey=TpaBKa251_User
             -Dsonar.organization=hostel-service
             -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.java.binaries=build/classes # Укажите путь к скомпилированным классам
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      # Шаг 6: Публикация результатов анализа
-      - name: Publish results to SonarCloud
-        run: ./gradlew sonarqube

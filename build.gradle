@@ -37,6 +37,7 @@ sonarqube {
         property "sonar.java.spotbugs.reportPaths", "${layout.buildDirectory.get()}/reports/spotbugs/main.xml"
         property "sonar.coverage.exclusions", "**/*Generated*.java,**/model/*.java" // Исключения из анализа
         property "sonar.coverage.minimum", "80" // Минимальное покрытие (в процентах)
+        property "sonar.java.binaries", "build/classes" // Путь к скомпилированным классам
     }
 }
 
