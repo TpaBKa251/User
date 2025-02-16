@@ -39,7 +39,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v4.1.0
         with:
           args: >
-            -Dsonar.projectKey=hostel-service
+            -Dsonar.projectKey=TpaBKa251_User
             -Dsonar.organization=hostel-service
             -Dsonar.host.url=https://sonarcloud.io
         env:
