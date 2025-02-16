@@ -37,6 +37,11 @@ jobs:
       # Шаг 5: Настройка SonarCloud
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v4.1.0
+        with:
+          args: >
+            -Dsonar.projectKey=hostel-service
+            -Dsonar.organization=hostel-service
+            -Dsonar.host.url=https://sonarcloud.io
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
