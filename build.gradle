@@ -29,12 +29,12 @@ repositories {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "your_project_key" // Замените на ключ вашего проекта в SonarCloud
-        property "sonar.organization", "your_organization" // Замените на имя вашей организации
+        property "sonar.projectKey", "hostel-service" // Замените на ключ вашего проекта в SonarCloud
+        property "sonar.organization", "Hostel Service" // Замените на имя вашей организации
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", System.getenv("SONAR_TOKEN") // Используется токен из секретов GitHub
-        property "sonar.coverage.jacoco.xmlReportPaths", "${project.buildDir}/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.java.spotbugs.reportPaths", "${project.buildDir}/reports/spotbugs/main.xml"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml"
+        property "sonar.java.spotbugs.reportPaths", "${layout.buildDirectory.get()}/reports/spotbugs/main.xml"
         property "sonar.coverage.exclusions", "**/*Generated*.java,**/model/*.java" // Исключения из анализа
         property "sonar.coverage.minimum", "80" // Минимальное покрытие (в процентах)
     }
@@ -47,7 +47,7 @@ checkstyle {
 
 spotbugs {
     toolVersion = "4.7.3"
-    reportsDir = file("$buildDir/reports/spotbugs")
+    reportsDir = layout.buildDirectory.dir("reports/spotbugs").get().asFile
 }
 
 dependencies {
