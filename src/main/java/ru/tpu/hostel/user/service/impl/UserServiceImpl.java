@@ -251,6 +251,15 @@ public class UserServiceImpl implements UserDetailsService {
                 .toList();
     }
 
+    public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
+
+        return userRepository.findAllByRole(role, pageable)
+                .stream()
+                .map(UserMapper::mapUserToUserShortResponseDto2)
+                .toList();
+    }
+
     public List<UserShortResponseDto2> getUserByNameWithoutRole(String name, Roles role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 

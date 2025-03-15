@@ -105,6 +105,15 @@ public class UserController {
         return userService.getUserByName(name, page, size);
     }
 
+    @GetMapping("/get/by/role")
+    public List<UserShortResponseDto2> getUsersByRole(
+            @RequestParam Roles role,
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+        return userService.getAllUsersByRole(role, page, size);
+    }
+
     @GetMapping("/get/by/name/with/role")
     public List<UserShortResponseDto2> getUsersByNameWithRole(
             @RequestParam(required = false, defaultValue = "") String name,
