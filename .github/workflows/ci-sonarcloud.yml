@@ -1,9 +1,6 @@
 name: CI with SonarCloud for Gradle
 
 on:
-  push:
-    branches:
-      - '**'
   pull_request:
     branches:
       - '**'
