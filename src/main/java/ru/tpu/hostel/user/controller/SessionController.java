@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,14 @@ public class SessionController {
 
     @GetMapping("/auth/token")
     public SessionRefreshResponse refreshToken(
+            @CookieValue("refreshToken") String refreshToken,
+            HttpServletResponse response
+    ) {
+        return sessionService.refresh(refreshToken, response);
+    }
+
+    @PostMapping("/auth/token")
+    public SessionRefreshResponse refreshTokenPost(
             @CookieValue("refreshToken") String refreshToken,
             HttpServletResponse response
     ) {

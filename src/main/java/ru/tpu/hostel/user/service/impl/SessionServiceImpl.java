@@ -20,6 +20,7 @@ import ru.tpu.hostel.user.repository.SessionRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.SessionService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -53,7 +54,8 @@ public class SessionServiceImpl implements SessionService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(60 * 60 * 24 * 30)
+                .maxAge(Duration.ofDays(30))
+                .sameSite("None")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
@@ -80,6 +82,7 @@ public class SessionServiceImpl implements SessionService {
                 .secure(true)
                 .path("/")
                 .maxAge(0)
+                .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
@@ -88,15 +91,18 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public SessionRefreshResponse refresh(String refreshToken, HttpServletResponse response) {
+        jwtService.checkRefreshTokenValidity(refreshToken);
         Session session = sessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(SessionNotFound::new);
 
-        String accessToken = jwtService.generateAccessToken(session.getUserId());
+        if (session.getExpirationTime().isBefore(LocalDateTime.now())) {
+            throw new AccessException("Сессия уже потухла");
+        }
 
+        String accessToken = jwtService.generateAccessToken(session.getUserId());
         SessionRefreshResponse sessionRefreshResponse = new SessionRefreshResponse(accessToken);
 
         String newRefreshToken = jwtService.generateRefreshToken(session.getUserId());
-
         session.setRefreshToken(newRefreshToken);
         session.setExpirationTime(LocalDateTime.now().plusDays(30));
         sessionRepository.save(session);
@@ -105,9 +111,9 @@ public class SessionServiceImpl implements SessionService {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(60 * 60 * 24 * 30)
+                .maxAge(Duration.ofDays(30))
+                .sameSite("None")
                 .build();
-
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return sessionRefreshResponse;

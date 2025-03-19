@@ -1,10 +1,12 @@
 package ru.tpu.hostel.user.handler;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.tpu.hostel.user.exception.AccessException;
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
@@ -93,6 +96,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(map, HttpStatus.INSUFFICIENT_STORAGE);
     }
 
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<Map<String, String>> handleMissingRequestCookieException(MissingRequestCookieException ex) {
+        Map<String, String> map = new HashMap<>();
+
+        map.put("code", String.valueOf(HttpStatus.NOT_FOUND.value()));
+        map.put("message", ex.getMessage());
+
+        return new ResponseEntity<>(map, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
         Map<String, String> map = new HashMap<>();
@@ -100,6 +113,8 @@ public class GlobalExceptionHandler {
         map.put("code", String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()));
         map.put("message", ex.getMessage());
         map.put("stackTrace", Arrays.toString(ex.getStackTrace()));
+
+        log.error("Ошибка: {}", map, ex);
 
         return new ResponseEntity<>(map, HttpStatus.INTERNAL_SERVER_ERROR);
     }

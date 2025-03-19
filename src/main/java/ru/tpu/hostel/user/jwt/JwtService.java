@@ -1,14 +1,22 @@
 package ru.tpu.hostel.user.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.user.entity.User;
+import ru.tpu.hostel.user.exception.AccessException;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -97,5 +105,37 @@ public class JwtService {
                 .map(role -> (String) role)
                 .collect(Collectors.toList());
     }
+
+    public void checkRefreshTokenValidity(String token) {
+        if (token == null || token.isBlank()) {
+            throw new AccessException("Token is empty");
+        }
+
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
+            UUID userId = UUID.fromString(claims.get("userId", String.class));
+            if (!userId.equals(getUserIdFromToken(token))) {
+                throw new AccessException("Invalid token: userId is missing");
+            }
+
+            if (!userRepository.existsById(userId)) {
+                throw new AccessException("User not found");
+            }
+        } catch (AccessException e) {
+            throw e;
+        } catch (ExpiredJwtException e) {
+            throw new AccessException("Token is expired");
+        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException e) {
+            throw new AccessException("Invalid token");
+        } catch (Exception e) {
+            throw new RuntimeException("Error processing JWT", e);
+        }
+    }
+
 }
 
