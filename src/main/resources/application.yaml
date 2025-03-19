@@ -13,7 +13,7 @@ spring:
       hibernate:
         format_sql: true
   datasource:
-    url: jdbc:postgresql://hostelDB:5432/hostelService
+    url: jdbc:postgresql://82.202.138.26:5430/hostelService
     username: hostel
     password: ilia
   flyway:
