@@ -6,6 +6,12 @@ jwt:
   accessTokenLifetime: 15m
   refreshTokenLifetime: 30d
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
 spring:
   profiles:
     active: "@activatedProperties@"

@@ -21,9 +21,25 @@ spec:
             - containerPort: 8080
           resources:
             requests:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "100m"
+              memory: "256Mi"
               ephemeral-storage: "0Mi"
             limits:
-              cpu: "1"
-              memory: "1Gi"
+              cpu: "250m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health  # эндпоинт health для проверки состояния
+              port: 8080
+            initialDelaySeconds: 10    # Задержка перед первым запросом
+            periodSeconds: 20          # Интервал проверки
+            timeoutSeconds: 5          # Время ожидания ответа
+            failureThreshold: 3        # Количество неудачных попыток до перезапуска
+          readinessProbe:
+            httpGet:
+              path: /actuator/health  # тот же эндпоинт для проверки готовности
+              port: 8080
+            initialDelaySeconds: 5    # Задержка перед первым запросом
+            periodSeconds: 5          # Интервал проверки
+            timeoutSeconds: 3         # Время ожидания ответа
+            failureThreshold: 3
