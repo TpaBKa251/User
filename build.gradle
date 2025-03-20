@@ -27,15 +27,13 @@ repositories {
 
 sonarqube {
     properties {
-        property "sonar.projectKey", "TpaBKa251_User" // Замените на ключ вашего проекта в SonarCloud
+        property "sonar.projectKey", "TpaBKa251_User"
         property "sonar.organization", "hostel-service" // Замените на имя вашей организации
         property "sonar.host.url", "https://sonarcloud.io"
         property "sonar.login", System.getenv("SONAR_TOKEN") // Используется токен из секретов GitHub
-        property "sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml"
-        property "sonar.java.spotbugs.reportPaths", "${layout.buildDirectory.get()}/reports/spotbugs/main.xml"
+        property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
         property "sonar.coverage.exclusions", "**/*Generated*.java,**/model/*.java" // Исключения из анализа
-        property "sonar.coverage.minimum", "80" // Минимальное покрытие (в процентах)
-        property "sonar.java.binaries", "build/classes" // Путь к скомпилированным классам
+        property "sonar.java.binaries", "build/classes/java/main" // Путь к скомпилированным классам
     }
 }
 
@@ -80,6 +78,7 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // Генерируем отчет после тестов
 }
 
 tasks.withType(Test).configureEach {
@@ -87,13 +86,15 @@ tasks.withType(Test).configureEach {
 }
 
 jacoco {
-    toolVersion = "0.8.8" // Версия JaCoCo
+    toolVersion = "0.8.11" // Версия JaCoCo
 }
 
 jacocoTestReport {
+    dependsOn test
     reports {
-        xml.required.set(true) // XML-отчет для SonarCloud
-        html.required.set(true) // HTML-отчет для локального просмотра
+        xml.required.set(true) // Включаем XML для SonarCloud
+        html.required.set(false)
+        csv.required.set(false)
     }
 }
 
