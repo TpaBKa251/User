@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hosteldb
+spec:
+  type: ExternalName
+  externalName: 82.202.138.26

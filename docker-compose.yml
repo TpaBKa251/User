@@ -3,7 +3,7 @@ services:
   userservice:
     container_name: userservice
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-local
       context: .
     hostname: userservice
     ports:

@@ -1,0 +1,3 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://82.202.138.26:5430/hostelService

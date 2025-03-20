@@ -153,8 +153,15 @@ public class UserController {
         return userService.getAllUsersInRooms(Arrays.stream(roomNumbers).toList());
     }
 
-    @GetMapping("/users/get/all/in/rooms/with/id")
+    @GetMapping("/get/all/in/rooms/with/id")
     List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers) {
         return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
     }
+
+//    @GetMapping("/get/by/role/{role}")
+//    List<UserShortResponseDto2> getAllUsersWithRole(@PathVariable Roles role) {
+//        return List.of(
+//                new UserShortResponseDto2(UUID.randomUUID(), "Ангелина", "Жукова", "Игнатьевна")
+//        );
+//    }
 }
