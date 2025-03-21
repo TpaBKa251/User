@@ -66,6 +66,7 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     public ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response) {
+        // TODO: При логауте слать уведам сообщение по рэббиту об удалении токена уведов
         Session session = sessionRepository.findById(sessionId)
                 .orElseThrow(SessionNotFound::new);
 

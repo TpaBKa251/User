@@ -2,7 +2,7 @@ name: CI with SonarQube
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 
 jobs:
   # Джоб для кеширования зависимостей
@@ -129,4 +129,6 @@ jobs:
       - name: Build and analyze with SonarQube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build sonarqube --info
+        run: |
+          chmod +x gradlew
+          ./gradlew build sonarqube --info
