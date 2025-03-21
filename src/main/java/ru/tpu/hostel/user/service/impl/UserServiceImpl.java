@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.user.client.ClientAdminService;
 import ru.tpu.hostel.user.client.ClientBookingService;
 import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
@@ -42,9 +41,7 @@ import ru.tpu.hostel.user.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -254,7 +251,7 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
 
-        return userRepository.findAllByRole(role, pageable)
+        return userRepository.findAllByRoles_Role(role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();

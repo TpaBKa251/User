@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RepositoryTest
 @DisplayName("Тесты для репозитория пользователей")
-public class UserRepositoryTest {
+class UserRepositoryTest {
 
     @Autowired
     private UserRepository userRepository;
@@ -92,7 +92,7 @@ public class UserRepositoryTest {
     @DisplayName("Поиск по роли в случае, когда есть несколько пользователей с такой ролью")
     void findAllByRoleManyPersons() {
             Pageable pageable = PageRequest.of(0, 10);
-            Page<User> result = userRepository.findAllByRole(Roles.ADMINISTRATION, pageable);
+            Page<User> result = userRepository.findAllByRoles_Role(Roles.ADMINISTRATION, pageable);
 
             assertThat(result.getContent())
                     .hasSize(2)
@@ -104,7 +104,7 @@ public class UserRepositoryTest {
     @DisplayName("Поиск по роли в случае, когда есть один пользователь с такой ролью")
     void findAllByRoleOnePerson() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<User> result = userRepository.findAllByRole(Roles.RESPONSIBLE_SOOP, pageable);
+        Page<User> result = userRepository.findAllByRoles_Role(Roles.RESPONSIBLE_SOOP, pageable);
 
         assertThat(result.getContent())
                 .hasSize(1)
@@ -116,7 +116,7 @@ public class UserRepositoryTest {
     @DisplayName("Поиск по роли в случае, когда нет пользователей с такой ролью")
     void findAllByRoleNoPersons() {
         Pageable pageable = PageRequest.of(0, 10);
-        Page<User> result = userRepository.findAllByRole(Roles.RESPONSIBLE_KITCHEN, pageable);
+        Page<User> result = userRepository.findAllByRoles_Role(Roles.RESPONSIBLE_KITCHEN, pageable);
 
         assertThat(result.getContent())
                 .isEmpty();

@@ -13,12 +13,9 @@ public class PostgresTestContainerExtension implements BeforeAllCallback, AfterA
             .withUsername("test")
             .withPassword("test");
 
-    static {
-        POSTGRES.start();
-    }
-
     @Override
     public void beforeAll(ExtensionContext context) {
+        POSTGRES.start();
         System.setProperty("spring.datasource.url", POSTGRES.getJdbcUrl());
         System.setProperty("spring.datasource.username", POSTGRES.getUsername());
         System.setProperty("spring.datasource.password", POSTGRES.getPassword());

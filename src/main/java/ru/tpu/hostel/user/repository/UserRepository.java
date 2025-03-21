@@ -1,8 +1,6 @@
 package ru.tpu.hostel.user.repository;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -70,8 +68,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
             "AND r.role = :role")
     Page<User> findAllByFullNameWithRole(@Param("fullName") String fullName, @Param("role") Roles role, Pageable pageable);
 
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.role = :role")
-    Page<User> findAllByRole(@Param("role") Roles role, Pageable pageable);
+    Page<User> findAllByRoles_Role(@Param("role") Roles role, Pageable pageable);
 
     @Query("select u.roomNumber from User u where u.id = :id")
     Optional<String> findRoomNumberById(@Param("id") UUID id);
