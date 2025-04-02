@@ -7,16 +7,13 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.exception.AccessException;
+import ru.tpu.hostel.user.common.exception.AccessException;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import javax.crypto.spec.SecretKeySpec;
