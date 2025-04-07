@@ -10,21 +10,18 @@ import ru.tpu.hostel.user.dto.response.RoleResponseDto;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.Roles;
-import ru.tpu.hostel.user.exception.AccessException;
-import ru.tpu.hostel.user.exception.ManageRoleException;
-import ru.tpu.hostel.user.exception.RoleNotFound;
-import ru.tpu.hostel.user.exception.UserNotFound;
+import ru.tpu.hostel.user.common.exception.AccessException;
+import ru.tpu.hostel.user.common.exception.ManageRoleException;
+import ru.tpu.hostel.user.common.exception.RoleNotFound;
+import ru.tpu.hostel.user.common.exception.UserNotFound;
 import ru.tpu.hostel.user.mapper.RoleMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.RoleService;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service

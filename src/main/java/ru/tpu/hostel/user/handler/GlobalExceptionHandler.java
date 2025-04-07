@@ -9,10 +9,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.tpu.hostel.user.exception.AccessException;
-import ru.tpu.hostel.user.exception.IncorrectLogin;
-import ru.tpu.hostel.user.exception.ManageRoleException;
-import ru.tpu.hostel.user.exception.NotFoundException;
+import ru.tpu.hostel.user.common.exception.AccessException;
+import ru.tpu.hostel.user.common.exception.IncorrectLogin;
+import ru.tpu.hostel.user.common.exception.ManageRoleException;
+import ru.tpu.hostel.user.common.exception.NotFoundException;
 
 import java.util.Arrays;
 import java.util.HashMap;

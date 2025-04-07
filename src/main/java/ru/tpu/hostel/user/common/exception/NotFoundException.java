@@ -1,4 +1,4 @@
-package ru.tpu.hostel.user.exception;
+package ru.tpu.hostel.user.common.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String message) {
