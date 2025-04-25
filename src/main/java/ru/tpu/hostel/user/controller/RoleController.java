@@ -1,5 +1,6 @@
 package ru.tpu.hostel.user.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,7 @@ public class RoleController {
     }
 
     @GetMapping("/get/user/roles/all/{userId}")
-    public List<String> getAllRolesByUserId(@PathVariable UUID userId) {
+    public List<String> getAllRolesByUserId(@PathVariable UUID userId, HttpServletRequest req) {
         return roleService.getAllUserRoles(userId);
     }
 

@@ -4,23 +4,24 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.user.common.exception.AccessException;
+import ru.tpu.hostel.user.common.exception.ManageRoleException;
+import ru.tpu.hostel.user.common.exception.RoleNotFound;
+import ru.tpu.hostel.user.common.exception.UserNotFound;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
 import ru.tpu.hostel.user.dto.request.RoleSetDto;
 import ru.tpu.hostel.user.dto.response.RoleResponseDto;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.Roles;
-import ru.tpu.hostel.user.common.exception.AccessException;
-import ru.tpu.hostel.user.common.exception.ManageRoleException;
-import ru.tpu.hostel.user.common.exception.RoleNotFound;
-import ru.tpu.hostel.user.common.exception.UserNotFound;
 import ru.tpu.hostel.user.mapper.RoleMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.RoleService;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Slf4j
@@ -33,7 +34,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public RoleResponseDto setRole(RoleSetDto roleSetDto, List<Roles> userRole, UUID userId) {
-        checkAccessToManageRole(roleSetDto, userRole);
+        if (!Roles.hasPermissionToManageRole(userRole, roleSetDto.role())) {
+            throw new AccessException("У вас нет прав для управления этой ролью");
+        }
 
         if (userRole.contains(roleSetDto.role())) {
             log.info("Передаю роль");
@@ -96,21 +99,12 @@ public class RoleServiceImpl implements RoleService {
 
         List<Role> roles = roleRepository.findByUser(user);
 
-        log.info("{}", roles);
-
-        List<String> allRolesDistinct = new ArrayList<>();
-
+        Set<Roles> allRolesDistinct = new HashSet<>();
         for (Role role : roles) {
-            allRolesDistinct.addAll(role.getRole().getAllInheritedRoles().stream().map(Enum::toString).toList());
+            allRolesDistinct.add(role.getRole());
         }
 
-        log.info("{}", allRolesDistinct);
-
-        allRolesDistinct = allRolesDistinct.stream().distinct().toList();
-
-        log.info("{}", allRolesDistinct);
-
-        return allRolesDistinct;
+        return Roles.getAllInheritedRoles(allRolesDistinct).stream().map(Roles::toString).toList();
     }
 
     @Override
@@ -123,7 +117,9 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> userRole, UUID userId) {
-        checkAccessToManageRole(roleSetDto, userRole);
+        if (!Roles.hasPermissionToManageRole(userRole, roleSetDto.role())) {
+            throw new AccessException("У вас нет прав для управления этой ролью");
+        }
 
         User user = userRepository.findById(roleSetDto.user()).orElseThrow(UserNotFound::new);
 
@@ -136,14 +132,4 @@ public class RoleServiceImpl implements RoleService {
         return ResponseEntity.ok().build();
     }
 
-    private void checkAccessToManageRole(RoleSetDto roleSetDto, List<Roles> userRole) {
-        for (Roles role : userRole) {
-            log.info("{}", role.getAllInheritedRoles());
-            if (role.hasPermissionToManageRole(roleSetDto.role())) {
-                return;
-            }
-        }
-
-        throw new AccessException("У вас нет прав для управления этой ролью");
-    }
 }
