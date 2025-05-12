@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.common.exception.AccessException;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.rmi.server.ServerCloneException;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
@@ -105,7 +106,7 @@ public class JwtService {
 
     public void checkRefreshTokenValidity(String token) {
         if (token == null || token.isBlank()) {
-            throw new AccessException("Token is empty");
+            throw new ServiceException.Unauthorized("Token is empty");
         }
 
         try {
@@ -117,20 +118,20 @@ public class JwtService {
 
             UUID userId = UUID.fromString(claims.get("userId", String.class));
             if (!userId.equals(getUserIdFromToken(token))) {
-                throw new AccessException("Invalid token: userId is missing");
+                throw new ServiceException.Unauthorized("Invalid token: userId is missing");
             }
 
             if (!userRepository.existsById(userId)) {
-                throw new AccessException("User not found");
+                throw new ServiceException.Unauthorized("User not found");
             }
-        } catch (AccessException e) {
+        } catch (ServiceException.Unauthorized e) {
             throw e;
         } catch (ExpiredJwtException e) {
-            throw new AccessException("Token is expired");
+            throw new ServiceException.Unauthorized("Token is expired");
         } catch (MalformedJwtException | SignatureException | UnsupportedJwtException e) {
-            throw new AccessException("Invalid token");
+            throw new ServiceException.Unauthorized("Invalid token");
         } catch (Exception e) {
-            throw new RuntimeException("Error processing JWT", e);
+            throw new ServiceException.InternalServerError("Error processing JWT", e);
         }
     }
 

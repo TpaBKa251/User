@@ -1,8 +1,5 @@
 package ru.tpu.hostel.user.dto.response;
 
-import org.springframework.http.ResponseEntity;
-import ru.tpu.hostel.user.enums.Roles;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;

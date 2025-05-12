@@ -7,10 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.Data;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.repository.util.RepositoryTest;
 
 import java.util.List;

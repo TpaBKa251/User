@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
 import ru.tpu.hostel.user.dto.request.RoleSetDto;
 import ru.tpu.hostel.user.dto.response.RoleResponseDto;
-import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.service.RoleService;
 
 import java.util.Arrays;
@@ -30,15 +30,11 @@ public class RoleController {
 
     private final RoleService roleService;
 
-    @PostMapping("/{userId}/{userRoles}")
+    @PostMapping
     public RoleResponseDto setRoleToUser(
-            @RequestBody @Valid RoleSetDto roleSetDto,
-            @PathVariable Roles[] userRoles,
-            @PathVariable UUID userId
+            @RequestBody @Valid RoleSetDto roleSetDto
     ) {
-        List<Roles> role = Arrays.stream(userRoles).toList();
-        log.info(role.toString());
-        return roleService.setRole(roleSetDto, role, userId);
+        return roleService.setRole(roleSetDto);
     }
 
     @PatchMapping("/edit")
@@ -66,13 +62,11 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
-    @PostMapping("/delete/{userId}/{userRoles}")
+    @PostMapping("/delete/{userId}")
     public ResponseEntity<?> deleteRole(
             @RequestBody @Valid RoleSetDto roleSetDto,
-            @PathVariable Roles[] userRoles,
             @PathVariable UUID userId
     ) {
-        List<Roles> role = Arrays.stream(userRoles).toList();
-        return roleService.deleteRole(roleSetDto, role, userId);
+        return roleService.deleteRole(roleSetDto, userId);
     }
 }

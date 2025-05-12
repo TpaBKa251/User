@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
-import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
 import java.util.Arrays;
@@ -36,11 +36,10 @@ public class UserController {
         return userService.registerUser(userRegisterDto);
     }
 
-    @GetMapping("/profile/{id}")
-    public UserResponseDto getUser(@PathVariable UUID id) {
-        return userService.getUser(id);
+    @GetMapping("/profile")
+    public UserResponseDto getUser() {
+        return userService.getUser();
     }
-
 
     @GetMapping("/get/by/id/{id}")
     public UserShortResponseDto getUserById(@PathVariable UUID id) {

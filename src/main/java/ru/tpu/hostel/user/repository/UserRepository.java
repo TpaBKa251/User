@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.enums.Roles;
 
 import java.util.List;
 import java.util.Optional;

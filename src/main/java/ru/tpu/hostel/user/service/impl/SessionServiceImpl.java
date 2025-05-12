@@ -7,14 +7,16 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.internal.common.logging.LogFilter;
+import ru.tpu.hostel.internal.common.logging.SecretArgument;
+import ru.tpu.hostel.internal.exception.ServiceException;
+import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
 import ru.tpu.hostel.user.dto.response.SessionRefreshResponse;
 import ru.tpu.hostel.user.dto.response.SessionResponseDto;
 import ru.tpu.hostel.user.entity.Session;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.common.exception.AccessException;
-import ru.tpu.hostel.user.common.exception.IncorrectLogin;
-import ru.tpu.hostel.user.common.exception.SessionNotFound;
 import ru.tpu.hostel.user.jwt.JwtService;
 import ru.tpu.hostel.user.repository.SessionRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
@@ -33,11 +35,13 @@ public class SessionServiceImpl implements SessionService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    @Transactional
+    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
-    public SessionResponseDto login(SessionLoginDto sessionLoginDto, HttpServletResponse response) {
+    public SessionResponseDto login(@SecretArgument SessionLoginDto sessionLoginDto, @SecretArgument HttpServletResponse response) {
         User user = userRepository.findByEmail(sessionLoginDto.email())
                 .filter(user1 -> passwordEncoder.matches(sessionLoginDto.password(), user1.getPassword()))
-                .orElseThrow(IncorrectLogin::new);
+                .orElseThrow(ServiceException.Unauthorized::new);
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -64,14 +68,16 @@ public class SessionServiceImpl implements SessionService {
     }
 
 
+    @Transactional
+    @LogFilter(enableParamsLogging = false)
     @Override
-    public ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response) {
+    public ResponseEntity<?> logout(@SecretArgument UUID sessionId, @SecretArgument HttpServletResponse response) {
         // TODO: При логауте слать уведам сообщение по рэббиту об удалении токена уведов
         Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(SessionNotFound::new);
+                .orElseThrow(ServiceException.NotFound::new);
 
-        if (!session.getUserId().getId().equals(userId)) {
-            throw new AccessException("Вы не можете выйти из чужой сессии");
+        if (!session.getUserId().getId().equals(ExecutionContext.get().getUserID())) {
+            throw new ServiceException.Forbidden("Вы не можете выйти из чужой сессии");
         }
 
         session.setRefreshToken(null);
@@ -90,14 +96,16 @@ public class SessionServiceImpl implements SessionService {
         return ResponseEntity.ok().build();
     }
 
+    @Transactional
+    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
-    public SessionRefreshResponse refresh(String refreshToken, HttpServletResponse response) {
+    public SessionRefreshResponse refresh(@SecretArgument String refreshToken, @SecretArgument HttpServletResponse response) {
         jwtService.checkRefreshTokenValidity(refreshToken);
         Session session = sessionRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(SessionNotFound::new);
+                .orElseThrow(ServiceException.NotFound::new);
 
         if (session.getExpirationTime().isBefore(LocalDateTime.now())) {
-            throw new AccessException("Сессия уже потухла");
+            throw new ServiceException.Forbidden("Сессия уже потухла");
         }
 
         String accessToken = jwtService.generateAccessToken(session.getUserId());

@@ -1,17 +1,17 @@
 package ru.tpu.hostel.user.service;
 
 import org.springframework.http.ResponseEntity;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
 import ru.tpu.hostel.user.dto.request.RoleSetDto;
 import ru.tpu.hostel.user.dto.response.RoleResponseDto;
-import ru.tpu.hostel.user.enums.Roles;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface RoleService {
 
-    RoleResponseDto setRole(RoleSetDto roleSetDto, List<Roles> role, UUID userId);
+    RoleResponseDto setRole(RoleSetDto roleSetDto);
 
     RoleResponseDto editRole(RoleEditDto roleEditDto);
 
@@ -23,5 +23,5 @@ public interface RoleService {
 
     List<RoleResponseDto> getUsersWithRole(Roles role);
 
-    ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, List<Roles> role, UUID userId);
+    ResponseEntity<?> deleteRole(RoleSetDto roleSetDto, UUID userId);
 }

@@ -13,6 +13,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.tpu.hostel.internal.common.logging.LogFilter;
+import ru.tpu.hostel.internal.common.logging.SecretArgument;
+import ru.tpu.hostel.internal.exception.ServiceException;
+import ru.tpu.hostel.internal.utils.ExecutionContext;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.client.ClientAdminService;
 import ru.tpu.hostel.user.client.ClientBookingService;
 import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
@@ -31,9 +37,6 @@ import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.enums.BookingStatus;
 import ru.tpu.hostel.user.enums.DocumentType;
-import ru.tpu.hostel.user.enums.Roles;
-import ru.tpu.hostel.user.common.exception.AccessException;
-import ru.tpu.hostel.user.common.exception.UserNotFound;
 import ru.tpu.hostel.user.jwt.JwtService;
 import ru.tpu.hostel.user.mapper.UserMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
@@ -56,7 +59,9 @@ public class UserServiceImpl implements UserDetailsService {
     private final ClientAdminService adminService;
     private final ClientBookingService bookingService;
 
-    public UserResponseDto registerUser(UserRegisterDto userRegisterDto) {
+    @Transactional
+    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
+    public UserResponseDto registerUser(@SecretArgument UserRegisterDto userRegisterDto) {
         User user = UserMapper.mapRegisterDtoToUser(userRegisterDto);
 
         Role role = new Role();
@@ -83,21 +88,20 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
-    public UserResponseDto getUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
+    public UserResponseDto getUser() {
+        User user = userRepository.findById(ExecutionContext.get().getUserID()).orElseThrow(ServiceException.NotFound::new);
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
-
     public UserShortResponseDto getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
+        User user = userRepository.findById(id).orElseThrow(ServiceException.NotFound::new);
 
         return UserMapper.mapUserToUserShortResponseDto(user);
     }
 
     public UserResponseWithRoleDto getUserWithRole(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(UserNotFound::new);
+        User user = userRepository.findById(id).orElseThrow(ServiceException.NotFound::new);
 
         return UserMapper.mapUserToUserResponseWithRoleDto(user);
     }
@@ -115,7 +119,7 @@ public class UserServiceImpl implements UserDetailsService {
         Page<User> users = userRepository.findAllByFilter(firstName, lastName, middleName, room, pageable);
 
         if (users.isEmpty()) {
-            throw new UserNotFound();
+            throw new ServiceException.NotFound();
         }
 
         return users.stream()
@@ -135,10 +139,11 @@ public class UserServiceImpl implements UserDetailsService {
      * @deprecated функционал перенесен в API Gateway
      */
     @Deprecated
+    @LogFilter(enableMethodLogging = false)
     public SuperUserResponseDto getSuperUser(Authentication authentication) {
         UUID userId = jwtService.getUserIdFromToken(authentication);
         User user = userRepository.findById(userId)
-                .orElseThrow(UserNotFound::new);
+                .orElseThrow(ServiceException.NotFound::new);
 
         // Получение баланса
         String responseBalance = adminService.getBalanceShort(userId).toString();
@@ -148,7 +153,7 @@ public class UserServiceImpl implements UserDetailsService {
         try {
             jsonObject = new JSONObject(jsonBody);
         } catch (JSONException e) {
-            throw new UserNotFound("Ошибка при получении баланса пользователя");
+            throw new ServiceException.NotFound("Ошибка при получении баланса пользователя");
         }
         BigDecimal balance = null;
         try {
@@ -173,18 +178,19 @@ public class UserServiceImpl implements UserDetailsService {
      * @deprecated функционал перенесен в API Gateway
      */
     @Deprecated
+    @LogFilter(enableMethodLogging = false)
     public List<AdminUserResponse> getUsersForAdmin(Authentication authentication) {
         UUID userId = jwtService.getUserIdFromToken(authentication);
         List<String> roles = jwtService.getRolesFromToken(authentication);
         log.info(roles.toString());
 
         if (!roles.contains("ROLE_ADMINISTRATION")) {
-            throw new AccessException("Ты не альбина");
+            throw new ServiceException.Unauthorized("Ты не альбина");
         }
 
         List<User> users = userRepository.findAll();
         User albina = userRepository.findById(userId).orElseThrow(
-                () -> new UserNotFound("Альбина не найдена(")
+                () -> new ServiceException.NotFound("Альбина не найдена(")
         );
         users.remove(albina);
         List<AdminUserResponse> adminUserResponses = new ArrayList<>();
@@ -197,7 +203,7 @@ public class UserServiceImpl implements UserDetailsService {
             try {
                 jsonObject = new JSONObject(jsonBody);
             } catch (JSONException e) {
-                throw new UserNotFound("Ошибка при получении баланса пользователя");
+                throw new ServiceException.NotFound("Ошибка при получении баланса пользователя");
             }
             BigDecimal balance = null;
             try {
@@ -234,6 +240,7 @@ public class UserServiceImpl implements UserDetailsService {
                 .toList();
     }
 
+    @LogFilter(enableMethodLogging = false)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return null;
@@ -274,11 +281,11 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public UserShortResponseDto2 getUserByIdShort(UUID id) {
-        return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id).orElseThrow(UserNotFound::new));
+        return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id).orElseThrow(ServiceException.NotFound::new));
     }
 
     public List<UserNameResponseDto> getAllUsersOnFloor(UUID userId, int page, int size) {
-        User user = userRepository.findById(userId).orElseThrow(UserNotFound::new);
+        User user = userRepository.findById(userId).orElseThrow(ServiceException.NotFound::new);
         String roomNumber = user.getRoomNumber();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("roomNumber"));
@@ -291,7 +298,7 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public String getRoomNumberByUserId(UUID userId) {
-        return userRepository.findRoomNumberById(userId).orElseThrow(UserNotFound::new);
+        return userRepository.findRoomNumberById(userId).orElseThrow(ServiceException.NotFound::new);
     }
 
     public List<UserNameResponseDto> getAllUsersInRooms(List<String> roomNumbers) {

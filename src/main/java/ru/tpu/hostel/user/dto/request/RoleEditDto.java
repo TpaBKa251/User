@@ -1,7 +1,7 @@
 package ru.tpu.hostel.user.dto.request;
 
 import jakarta.validation.constraints.NotNull;
-import ru.tpu.hostel.user.enums.Roles;
+import ru.tpu.hostel.internal.utils.Roles;
 
 import java.util.UUID;
 

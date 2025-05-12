@@ -35,13 +35,12 @@ public class SessionController {
         return sessionService.login(sessionLoginDto, response);
     }
 
-    @PatchMapping("/logout/{sessionId}/{userId}")
+    @PatchMapping("/logout/{sessionId}")
     public ResponseEntity<?> logout(
             @PathVariable UUID sessionId,
-            @PathVariable UUID userId,
             HttpServletResponse response
     ) {
-        return sessionService.logout(sessionId, userId, response);
+        return sessionService.logout(sessionId, response);
     }
 
     @GetMapping("/auth/token")

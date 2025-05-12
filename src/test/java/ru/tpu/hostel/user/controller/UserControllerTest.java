@@ -11,9 +11,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.Data;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
-import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.repository.util.PostgresTestContainerExtension;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 

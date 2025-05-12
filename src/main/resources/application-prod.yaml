@@ -1,3 +1,7 @@
 spring:
   datasource:
     url: jdbc:postgresql://82.202.138.26:5430/hostelService
+
+otlp:
+  tracing:
+    endpoint: http://tempo.monitoring.svc.cluster.local:4317

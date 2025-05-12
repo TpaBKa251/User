@@ -12,7 +12,7 @@ public interface SessionService {
 
     SessionResponseDto login(SessionLoginDto sessionLoginDto, HttpServletResponse response);
 
-    ResponseEntity<?> logout(UUID sessionId, UUID userId, HttpServletResponse response);
+    ResponseEntity<?> logout(UUID sessionId, HttpServletResponse response);
 
     SessionRefreshResponse refresh(String refreshToken, HttpServletResponse response);
 }

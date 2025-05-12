@@ -12,7 +12,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import ru.tpu.hostel.user.enums.Roles;
+import ru.tpu.hostel.internal.utils.Roles;
 
 import java.util.UUID;
 

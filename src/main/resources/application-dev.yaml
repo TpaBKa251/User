@@ -4,3 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5430/hostelService
+
+otlp:
+  tracing:
+    export-enabled: false
+    endpoint: http://localhost:4317

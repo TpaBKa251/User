@@ -13,10 +13,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.Data;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.enums.Roles;
 import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 

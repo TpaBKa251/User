@@ -21,8 +21,22 @@ configurations {
     }
 }
 
+def repoUser = project.findProperty("privateRepoUsername") ?: System.getenv("INTERNAL_REPO_LOGIN")
+def repoPass = project.findProperty("privateRepoPassword") ?: System.getenv("INTERNAL_REPO_PASSWORD")
+
 repositories {
     mavenCentral()
+    google()
+    gradlePluginPortal()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven {
+        url "http://82.202.138.26:8081/repository/internal/"
+        allowInsecureProtocol = true
+        credentials {
+            username = repoUser
+            password = repoPass
+        }
+    }
 }
 
 sonarqube {
@@ -38,6 +52,9 @@ sonarqube {
 }
 
 dependencies {
+    implementation 'ru.tpu.hostel:hostel-core:1.0.10'
+    implementation 'ru.tpu.hostel:hostel-feign:1.0.10'
+
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'com.fasterxml.jackson.core:jackson-databind'

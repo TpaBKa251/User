@@ -20,6 +20,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-test
+      args:
+        INTERNAL_REPO_LOGIN: ${INTERNAL_REPO_LOGIN}
+        INTERNAL_REPO_PASSWORD: ${INTERNAL_REPO_PASSWORD}
     container_name: my-app
     depends_on:
       postgres:
@@ -28,6 +31,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/test_db
       SPRING_DATASOURCE_USERNAME: test_user
       SPRING_DATASOURCE_PASSWORD: test_password
+      INTERNAL_REPO_LOGIN: ${INTERNAL_REPO_LOGIN}
+      INTERNAL_REPO_PASSWORD: ${INTERNAL_REPO_PASSWORD}
     ports:
       - "8080:8080"
     healthcheck:
