@@ -5,8 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.common.logging.LogFilter;
 import ru.tpu.hostel.internal.common.logging.SecretArgument;
@@ -30,6 +35,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
+    private static final String DISCOURAGING_EXCEPTION_MESSAGE = "Как вы умудрились это сделать?";
+
+    private static final String SESSION_NOT_FOUND_EXCEPTION_MESSAGE = "Сессия не найдена";
+
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
     private final SessionRepository sessionRepository;
@@ -49,7 +58,7 @@ public class SessionServiceImpl implements SessionService {
     ) {
         User user = userRepository.findByEmail(sessionLoginDto.email())
                 .filter(user1 -> passwordEncoder.matches(sessionLoginDto.password(), user1.getPassword()))
-                .orElseThrow(ServiceException.Unauthorized::new);
+                .orElseThrow(() -> new ServiceException.Unauthorized("Неверные логин или пароль"));
 
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
@@ -75,13 +84,18 @@ public class SessionServiceImpl implements SessionService {
     }
 
 
-    @Transactional
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @LogFilter(enableParamsLogging = false)
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            backoff = @Backoff(delay = 100, multiplier = 2),
+            recover = "recoverLogout"
+    )
     public ResponseEntity<?> logout(@SecretArgument UUID sessionId, @SecretArgument HttpServletResponse response) {
         // TODO: При логауте слать уведам сообщение по рэббиту об удалении токена уведов
-        Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(ServiceException.NotFound::new);
+        Session session = sessionRepository.findByIdOptimistic(sessionId)
+                .orElseThrow(() -> new ServiceException.NotFound(SESSION_NOT_FOUND_EXCEPTION_MESSAGE));
 
         if (!session.getUserId().getId().equals(ExecutionContext.get().getUserID())) {
             throw new ServiceException.Forbidden("Вы не можете выйти из чужой сессии");
@@ -102,16 +116,30 @@ public class SessionServiceImpl implements SessionService {
         return ResponseEntity.ok().build();
     }
 
-    @Transactional
+    @Recover
+    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
+    public ResponseEntity<?> recoverLogout(
+            @SecretArgument ObjectOptimisticLockingFailureException ignoredE,
+            @SecretArgument UUID ignoredSessionId,
+            @SecretArgument HttpServletResponse ignoredResponse) {
+        throw new ServiceException.TooManyRequests(DISCOURAGING_EXCEPTION_MESSAGE);
+    }
+
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
+    @Retryable(
+            retryFor = ObjectOptimisticLockingFailureException.class,
+            backoff = @Backoff(delay = 100, multiplier = 2),
+            recover = "recoverRefresh"
+    )
     public SessionRefreshResponse refresh(
             @SecretArgument String refreshToken,
             @SecretArgument HttpServletResponse response
     ) {
         jwtService.checkRefreshTokenValidity(refreshToken);
         Session session = sessionRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(ServiceException.NotFound::new);
+                .orElseThrow(() -> new ServiceException.NotFound(SESSION_NOT_FOUND_EXCEPTION_MESSAGE));
 
         if (session.getExpirationTime().isBefore(LocalDateTime.now())) {
             throw new ServiceException.Forbidden("Сессия уже потухла");
@@ -135,5 +163,14 @@ public class SessionServiceImpl implements SessionService {
         response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return sessionRefreshResponse;
+    }
+
+    @Recover
+    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
+    public SessionRefreshResponse recoverRefresh(
+            @SecretArgument ObjectOptimisticLockingFailureException e,
+            @SecretArgument String refreshToken,
+            @SecretArgument HttpServletResponse response) {
+        throw new ServiceException.TooManyRequests(DISCOURAGING_EXCEPTION_MESSAGE);
     }
 }

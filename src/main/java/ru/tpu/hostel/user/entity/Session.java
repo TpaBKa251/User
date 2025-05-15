@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,4 +42,8 @@ public class Session {
 
     @Column(name = "refresh_token")
     private String refreshToken;
+
+    @Column(name = "version", nullable = false)
+    @Version
+    private Long version;
 }
