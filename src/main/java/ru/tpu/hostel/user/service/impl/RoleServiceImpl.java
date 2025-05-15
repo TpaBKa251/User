@@ -84,7 +84,7 @@ public class RoleServiceImpl implements RoleService {
         return RoleMapper.mapRoleToRoleResponseDto(role);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     @Retryable(
             retryFor = ObjectOptimisticLockingFailureException.class,
@@ -142,7 +142,7 @@ public class RoleServiceImpl implements RoleService {
                 .toList();
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     @Retryable(
             retryFor = ServiceException.InsufficientStorage.class,

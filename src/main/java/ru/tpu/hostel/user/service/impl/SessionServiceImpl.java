@@ -84,7 +84,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @LogFilter(enableParamsLogging = false)
     @Override
     @Retryable(
@@ -125,7 +125,7 @@ public class SessionServiceImpl implements SessionService {
         throw new ServiceException.TooManyRequests(DISCOURAGING_EXCEPTION_MESSAGE);
     }
 
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
     @Retryable(
