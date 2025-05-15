@@ -157,10 +157,4 @@ public class UserController {
         return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
     }
 
-//    @GetMapping("/get/by/role/{role}")
-//    List<UserShortResponseDto2> getAllUsersWithRole(@PathVariable Roles role) {
-//        return List.of(
-//                new UserShortResponseDto2(UUID.randomUUID(), "Ангелина", "Жукова", "Игнатьевна")
-//        );
-//    }
 }

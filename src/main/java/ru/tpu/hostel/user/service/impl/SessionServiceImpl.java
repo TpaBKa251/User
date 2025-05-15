@@ -30,15 +30,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 
+    private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
+
     private final SessionRepository sessionRepository;
+
     private final UserRepository userRepository;
+
     private final PasswordEncoder passwordEncoder;
+
     private final JwtService jwtService;
 
     @Transactional
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
-    public SessionResponseDto login(@SecretArgument SessionLoginDto sessionLoginDto, @SecretArgument HttpServletResponse response) {
+    public SessionResponseDto login(
+            @SecretArgument SessionLoginDto sessionLoginDto,
+            @SecretArgument HttpServletResponse response
+    ) {
         User user = userRepository.findByEmail(sessionLoginDto.email())
                 .filter(user1 -> passwordEncoder.matches(sessionLoginDto.password(), user1.getPassword()))
                 .orElseThrow(ServiceException.Unauthorized::new);
@@ -51,10 +59,9 @@ public class SessionServiceImpl implements SessionService {
         session.setCreateTime(LocalDateTime.now());
         session.setExpirationTime(LocalDateTime.now().plusDays(30));
         session.setRefreshToken(refreshToken);
-
         sessionRepository.save(session);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, refreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -81,10 +88,9 @@ public class SessionServiceImpl implements SessionService {
         }
 
         session.setRefreshToken(null);
-
         sessionRepository.save(session);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", "")
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -99,7 +105,10 @@ public class SessionServiceImpl implements SessionService {
     @Transactional
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
-    public SessionRefreshResponse refresh(@SecretArgument String refreshToken, @SecretArgument HttpServletResponse response) {
+    public SessionRefreshResponse refresh(
+            @SecretArgument String refreshToken,
+            @SecretArgument HttpServletResponse response
+    ) {
         jwtService.checkRefreshTokenValidity(refreshToken);
         Session session = sessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(ServiceException.NotFound::new);
@@ -116,7 +125,7 @@ public class SessionServiceImpl implements SessionService {
         session.setExpirationTime(LocalDateTime.now().plusDays(30));
         sessionRepository.save(session);
 
-        ResponseCookie cookie = ResponseCookie.from("refreshToken", newRefreshToken)
+        ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, newRefreshToken)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")

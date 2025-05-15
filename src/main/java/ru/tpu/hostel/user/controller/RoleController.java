@@ -18,7 +18,6 @@ import ru.tpu.hostel.user.dto.request.RoleSetDto;
 import ru.tpu.hostel.user.dto.response.RoleResponseDto;
 import ru.tpu.hostel.user.service.RoleService;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,11 +61,8 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
-    @PostMapping("/delete/{userId}")
-    public ResponseEntity<?> deleteRole(
-            @RequestBody @Valid RoleSetDto roleSetDto,
-            @PathVariable UUID userId
-    ) {
-        return roleService.deleteRole(roleSetDto, userId);
+    @PostMapping("/delete")
+    public ResponseEntity<?> deleteRole(@RequestBody @Valid RoleSetDto roleSetDto) {
+        return roleService.deleteRole(roleSetDto);
     }
 }

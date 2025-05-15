@@ -2,13 +2,10 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,14 +17,9 @@ import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.client.ClientAdminService;
-import ru.tpu.hostel.user.client.ClientBookingService;
 import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
 import ru.tpu.hostel.user.dto.request.DocumentRequestDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
-import ru.tpu.hostel.user.dto.response.ActiveEventDto;
-import ru.tpu.hostel.user.dto.response.AdminUserResponse;
-import ru.tpu.hostel.user.dto.response.CertificateDto;
-import ru.tpu.hostel.user.dto.response.SuperUserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
@@ -35,16 +27,12 @@ import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
-import ru.tpu.hostel.user.enums.BookingStatus;
-import ru.tpu.hostel.user.enums.DocumentType;
-import ru.tpu.hostel.user.jwt.JwtService;
 import ru.tpu.hostel.user.mapper.UserMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,11 +41,11 @@ import java.util.UUID;
 @Slf4j
 public class UserServiceImpl implements UserDetailsService {
 
-    private final JwtService jwtService;
     private final UserRepository userRepository;
+
     private final RoleRepository roleRepository;
+
     private final ClientAdminService adminService;
-    private final ClientBookingService bookingService;
 
     @Transactional
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
@@ -133,92 +121,6 @@ public class UserServiceImpl implements UserDetailsService {
         return userRepository.findAllByFullName(name == null ? "" : name, pageable).stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
-    }
-
-    /**
-     * @deprecated функционал перенесен в API Gateway
-     */
-    @Deprecated
-    @LogFilter(enableMethodLogging = false)
-    public SuperUserResponseDto getSuperUser(Authentication authentication) {
-        UUID userId = jwtService.getUserIdFromToken(authentication);
-        User user = userRepository.findById(userId)
-                .orElseThrow(ServiceException.NotFound::new);
-
-        // Получение баланса
-        String responseBalance = adminService.getBalanceShort(userId).toString();
-        String jsonBody =
-                responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
-        JSONObject jsonObject;
-        try {
-            jsonObject = new JSONObject(jsonBody);
-        } catch (JSONException e) {
-            throw new ServiceException.NotFound("Ошибка при получении баланса пользователя");
-        }
-        BigDecimal balance = null;
-        try {
-            balance = BigDecimal.valueOf(jsonObject.getDouble("balance"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Получение сертификатов
-        CertificateDto certificateFluorography = (adminService.getDocumentByType(userId, DocumentType.FLUOROGRAPHY));
-        CertificateDto certificatePediculosis = (adminService.getDocumentByType(userId, DocumentType.CERTIFICATE));
-
-        List<ActiveEventDto> activeEvents = new ArrayList<>();
-        activeEvents.addAll((bookingService.getAllByStatus(BookingStatus.BOOKED, userId)));
-        activeEvents.addAll((bookingService.getAllByStatus(BookingStatus.IN_PROGRESS, userId)));
-
-        return UserMapper.SuperMapper(user, balance, certificateFluorography, certificatePediculosis, activeEvents);
-    }
-
-
-    /**
-     * @deprecated функционал перенесен в API Gateway
-     */
-    @Deprecated
-    @LogFilter(enableMethodLogging = false)
-    public List<AdminUserResponse> getUsersForAdmin(Authentication authentication) {
-        UUID userId = jwtService.getUserIdFromToken(authentication);
-        List<String> roles = jwtService.getRolesFromToken(authentication);
-        log.info(roles.toString());
-
-        if (!roles.contains("ROLE_ADMINISTRATION")) {
-            throw new ServiceException.Unauthorized("Ты не альбина");
-        }
-
-        List<User> users = userRepository.findAll();
-        User albina = userRepository.findById(userId).orElseThrow(
-                () -> new ServiceException.NotFound("Альбина не найдена(")
-        );
-        users.remove(albina);
-        List<AdminUserResponse> adminUserResponses = new ArrayList<>();
-
-        for (User user : users) {
-            String responseBalance = adminService.getBalanceShort(user.getId()).toString();
-            String jsonBody =
-                    responseBalance.substring(responseBalance.indexOf("{"), responseBalance.lastIndexOf("}") + 1);
-            JSONObject jsonObject;
-            try {
-                jsonObject = new JSONObject(jsonBody);
-            } catch (JSONException e) {
-                throw new ServiceException.NotFound("Ошибка при получении баланса пользователя");
-            }
-            BigDecimal balance = null;
-            try {
-                balance = BigDecimal.valueOf(jsonObject.getDouble("balance"));
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
-
-            CertificateDto certificateFluorography = (adminService.getDocumentByType(user.getId(), DocumentType.FLUOROGRAPHY));
-            CertificateDto certificatePediculosis = (adminService.getDocumentByType(user.getId(), DocumentType.CERTIFICATE));
-
-            adminUserResponses.add(UserMapper.mapUserToAdminUserResponse(user, certificatePediculosis, certificateFluorography, balance));
-        }
-
-        return adminUserResponses;
     }
 
     public List<String> getNamesLike(String firstName, String lastName, String middleName) {

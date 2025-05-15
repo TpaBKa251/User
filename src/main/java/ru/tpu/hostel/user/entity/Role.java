@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import ru.tpu.hostel.internal.utils.Roles;
@@ -34,4 +35,9 @@ public class Role {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Roles role;
+
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+
 }
