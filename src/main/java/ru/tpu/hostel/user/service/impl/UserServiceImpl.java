@@ -2,7 +2,6 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,9 +15,7 @@ import ru.tpu.hostel.internal.common.logging.SecretArgument;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
-import ru.tpu.hostel.user.client.ClientAdminService;
-import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
-import ru.tpu.hostel.user.dto.request.DocumentRequestDto;
+import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
@@ -27,6 +24,10 @@ import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
+import ru.tpu.hostel.user.external.rest.admin.ClientAdminService;
+import ru.tpu.hostel.user.external.rest.admin.dto.DocumentType;
+import ru.tpu.hostel.user.external.rest.admin.dto.request.BalanceRequestDto;
+import ru.tpu.hostel.user.external.rest.admin.dto.request.DocumentRequestDto;
 import ru.tpu.hostel.user.mapper.UserMapper;
 import ru.tpu.hostel.user.repository.RoleRepository;
 import ru.tpu.hostel.user.repository.UserRepository;
@@ -36,10 +37,19 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.CERTIFICATE;
+import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAPHY;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserDetailsService {
+    
+    private static final String USER_NOT_FOUND_MESSAGE = "Пользователь не найден";
+    
+    private static final String ID = "id";
+
+    private static final LocalDate DEFAULT_DATE_OF_DOCUMENT = LocalDate.of(0, 1, 1);
 
     private final UserRepository userRepository;
 
@@ -60,36 +70,38 @@ public class UserServiceImpl implements UserDetailsService {
         roleRepository.save(role);
 
         adminService.addBalance(new BalanceRequestDto(user.getId(), BigDecimal.ZERO));
-        adminService.addDocument(new DocumentRequestDto(
-                user.getId(),
-                "CERTIFICATE",
-                LocalDate.of(0, 1, 1),
-                LocalDate.now()
-        ));
-        adminService.addDocument(new DocumentRequestDto(
-                user.getId(),
-                "FLUOROGRAPHY",
-                LocalDate.of(0, 1, 1),
-                LocalDate.now()
-        ));
+        adminService.addDocument(getDocumentRequestDto(user.getId(), CERTIFICATE));
+        adminService.addDocument(getDocumentRequestDto(user.getId(), FLUOROGRAPHY));
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
+    private DocumentRequestDto getDocumentRequestDto(UUID userId, DocumentType documentType) {
+        return new DocumentRequestDto(
+                userId,
+                documentType.name(),
+                DEFAULT_DATE_OF_DOCUMENT,
+                TimeUtil.now().toLocalDate()
+        );
+    }
+
     public UserResponseDto getUser() {
-        User user = userRepository.findById(ExecutionContext.get().getUserID()).orElseThrow(ServiceException.NotFound::new);
+        User user = userRepository.findById(ExecutionContext.get().getUserID())
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
 
         return UserMapper.mapUserToUserResponseDto(user);
     }
 
     public UserShortResponseDto getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(ServiceException.NotFound::new);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
 
         return UserMapper.mapUserToUserShortResponseDto(user);
     }
 
     public UserResponseWithRoleDto getUserWithRole(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(ServiceException.NotFound::new);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
 
         return UserMapper.mapUserToUserResponseWithRoleDto(user);
     }
@@ -102,22 +114,14 @@ public class UserServiceImpl implements UserDetailsService {
             String middleName,
             String room
     ) {
-
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-        Page<User> users = userRepository.findAllByFilter(firstName, lastName, middleName, room, pageable);
-
-        if (users.isEmpty()) {
-            throw new ServiceException.NotFound();
-        }
-
-        return users.stream()
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
+        return userRepository.findAllByFilter(firstName, lastName, middleName, room, pageable).stream()
                 .map(UserMapper::mapUserToUserResponseDto)
                 .toList();
     }
 
     public List<UserShortResponseDto2> getUserByName(String name, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
         return userRepository.findAllByFullName(name == null ? "" : name, pageable).stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
                 .toList();
@@ -149,8 +153,7 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public List<UserShortResponseDto2> getUserByNameWithRole(String name, Roles role, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
         return userRepository.findAllByFullNameWithRole(name == null ? "" : name, role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
@@ -158,8 +161,7 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
         return userRepository.findAllByRoles_Role(role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
@@ -167,8 +169,7 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public List<UserShortResponseDto2> getUserByNameWithoutRole(String name, Roles role, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
         return userRepository.findAllByFullNameWithoutRole(name == null ? "" : name, role, pageable)
                 .stream()
                 .map(UserMapper::mapUserToUserShortResponseDto2)
@@ -183,11 +184,13 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public UserShortResponseDto2 getUserByIdShort(UUID id) {
-        return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id).orElseThrow(ServiceException.NotFound::new));
+        return UserMapper.mapUserToUserShortResponseDto2(userRepository.findById(id)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE)));
     }
 
     public List<UserNameResponseDto> getAllUsersOnFloor(UUID userId, int page, int size) {
-        User user = userRepository.findById(userId).orElseThrow(ServiceException.NotFound::new);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
         String roomNumber = user.getRoomNumber();
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("roomNumber"));
@@ -200,7 +203,8 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     public String getRoomNumberByUserId(UUID userId) {
-        return userRepository.findRoomNumberById(userId).orElseThrow(ServiceException.NotFound::new);
+        return userRepository.findRoomNumberById(userId)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
     }
 
     public List<UserNameResponseDto> getAllUsersInRooms(List<String> roomNumbers) {

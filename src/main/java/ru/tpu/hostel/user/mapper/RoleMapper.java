@@ -1,10 +1,10 @@
 package ru.tpu.hostel.user.mapper;
 
-import org.springframework.stereotype.Component;
+import lombok.experimental.UtilityClass;
 import ru.tpu.hostel.user.dto.response.RoleResponseDto;
 import ru.tpu.hostel.user.entity.Role;
 
-@Component
+@UtilityClass
 public class RoleMapper {
 
     public static RoleResponseDto mapRoleToRoleResponseDto(Role role) {

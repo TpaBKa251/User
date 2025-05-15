@@ -1,4 +1,4 @@
-package ru.tpu.hostel.user.dto.request;
+package ru.tpu.hostel.user.external.rest.admin.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 

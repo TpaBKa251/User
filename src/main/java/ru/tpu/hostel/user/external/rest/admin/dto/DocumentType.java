@@ -1,4 +1,4 @@
-package ru.tpu.hostel.user.enums;
+package ru.tpu.hostel.user.external.rest.admin.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

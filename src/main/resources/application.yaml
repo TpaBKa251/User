@@ -65,3 +65,7 @@ otlp:
     endpoint: http://tempo:4317
     timeout: 5000
     service-name: user-service
+
+rest:
+  base-url:
+    admin-service: http://administrationservice:8080

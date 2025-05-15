@@ -1,4 +1,4 @@
-package ru.tpu.hostel.user.client;
+package ru.tpu.hostel.user.external.rest.admin;
 
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import ru.tpu.hostel.user.dto.request.BalanceRequestDto;
-import ru.tpu.hostel.user.dto.request.DocumentRequestDto;
-import ru.tpu.hostel.user.dto.response.CertificateDto;
-import ru.tpu.hostel.user.enums.DocumentType;
+import ru.tpu.hostel.user.external.rest.admin.dto.request.BalanceRequestDto;
+import ru.tpu.hostel.user.external.rest.admin.dto.request.DocumentRequestDto;
+import ru.tpu.hostel.user.external.rest.admin.dto.resoinse.CertificateDto;
+import ru.tpu.hostel.user.external.rest.admin.dto.DocumentType;
 
 import java.util.UUID;
 
 
 @Component
-@FeignClient(name = "administration-administrationservice", url = "http://administrationservice:8080")
+@FeignClient(name = "administration-administrationservice", url = "${rest.base-url.admin-service}")
 public interface ClientAdminService {
 
     @GetMapping("balance/get/short/{id}")
