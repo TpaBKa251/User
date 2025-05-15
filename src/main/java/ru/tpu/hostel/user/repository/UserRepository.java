@@ -74,7 +74,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<String> findRoomNumberById(@Param("id") UUID id);
 
     Page<User> findAllByRoomNumberStartingWithOrderByRoomNumber(
-            @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой") String floor,
+            @Pattern(regexp = "\\d", message = "Этаж должен быть одной цифрой") @Param("floor") String floor,
             Pageable pageable
     );
 
