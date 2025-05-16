@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
@@ -62,8 +63,8 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteRole(@RequestBody @Valid RoleSetDto roleSetDto) {
-        return roleService.deleteRole(roleSetDto);
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteRole(@PathVariable UUID userId, @RequestParam(name = "role") Roles role) {
+        return roleService.deleteRole(userId, role);
     }
 }

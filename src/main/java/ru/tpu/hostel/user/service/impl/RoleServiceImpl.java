@@ -149,19 +149,19 @@ public class RoleServiceImpl implements RoleService {
             maxAttempts = 2,
             backoff = @Backoff(delay = 50, multiplier = 1)
     )
-    public ResponseEntity<?> deleteRole(RoleSetDto roleSetDto) {
-        if (!Roles.hasPermissionToManageRole(ExecutionContext.get().getUserRoles(), roleSetDto.role())) {
+    public ResponseEntity<?> deleteRole(UUID userId, Roles role) {
+        if (!Roles.hasPermissionToManageRole(ExecutionContext.get().getUserRoles(), role)) {
             throw new ServiceException.Forbidden(ROLE_MANAGEMENT_EXCEPTION_MESSAGE);
         }
 
-        User user = userRepository.findById(roleSetDto.user())
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
 
-        if (!user.getRoles().removeIf(r -> r.getRole().equals(roleSetDto.role()))) {
-            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с роли. Попробуйте позже.");
-        }
+//        if (!user.getRoles().removeIf(r -> r.getRole().equals(role))) {
+//            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с роли. Попробуйте позже.");
+//        }
 
-        roleRepository.deleteByUserAndRole(user, roleSetDto.role());
+        roleRepository.deleteByUserAndRole(user, role);
 
         return ResponseEntity.ok().build();
     }
