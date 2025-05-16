@@ -157,9 +157,9 @@ public class RoleServiceImpl implements RoleService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
 
-//        if (!user.getRoles().removeIf(r -> r.getRole().equals(role))) {
-//            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с роли. Попробуйте позже.");
-//        }
+        if (!user.getRoles().removeIf(r -> r.getRole().equals(role))) {
+            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с роли. Попробуйте позже.");
+        }
 
         roleRepository.deleteByUserAndRole(user, role);
 
