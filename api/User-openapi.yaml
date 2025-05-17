@@ -1,0 +1,953 @@
+openapi: "3.1.0"
+info:
+  title: "User API"
+  description: "User API"
+  version: "1.0.0"
+servers:
+  - url: "https://User"
+paths:
+  /sessions/logout/{sessionId}:
+    patch:
+      summary: "PATCH sessions/logout/{sessionId}"
+      operationId: "logout"
+      parameters:
+        - name: "sessionId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /sessions:
+    post:
+      summary: "POST sessions"
+      operationId: "login"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionLoginDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionResponseDto"
+  /sessions/auth/token:
+    post:
+      summary: "POST sessions/auth/token"
+      operationId: "refreshTokenPost"
+      parameters:
+        - name: "refreshToken"
+          in: "cookie"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionRefreshResponse"
+    get:
+      summary: "GET sessions/auth/token"
+      operationId: "refreshToken"
+      parameters:
+        - name: "refreshToken"
+          in: "cookie"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/SessionRefreshResponse"
+  /users:
+    post:
+      summary: "POST users"
+      operationId: "registerUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegisterDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+  /users/profile:
+    get:
+      summary: "GET users/profile"
+      operationId: "getUser"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+  /users/get/by/id/{id}:
+    get:
+      summary: "GET users/get/by/id/{id}"
+      operationId: "getUserById"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserShortResponseDto"
+  /users/get/by/id/short/{id}:
+    get:
+      summary: "GET users/get/by/id/short/{id}"
+      operationId: "getUserByIdShort"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/with/roles/{id}:
+    get:
+      summary: "GET users/get/with/roles/{id}"
+      operationId: "getUserWithRoles"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/UserResponseWithRoleDto"
+  /users/get/all:
+    get:
+      summary: "GET users/get/all"
+      operationId: "getAllUsers"
+      parameters:
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "1000000000"
+        - name: "firstName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "lastName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "middleName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "room"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserResponseDto"
+  /users/get:
+    get:
+      summary: "GET users/get"
+      operationId: "getAllUsersWithName"
+      parameters:
+        - name: "firstName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "lastName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+        - name: "middleName"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+  /users/get/all/by/ids:
+    get:
+      summary: "GET users/get/all/by/ids"
+      operationId: "getAllUsersWithIds"
+      parameters:
+        - name: "ids"
+          in: "query"
+          required: true
+          schema:
+            type: "array"
+            items:
+              type: "string"
+              format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserResponseDto"
+  /users/get/all/by/ids/short:
+    get:
+      summary: "GET users/get/all/by/ids/short"
+      operationId: "getAllUsersWithIdsShort"
+      parameters:
+        - name: "ids"
+          in: "query"
+          required: true
+          schema:
+            type: "array"
+            items:
+              type: "string"
+              format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/by/name:
+    get:
+      summary: "GET users/get/by/name"
+      operationId: "getUsersByName"
+      parameters:
+        - name: "name"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "page"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "size"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/by/role:
+    get:
+      summary: "GET users/get/by/role"
+      operationId: "getUsersByRole"
+      parameters:
+        - name: "role"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "ADMINISTRATION"
+              - "HOSTEL_SUPERVISOR"
+              - "FLOOR_SUPERVISOR"
+              - "RESPONSIBLE_KITCHEN"
+              - "RESPONSIBLE_HALL"
+              - "RESPONSIBLE_GYM"
+              - "WORKER_GYM"
+              - "RESPONSIBLE_FIRE_SAFETY"
+              - "RESPONSIBLE_SANITARY"
+              - "RESPONSIBLE_INTERNET"
+              - "RESPONSIBLE_SOOP"
+              - "WORKER_FIRE_SAFETY"
+              - "WORKER_SANITARY"
+              - "WORKER_SOOP"
+              - "STUDENT"
+        - name: "page"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "size"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/by/name/with/role:
+    get:
+      summary: "GET users/get/by/name/with/role"
+      operationId: "getUsersByNameWithRole"
+      parameters:
+        - name: "name"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "role"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "ADMINISTRATION"
+              - "HOSTEL_SUPERVISOR"
+              - "FLOOR_SUPERVISOR"
+              - "RESPONSIBLE_KITCHEN"
+              - "RESPONSIBLE_HALL"
+              - "RESPONSIBLE_GYM"
+              - "WORKER_GYM"
+              - "RESPONSIBLE_FIRE_SAFETY"
+              - "RESPONSIBLE_SANITARY"
+              - "RESPONSIBLE_INTERNET"
+              - "RESPONSIBLE_SOOP"
+              - "WORKER_FIRE_SAFETY"
+              - "WORKER_SANITARY"
+              - "WORKER_SOOP"
+              - "STUDENT"
+        - name: "page"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "size"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/by/name/without/role:
+    get:
+      summary: "GET users/get/by/name/without/role"
+      operationId: "getUsersByNameWithoutRole"
+      parameters:
+        - name: "name"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
+            default: ""
+        - name: "role"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "ADMINISTRATION"
+              - "HOSTEL_SUPERVISOR"
+              - "FLOOR_SUPERVISOR"
+              - "RESPONSIBLE_KITCHEN"
+              - "RESPONSIBLE_HALL"
+              - "RESPONSIBLE_GYM"
+              - "WORKER_GYM"
+              - "RESPONSIBLE_FIRE_SAFETY"
+              - "RESPONSIBLE_SANITARY"
+              - "RESPONSIBLE_INTERNET"
+              - "RESPONSIBLE_SOOP"
+              - "WORKER_FIRE_SAFETY"
+              - "WORKER_SANITARY"
+              - "WORKER_SOOP"
+              - "STUDENT"
+        - name: "page"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+        - name: "size"
+          in: "query"
+          required: true
+          schema:
+            type: "integer"
+            format: "int32"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+  /users/get/all/on/floor/{userId}:
+    get:
+      summary: "GET users/get/all/on/floor/{userId}"
+      operationId: "getAllOnFloor"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+        - name: "page"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "0"
+        - name: "size"
+          in: "query"
+          required: false
+          schema:
+            type: "integer"
+            format: "int32"
+            default: "10"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserNameResponseDto"
+  /users/get/room/{userId}:
+    get:
+      summary: "GET users/get/room/{userId}"
+      operationId: "getRoomNumber"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "string"
+  /users/get/all/in/rooms:
+    get:
+      summary: "GET users/get/all/in/rooms"
+      operationId: "getAllInRooms"
+      parameters:
+        - name: "roomNumbers"
+          in: "query"
+          required: true
+          schema:
+            type: "array"
+            items:
+              type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/UserNameResponseDto"
+  /users/get/all/in/rooms/with/id:
+    get:
+      summary: "GET users/get/all/in/rooms/with/id"
+      operationId: "getAllInRoomsWithId"
+      parameters:
+        - name: "roomNumbers"
+          in: "query"
+          required: true
+          schema:
+            type: "array"
+            items:
+              type: "string"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+                  format: "uuid"
+  /roles/edit:
+    patch:
+      summary: "PATCH roles/edit"
+      operationId: "editRole"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleEditDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RoleResponseDto"
+  /roles:
+    post:
+      summary: "POST roles"
+      operationId: "setRoleToUser"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleSetDto"
+        required: true
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RoleResponseDto"
+  /roles/{userId}:
+    delete:
+      summary: "DELETE roles/{userId}"
+      operationId: "deleteRole"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+        - name: "role"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "ADMINISTRATION"
+              - "HOSTEL_SUPERVISOR"
+              - "FLOOR_SUPERVISOR"
+              - "RESPONSIBLE_KITCHEN"
+              - "RESPONSIBLE_HALL"
+              - "RESPONSIBLE_GYM"
+              - "WORKER_GYM"
+              - "RESPONSIBLE_FIRE_SAFETY"
+              - "RESPONSIBLE_SANITARY"
+              - "RESPONSIBLE_INTERNET"
+              - "RESPONSIBLE_SOOP"
+              - "WORKER_FIRE_SAFETY"
+              - "WORKER_SANITARY"
+              - "WORKER_SOOP"
+              - "STUDENT"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "object"
+  /roles/get/{id}:
+    get:
+      summary: "GET roles/get/{id}"
+      operationId: "getRole"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/RoleResponseDto"
+  /roles/get/user/roles/{userId}:
+    get:
+      summary: "GET roles/get/user/roles/{userId}"
+      operationId: "getRoleByUserId"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RoleResponseDto"
+  /roles/get/user/roles/all/{userId}:
+    get:
+      summary: "GET roles/get/user/roles/all/{userId}"
+      operationId: "getAllRolesByUserId"
+      parameters:
+        - name: "userId"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            format: "uuid"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  type: "string"
+  /roles/get/roles/{role}:
+    get:
+      summary: "GET roles/get/roles/{role}"
+      operationId: "getRolesByRole"
+      parameters:
+        - name: "role"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "ADMINISTRATION"
+              - "HOSTEL_SUPERVISOR"
+              - "FLOOR_SUPERVISOR"
+              - "RESPONSIBLE_KITCHEN"
+              - "RESPONSIBLE_HALL"
+              - "RESPONSIBLE_GYM"
+              - "WORKER_GYM"
+              - "RESPONSIBLE_FIRE_SAFETY"
+              - "RESPONSIBLE_SANITARY"
+              - "RESPONSIBLE_INTERNET"
+              - "RESPONSIBLE_SOOP"
+              - "WORKER_FIRE_SAFETY"
+              - "WORKER_SANITARY"
+              - "WORKER_SOOP"
+              - "STUDENT"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            '*/*':
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/RoleResponseDto"
+components:
+  schemas:
+    SessionLoginDto:
+      type: "object"
+      properties:
+        email:
+          type: "string"
+          nullable: true
+        password:
+          type: "string"
+          nullable: true
+    SessionResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        accessToken:
+          type: "string"
+          nullable: true
+    SessionRefreshResponse:
+      type: "object"
+      properties:
+        token:
+          type: "string"
+          nullable: true
+    UserRegisterDto:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+        email:
+          type: "string"
+          nullable: true
+        phoneNumber:
+          type: "string"
+          nullable: true
+        password:
+          type: "string"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+    UserResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+        email:
+          type: "string"
+          nullable: true
+        phoneNumber:
+          type: "string"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+    UserShortResponseDto:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+        email:
+          type: "string"
+          nullable: true
+        phoneNumber:
+          type: "string"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+    UserShortResponseDto2:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+    UserResponseWithRoleDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+        email:
+          type: "string"
+          nullable: true
+        phoneNumber:
+          type: "string"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+        roles:
+          type: "array"
+          nullable: true
+          items:
+            type: "string"
+    UserNameResponseDto:
+      type: "object"
+      properties:
+        firstName:
+          type: "string"
+          nullable: true
+        lastName:
+          type: "string"
+          nullable: true
+        middleName:
+          type: "string"
+          nullable: true
+        roomNumber:
+          type: "string"
+          nullable: true
+    RoleEditDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        role:
+          type: "string"
+          nullable: true
+          enum:
+            - "ADMINISTRATION"
+            - "HOSTEL_SUPERVISOR"
+            - "FLOOR_SUPERVISOR"
+            - "RESPONSIBLE_KITCHEN"
+            - "RESPONSIBLE_HALL"
+            - "RESPONSIBLE_GYM"
+            - "WORKER_GYM"
+            - "RESPONSIBLE_FIRE_SAFETY"
+            - "RESPONSIBLE_SANITARY"
+            - "RESPONSIBLE_INTERNET"
+            - "RESPONSIBLE_SOOP"
+            - "WORKER_FIRE_SAFETY"
+            - "WORKER_SANITARY"
+            - "WORKER_SOOP"
+            - "STUDENT"
+    RoleResponseDto:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        user:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        role:
+          type: "string"
+          nullable: true
+    RoleSetDto:
+      type: "object"
+      properties:
+        user:
+          type: "string"
+          format: "uuid"
+          nullable: true
+        role:
+          type: "string"
+          nullable: true
+          enum:
+            - "ADMINISTRATION"
+            - "HOSTEL_SUPERVISOR"
+            - "FLOOR_SUPERVISOR"
+            - "RESPONSIBLE_KITCHEN"
+            - "RESPONSIBLE_HALL"
+            - "RESPONSIBLE_GYM"
+            - "WORKER_GYM"
+            - "RESPONSIBLE_FIRE_SAFETY"
+            - "RESPONSIBLE_SANITARY"
+            - "RESPONSIBLE_INTERNET"
+            - "RESPONSIBLE_SOOP"
+            - "WORKER_FIRE_SAFETY"
+            - "WORKER_SANITARY"
+            - "WORKER_SOOP"
+            - "STUDENT"

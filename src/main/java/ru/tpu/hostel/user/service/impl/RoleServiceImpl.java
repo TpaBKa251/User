@@ -2,6 +2,7 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
@@ -36,6 +37,8 @@ public class RoleServiceImpl implements RoleService {
     private static final String ROLE_NOT_FOUND_EXCEPTION_MESSAGE = "Роль не найдена";
 
     private static final String USER_NOT_FOUND_EXCEPTION_MESSAGE = "Пользователь не найден";
+
+    private static final String USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE = "Пользователь уже назначен на эту роль";
 
     private final RoleRepository roleRepository;
 
@@ -78,10 +81,11 @@ public class RoleServiceImpl implements RoleService {
         Role role = new Role();
         role.setRole(roleSetDto.role());
         role.setUser(user);
-
-        roleRepository.save(role);
-
-        return RoleMapper.mapRoleToRoleResponseDto(role);
+        try {
+            return RoleMapper.mapRoleToRoleResponseDto(roleRepository.save(role));
+        } catch (ConstraintViolationException e) {
+            throw new ServiceException.Conflict(USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE);
+        }
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -100,14 +104,17 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new ServiceException.NotFound(ROLE_NOT_FOUND_EXCEPTION_MESSAGE));
 
         role.setRole(roleEditDto.role());
-        roleRepository.save(role);
 
-        return RoleMapper.mapRoleToRoleResponseDto(role);
+        try {
+            return RoleMapper.mapRoleToRoleResponseDto(roleRepository.save(role));
+        } catch (ConstraintViolationException e) {
+            throw new ServiceException.Conflict(USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE);
+        }
     }
 
     @Recover
     public RoleResponseDto recoverEditRole(ObjectOptimisticLockingFailureException e, RoleEditDto roleEditDto) {
-        throw new ServiceException.Conflict("Не удалось отредактировать роль. Попробуйте позже");
+        throw new ServiceException.Conflict("Кто-то уже изменил роль. Обновите данные и повторите попытку");
     }
 
     @Override

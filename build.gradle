@@ -52,8 +52,8 @@ sonarqube {
 }
 
 dependencies {
-    implementation 'ru.tpu.hostel:hostel-core:1.0.10'
-    implementation 'ru.tpu.hostel:hostel-feign:1.0.10'
+    implementation 'ru.tpu.hostel:hostel-core:1.1.1'
+    implementation 'ru.tpu.hostel:hostel-feign:1.1.1'
 
     compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
