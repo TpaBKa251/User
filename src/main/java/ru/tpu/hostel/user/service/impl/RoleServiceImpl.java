@@ -131,7 +131,10 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<String> getAllUserRoles(UUID userId) {
-        return Roles.getAllInheritedRoles(ExecutionContext.get().getUserRoles()).stream().map(Roles::toString).toList();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
+        List<Roles> roles = roleRepository.findByUser(user).stream().map(Role::getRole).toList();
+        return Roles.getAllInheritedRoles(roles).stream().map(Roles::toString).toList();
     }
 
     @Override
