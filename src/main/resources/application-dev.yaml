@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+jwt:
+  accessTokenLifetime: 36500d
+  refreshTokenLifetime: 365000d
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5430/hostelService
