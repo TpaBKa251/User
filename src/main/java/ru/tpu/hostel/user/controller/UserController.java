@@ -3,12 +3,14 @@ package ru.tpu.hostel.user.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
@@ -31,6 +33,7 @@ public class UserController {
 
     private final UserServiceImpl userService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public UserResponseDto registerUser(@RequestBody @Valid UserRegisterDto userRegisterDto) {
         return userService.registerUser(userRegisterDto);

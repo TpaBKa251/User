@@ -67,7 +67,9 @@ public class UserServiceImpl implements UserDetailsService {
         role.setRole(Roles.STUDENT);
 
         user = userRepository.save(user);
+        userRepository.flush();
         roleRepository.save(role);
+        roleRepository.flush();
 
         adminService.addBalance(new BalanceRequestDto(user.getId(), BigDecimal.ZERO));
         adminService.addDocument(getDocumentRequestDto(user.getId(), CERTIFICATE));

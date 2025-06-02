@@ -18,12 +18,8 @@ paths:
             type: "string"
             format: "uuid"
       responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
+        "204":
+          description: "No Content"
   /sessions:
     post:
       summary: "POST sessions"
@@ -85,8 +81,8 @@ paths:
               $ref: "#/components/schemas/UserRegisterDto"
         required: true
       responses:
-        "200":
-          description: "OK"
+        "201":
+          description: "Created"
           content:
             '*/*':
               schema:
@@ -589,8 +585,8 @@ paths:
               $ref: "#/components/schemas/RoleSetDto"
         required: true
       responses:
-        "200":
-          description: "OK"
+        "201":
+          description: "Created"
           content:
             '*/*':
               schema:
@@ -628,12 +624,8 @@ paths:
               - "WORKER_SOOP"
               - "STUDENT"
       responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "object"
+        "204":
+          description: "No Content"
   /roles/get/{id}:
     get:
       summary: "GET roles/get/{id}"

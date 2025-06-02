@@ -9,6 +9,10 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5430/hostelService
 
+rabbitmq:
+  notification-service:
+    addresses: localhost:5672
+
 otlp:
   tracing:
     export-enabled: false

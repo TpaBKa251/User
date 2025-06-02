@@ -4,11 +4,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -34,8 +29,6 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
-
-    private static final String DISCOURAGING_EXCEPTION_MESSAGE = "Как вы умудрились это сделать?";
 
     private static final String SESSION_NOT_FOUND_EXCEPTION_MESSAGE = "Сессия не найдена";
 
@@ -87,13 +80,7 @@ public class SessionServiceImpl implements SessionService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @LogFilter(enableParamsLogging = false)
     @Override
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverLogout"
-    )
-    public ResponseEntity<?> logout(@SecretArgument UUID sessionId, @SecretArgument HttpServletResponse response) {
-        // TODO: При логауте слать уведам сообщение по рэббиту об удалении токена уведов
+    public void logout(@SecretArgument UUID sessionId, @SecretArgument HttpServletResponse response) {
         Session session = sessionRepository.findByIdOptimistic(sessionId)
                 .orElseThrow(() -> new ServiceException.NotFound(SESSION_NOT_FOUND_EXCEPTION_MESSAGE));
 
@@ -112,27 +99,11 @@ public class SessionServiceImpl implements SessionService {
                 .sameSite("None")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-
-        return ResponseEntity.ok().build();
-    }
-
-    @Recover
-    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
-    public ResponseEntity<?> recoverLogout(
-            @SecretArgument ObjectOptimisticLockingFailureException ignoredE,
-            @SecretArgument UUID ignoredSessionId,
-            @SecretArgument HttpServletResponse ignoredResponse) {
-        throw new ServiceException.TooManyRequests(DISCOURAGING_EXCEPTION_MESSAGE);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @LogFilter(enableParamsLogging = false, enableResultLogging = false)
     @Override
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverRefresh"
-    )
     public SessionRefreshResponse refresh(
             @SecretArgument String refreshToken,
             @SecretArgument HttpServletResponse response
@@ -165,12 +136,4 @@ public class SessionServiceImpl implements SessionService {
         return sessionRefreshResponse;
     }
 
-    @Recover
-    @LogFilter(enableParamsLogging = false, enableResultLogging = false)
-    public SessionRefreshResponse recoverRefresh(
-            @SecretArgument ObjectOptimisticLockingFailureException e,
-            @SecretArgument String refreshToken,
-            @SecretArgument HttpServletResponse response) {
-        throw new ServiceException.TooManyRequests(DISCOURAGING_EXCEPTION_MESSAGE);
-    }
 }

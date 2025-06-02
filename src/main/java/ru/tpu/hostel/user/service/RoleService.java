@@ -1,6 +1,5 @@
 package ru.tpu.hostel.user.service;
 
-import org.springframework.http.ResponseEntity;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
 import ru.tpu.hostel.user.dto.request.RoleSetDto;
@@ -23,5 +22,5 @@ public interface RoleService {
 
     List<RoleResponseDto> getUsersWithRole(Roles role);
 
-    ResponseEntity<?> deleteRole(UUID userId, Roles role);
+    void deleteRole(UUID userId, Roles role);
 }

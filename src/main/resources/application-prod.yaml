@@ -2,6 +2,10 @@ spring:
   datasource:
     url: jdbc:postgresql://82.202.138.26:5430/hostelService
 
+rabbitmq:
+  notification-service:
+    addresses: 82.202.138.26:5672
+
 otlp:
   tracing:
     endpoint: http://tempo.monitoring.svc.cluster.local:4317

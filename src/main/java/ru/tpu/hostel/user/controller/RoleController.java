@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
@@ -31,6 +32,7 @@ public class RoleController {
 
     private final RoleService roleService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public RoleResponseDto setRoleToUser(
             @RequestBody @Valid RoleSetDto roleSetDto
@@ -63,8 +65,9 @@ public class RoleController {
         return roleService.getUsersWithRole(role);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteRole(@PathVariable UUID userId, @RequestParam(name = "role") Roles role) {
-        return roleService.deleteRole(userId, role);
+    public void deleteRole(@PathVariable UUID userId, @RequestParam(name = "role") Roles role) {
+        roleService.deleteRole(userId, role);
     }
 }

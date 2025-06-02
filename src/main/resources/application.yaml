@@ -50,6 +50,11 @@ spring:
         - db.migration
     schemas: user
 
+  rabbitmq:
+    listener:
+      direct:
+        observation-enabled: true
+
   cloud:
     openfeign:
       micrometer:
@@ -58,6 +63,23 @@ spring:
 springdoc:
   swagger-ui:
     enabled: true
+
+rabbitmq:
+  notification-service:
+    username: notification
+    password: notification
+    virtualHost: notification-service
+    addresses: rabbitmq:5672
+    connectionTimeout: 6000
+
+queueing:
+  notification-service:
+    send:
+      exchangeName: notification-exchange
+      routingKey: notification-send
+    delete-token:
+      exchangeName: notification-timeslots-exchange
+      routingKey: notification-delete-token
 
 otlp:
   tracing:

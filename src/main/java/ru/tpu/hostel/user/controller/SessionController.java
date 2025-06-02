@@ -3,15 +3,15 @@ package ru.tpu.hostel.user.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.user.dto.request.SessionLoginDto;
 import ru.tpu.hostel.user.dto.response.SessionRefreshResponse;
@@ -35,12 +35,13 @@ public class SessionController {
         return sessionService.login(sessionLoginDto, response);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/logout/{sessionId}")
-    public ResponseEntity<?> logout(
+    public void logout(
             @PathVariable UUID sessionId,
             HttpServletResponse response
     ) {
-        return sessionService.logout(sessionId, response);
+        sessionService.logout(sessionId, response);
     }
 
     @GetMapping("/auth/token")

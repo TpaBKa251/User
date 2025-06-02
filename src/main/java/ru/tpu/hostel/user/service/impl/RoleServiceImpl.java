@@ -2,16 +2,15 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.tpu.hostel.internal.exception.ServiceException;
+import ru.tpu.hostel.internal.external.amqp.dto.NotificationRequestDto;
+import ru.tpu.hostel.internal.external.amqp.dto.NotificationType;
+import ru.tpu.hostel.internal.service.NotificationSender;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.user.dto.request.RoleEditDto;
@@ -32,25 +31,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
 
-    private static final String ROLE_MANAGEMENT_EXCEPTION_MESSAGE = "У вас нет прав для управления этой ролью";
+    private static final String ROLE_MANAGEMENT_EXCEPTION_MESSAGE = "У вас нет прав для управления этой должностью";
 
-    private static final String ROLE_NOT_FOUND_EXCEPTION_MESSAGE = "Роль не найдена";
+    private static final String ROLE_NOT_FOUND_EXCEPTION_MESSAGE = "должность не найдена";
 
     private static final String USER_NOT_FOUND_EXCEPTION_MESSAGE = "Пользователь не найден";
 
-    private static final String USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE = "Пользователь уже назначен на эту роль";
+    private static final String USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE = "Пользователь уже назначен на эту должность";
 
     private final RoleRepository roleRepository;
 
     private final UserRepository userRepository;
 
+    private final NotificationSender notificationSender;
+
     @Transactional
     @Override
-    @Retryable(
-            retryFor = ServiceException.InsufficientStorage.class,
-            maxAttempts = 2,
-            backoff = @Backoff(delay = 50, multiplier = 1)
-    )
     public RoleResponseDto setRole(RoleSetDto roleSetDto) {
         ExecutionContext context = ExecutionContext.get();
         if (!Roles.hasPermissionToManageRole(context.getUserRoles(), roleSetDto.role())) {
@@ -58,7 +54,7 @@ public class RoleServiceImpl implements RoleService {
         }
 
         if (context.getUserRoles().contains(roleSetDto.role())) {
-            log.info("Передаю роль");
+            log.info("Передаю должность");
             User curUser = userRepository.findById(context.getUserID())
                     .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
             Role curRole = roleRepository.findByUser(curUser)
@@ -69,7 +65,7 @@ public class RoleServiceImpl implements RoleService {
             log.info("{}", curRole.getId());
 
             if (!curUser.getRoles().removeIf(r -> r.getId().equals(curRole.getId()))) {
-                throw new ServiceException.InsufficientStorage("Не удалось передать роль. Попробуйте позже");
+                throw new ServiceException.InsufficientStorage("Не удалось передать должность. Попробуйте позже");
             }
 
             roleRepository.deleteById(curRole.getId());
@@ -82,19 +78,27 @@ public class RoleServiceImpl implements RoleService {
         role.setRole(roleSetDto.role());
         role.setUser(user);
         try {
-            return RoleMapper.mapRoleToRoleResponseDto(roleRepository.save(role));
-        } catch (ConstraintViolationException e) {
+            roleRepository.save(role);
+            roleRepository.flush();
+
+            NotificationRequestDto notification = new NotificationRequestDto(
+                    roleSetDto.user(),
+                    NotificationType.ROLE,
+                    "Вас назначили на должность",
+                    "Вас назначили на должность " + roleSetDto.role().getRoleName()
+            );
+            notificationSender.sendNotification(notification);
+
+            return RoleMapper.mapRoleToRoleResponseDto(role);
+        } catch (DataIntegrityViolationException e) {
             throw new ServiceException.Conflict(USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE);
         }
+
+
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
-    @Retryable(
-            retryFor = ObjectOptimisticLockingFailureException.class,
-            backoff = @Backoff(delay = 100, multiplier = 2),
-            recover = "recoverEditRole"
-    )
     public RoleResponseDto editRole(RoleEditDto roleEditDto) {
         if (!Roles.hasPermissionToManageRole(ExecutionContext.get().getUserRoles(), roleEditDto.role())) {
             throw new ServiceException.Forbidden(ROLE_MANAGEMENT_EXCEPTION_MESSAGE);
@@ -102,19 +106,27 @@ public class RoleServiceImpl implements RoleService {
 
         Role role = roleRepository.findByIdOptimistic(roleEditDto.id())
                 .orElseThrow(() -> new ServiceException.NotFound(ROLE_NOT_FOUND_EXCEPTION_MESSAGE));
-
+        Roles oldRole = role.getRole();
         role.setRole(roleEditDto.role());
 
         try {
-            return RoleMapper.mapRoleToRoleResponseDto(roleRepository.save(role));
-        } catch (ConstraintViolationException e) {
-            throw new ServiceException.Conflict(USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE);
-        }
-    }
+            roleRepository.save(role);
+            roleRepository.flush();
 
-    @Recover
-    public RoleResponseDto recoverEditRole(ObjectOptimisticLockingFailureException e, RoleEditDto roleEditDto) {
-        throw new ServiceException.Conflict("Кто-то уже изменил роль. Обновите данные и повторите попытку");
+            NotificationRequestDto notification = new NotificationRequestDto(
+                    role.getUser().getId(),
+                    NotificationType.ROLE,
+                    "Вас перевели на должность",
+                    "Вас перевели с %s на %s".formatted(oldRole.getRoleName(), roleEditDto.role().getRoleName())
+            );
+            notificationSender.sendNotification(notification);
+
+            return RoleMapper.mapRoleToRoleResponseDto(role);
+        } catch (DataIntegrityViolationException e) {
+            throw new ServiceException.Conflict(USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE);
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict("Кто-то уже изменил должность. Обновите данные и повторите попытку");
+        }
     }
 
     @Override
@@ -154,12 +166,7 @@ public class RoleServiceImpl implements RoleService {
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
-    @Retryable(
-            retryFor = ServiceException.InsufficientStorage.class,
-            maxAttempts = 2,
-            backoff = @Backoff(delay = 50, multiplier = 1)
-    )
-    public ResponseEntity<?> deleteRole(UUID userId, Roles role) {
+    public void deleteRole(UUID userId, Roles role) {
         if (!Roles.hasPermissionToManageRole(ExecutionContext.get().getUserRoles(), role)) {
             throw new ServiceException.Forbidden(ROLE_MANAGEMENT_EXCEPTION_MESSAGE);
         }
@@ -168,12 +175,18 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
 
         if (!user.getRoles().removeIf(r -> r.getRole().equals(role))) {
-            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с роли. Попробуйте позже.");
+            throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с должности. Попробуйте позже.");
         }
 
         roleRepository.deleteByUserAndRole(user, role);
 
-        return ResponseEntity.ok().build();
+        NotificationRequestDto notification = new NotificationRequestDto(
+                userId,
+                NotificationType.ROLE,
+                "Вас сняли с должности",
+                "Вас сняли с должности " + role.getRoleName()
+        );
+        notificationSender.sendNotification(notification);
     }
 
 }
