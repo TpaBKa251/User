@@ -347,6 +347,12 @@ paths:
           schema:
             type: "integer"
             format: "int32"
+        - name: "onMyFloor"
+          in: "query"
+          required: false
+          schema:
+            type: "boolean"
+            default: "false"
       responses:
         "200":
           description: "OK"

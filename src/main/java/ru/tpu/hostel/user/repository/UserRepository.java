@@ -70,6 +70,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     Page<User> findAllByRoles_Role(@Param("role") Roles role, Pageable pageable);
 
+    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.role = :role AND SUBSTRING(u.roomNumber from 1 for 1) = :floor")
+    List<User> findAllByFloorAndRole(@Param("role") Roles role, @Param("floor") String floor);
+
     @Query("select u.roomNumber from User u where u.id = :id")
     Optional<String> findRoomNumberById(@Param("id") UUID id);
 

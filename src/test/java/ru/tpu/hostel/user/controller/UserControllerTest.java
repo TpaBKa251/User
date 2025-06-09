@@ -69,7 +69,7 @@ class UserControllerTest {
         int page = 0;
         int size = 10;
 
-        when(userService.getAllUsersByRole(role, page, size)).thenReturn(adminUsers);
+        when(userService.getAllUsersByRole(role, page, size, false)).thenReturn(adminUsers);
 
         mockMvc.perform(get("/users/get/by/role")
                         .param("role", role.name())
@@ -86,7 +86,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$[1].lastName").value(adminUsers.get(1).lastName()))
                 .andExpect(jsonPath("$[1].middleName").value(adminUsers.get(1).middleName()));
 
-        verify(userService, times(1)).getAllUsersByRole(role, page, size);
+        verify(userService, times(1)).getAllUsersByRole(role, page, size, false);
     }
 
     @Test
@@ -96,7 +96,7 @@ class UserControllerTest {
         int page = 0;
         int size = 10;
 
-        when(userService.getAllUsersByRole(role, page, size)).thenReturn(Collections.emptyList());
+        when(userService.getAllUsersByRole(role, page, size, false)).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/users/get/by/role")
                         .param("role", role.name())
@@ -105,6 +105,6 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(0));
 
-        verify(userService, times(1)).getAllUsersByRole(role, page, size);
+        verify(userService, times(1)).getAllUsersByRole(role, page, size, false);
     }
 }

@@ -78,7 +78,7 @@ class UserServiceImplTest {
 
         when(userRepository.findAllByRoles_Role(role, pageable)).thenReturn(mockPage);
 
-        List<UserShortResponseDto2> result = userService.getAllUsersByRole(role, 0, 10);
+        List<UserShortResponseDto2> result = userService.getAllUsersByRole(role, 0, 10, false);
 
         assertThat(result)
                 .hasSize(2)
@@ -108,7 +108,7 @@ class UserServiceImplTest {
 
         when(userRepository.findAllByRoles_Role(role, pageable)).thenReturn(Page.empty());
 
-        List<UserShortResponseDto2> result = userService.getAllUsersByRole(role, 0, 10);
+        List<UserShortResponseDto2> result = userService.getAllUsersByRole(role, 0, 10, false);
 
         assertThat(result).isEmpty();
         verify(userRepository, times(1)).findAllByRoles_Role(role, pageable);

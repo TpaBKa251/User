@@ -111,9 +111,10 @@ public class UserController {
     public List<UserShortResponseDto2> getUsersByRole(
             @RequestParam Roles role,
             @RequestParam int page,
-            @RequestParam int size
+            @RequestParam int size,
+            @RequestParam(name = "onMyFloor", required = false, defaultValue = "false") boolean onMyFloor
     ) {
-        return userService.getAllUsersByRole(role, page, size);
+        return userService.getAllUsersByRole(role, page, size, onMyFloor);
     }
 
     @GetMapping("/get/by/name/with/role")

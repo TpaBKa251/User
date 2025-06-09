@@ -44,9 +44,9 @@ import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAP
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserDetailsService {
-    
+
     private static final String USER_NOT_FOUND_MESSAGE = "Пользователь не найден";
-    
+
     private static final String ID = "id";
 
     private static final LocalDate DEFAULT_DATE_OF_DOCUMENT = LocalDate.of(0, 1, 1);
@@ -162,12 +162,20 @@ public class UserServiceImpl implements UserDetailsService {
                 .toList();
     }
 
-    public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
-        return userRepository.findAllByRoles_Role(role, pageable)
-                .stream()
-                .map(UserMapper::mapUserToUserShortResponseDto2)
-                .toList();
+    public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size, boolean onMyFloor) {
+        if (onMyFloor) {
+            ExecutionContext context = ExecutionContext.get();
+            String roomNumber = userRepository.findRoomNumberById(context.getUserID())
+                    .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
+            return userRepository.findAllByFloorAndRole(role, String.valueOf(roomNumber.charAt(0))).stream()
+                    .map(UserMapper::mapUserToUserShortResponseDto2)
+                    .toList();
+        } else {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(ID));
+            return userRepository.findAllByRoles_Role(role, pageable).stream()
+                    .map(UserMapper::mapUserToUserShortResponseDto2)
+                    .toList();
+        }
     }
 
     public List<UserShortResponseDto2> getUserByNameWithoutRole(String name, Roles role, int page, int size) {
