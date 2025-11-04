@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,12 +17,14 @@ import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
 import ru.tpu.hostel.internal.utils.TimeUtil;
+import ru.tpu.hostel.user.dto.request.UserAddLinkDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
+import ru.tpu.hostel.user.entity.LinkType;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.external.rest.admin.ClientAdminService;
@@ -37,6 +40,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.tpu.hostel.user.entity.LinkType.TG;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.CERTIFICATE;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAPHY;
 
@@ -50,6 +54,9 @@ public class UserServiceImpl implements UserDetailsService {
     private static final String ID = "id";
 
     private static final LocalDate DEFAULT_DATE_OF_DOCUMENT = LocalDate.of(0, 1, 1);
+
+    private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
+            = "Кто-то уже изменил профиль. Обновите данные и повторите попытку";
 
     private final UserRepository userRepository;
 
@@ -226,4 +233,38 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UUID> getAllIdsOfUsersInRooms(List<String> roomNumbers) {
         return userRepository.findAllIdsOfUsersInRooms(roomNumbers);
     }
+
+    @Transactional
+    public void addLink(LinkType linkType, UserAddLinkDto userAddLinkDto) {
+        User user = userRepository.findByIdOptimistic(ExecutionContext.get().getUserID())
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
+
+        String socialMediaSiteName = getSocialMediaSiteName(userAddLinkDto.link());
+
+        if (linkType == TG) {
+            user.setTgLink(socialMediaSiteName);
+        } else {
+            user.setVkLink(socialMediaSiteName);
+        }
+
+        try {
+            userRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
+        }
+    }
+
+    private String getSocialMediaSiteName(String link) {
+        if (link.startsWith("https:")
+                || link.startsWith("http:")
+                || link.startsWith("t.me")
+                || link.startsWith("vk.com")) {
+            return link.substring(link.lastIndexOf('/') + 1);
+        } else if (link.startsWith("@")) {
+            return link.substring(1);
+        }
+
+        return link;
+    }
+
 }

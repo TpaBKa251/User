@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
@@ -55,6 +56,16 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     private Set<Role> roles;
+
+    @Column(name = "tg_link")
+    private String tgLink;
+
+    @Column(name = "vk_link")
+    private String vkLink;
+
+    @Column(name = "version", nullable = false)
+    @Version
+    private Long version;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

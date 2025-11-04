@@ -6,6 +6,8 @@ public record UserShortResponseDto(
         String middleName,
         String email,
         String phoneNumber,
-        String roomNumber
+        String roomNumber,
+        String tgLink,
+        String vkLink
 ) {
 }

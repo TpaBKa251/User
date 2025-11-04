@@ -70,6 +70,28 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/SessionRefreshResponse"
+  /users/links:
+    patch:
+      summary: "PATCH users/links"
+      operationId: "addLink"
+      parameters:
+        - name: "linkType"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+            enum:
+              - "TG"
+              - "VK"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAddLinkDto"
+        required: true
+      responses:
+        "204":
+          description: "No Content"
   /users:
     post:
       summary: "POST users"
@@ -752,6 +774,12 @@ components:
         token:
           type: "string"
           nullable: true
+    UserAddLinkDto:
+      type: "object"
+      properties:
+        link:
+          type: "string"
+          nullable: true
     UserRegisterDto:
       type: "object"
       properties:
@@ -801,6 +829,12 @@ components:
         roomNumber:
           type: "string"
           nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
+          type: "string"
+          nullable: true
     UserShortResponseDto:
       type: "object"
       properties:
@@ -822,6 +856,12 @@ components:
         roomNumber:
           type: "string"
           nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
+          type: "string"
+          nullable: true
     UserShortResponseDto2:
       type: "object"
       properties:
@@ -836,6 +876,12 @@ components:
           type: "string"
           nullable: true
         middleName:
+          type: "string"
+          nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
           type: "string"
           nullable: true
     UserResponseWithRoleDto:
@@ -868,6 +914,12 @@ components:
           nullable: true
           items:
             type: "string"
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
+          type: "string"
+          nullable: true
     UserNameResponseDto:
       type: "object"
       properties:
@@ -881,6 +933,12 @@ components:
           type: "string"
           nullable: true
         roomNumber:
+          type: "string"
+          nullable: true
+        tgLink:
+          type: "string"
+          nullable: true
+        vkLink:
           type: "string"
           nullable: true
     RoleEditDto:

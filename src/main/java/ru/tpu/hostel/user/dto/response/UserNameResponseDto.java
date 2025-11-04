@@ -4,6 +4,8 @@ public record UserNameResponseDto(
         String firstName,
         String lastName,
         String middleName,
-        String roomNumber
+        String roomNumber,
+        String tgLink,
+        String vkLink
 ) {
 }

@@ -1,9 +1,11 @@
 package ru.tpu.hostel.user.repository;
 
+import jakarta.persistence.LockModeType;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -85,4 +87,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("select distinct u.id from User u where u.roomNumber in :roomNumbers")
     List<UUID> findAllIdsOfUsersInRooms(@Param("roomNumbers") List<String> roomNumbers);
+
+    @Lock(LockModeType.OPTIMISTIC)
+    @Query("select u from User u where u.id = :id")
+    Optional<User> findByIdOptimistic(@Param("id") UUID id);
 }

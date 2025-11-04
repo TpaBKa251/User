@@ -37,7 +37,9 @@ public class UserMapper {
                 user.getMiddleName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getRoomNumber()
+                user.getRoomNumber(),
+                user.getTgLink(),
+                user.getVkLink()
         );
     }
 
@@ -48,7 +50,9 @@ public class UserMapper {
                 user.getMiddleName(),
                 user.getEmail(),
                 user.getPhone(),
-                user.getRoomNumber()
+                user.getRoomNumber(),
+                user.getTgLink(),
+                user.getVkLink()
         );
     }
 
@@ -57,7 +61,9 @@ public class UserMapper {
                 user.getId(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.getMiddleName()
+                user.getMiddleName(),
+                user.getTgLink(),
+                user.getVkLink()
         );
     }
 
@@ -73,7 +79,9 @@ public class UserMapper {
                 user.getRoles()
                         .stream()
                         .map(role -> role.getRole().getRoleName())
-                        .toList()
+                        .toList(),
+                user.getTgLink(),
+                user.getVkLink()
         );
     }
 
@@ -82,7 +90,9 @@ public class UserMapper {
                 user.getFirstName(),
                 user.getLastName(),
                 user.getMiddleName(),
-                user.getRoomNumber()
+                user.getRoomNumber(),
+                user.getTgLink(),
+                user.getVkLink()
         );
     }
 }

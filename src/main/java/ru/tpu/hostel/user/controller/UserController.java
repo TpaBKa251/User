@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.internal.utils.Roles;
+import ru.tpu.hostel.user.dto.request.UserAddLinkDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
+import ru.tpu.hostel.user.entity.LinkType;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
 import java.util.Arrays;
@@ -157,8 +160,14 @@ public class UserController {
     }
 
     @GetMapping("/get/all/in/rooms/with/id")
-    List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers) {
+    public List<UUID> getAllInRoomsWithId(@RequestParam String[] roomNumbers) {
         return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/links")
+    public void addLink(@RequestParam LinkType linkType, @RequestBody @Valid UserAddLinkDto userAddLinkDto) {
+        userService.addLink(linkType, userAddLinkDto);
     }
 
 }
