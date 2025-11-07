@@ -60,10 +60,6 @@ spring:
       micrometer:
         enabled: true
 
-springdoc:
-  swagger-ui:
-    enabled: true
-
 rabbitmq:
   notification-service:
     username: notification

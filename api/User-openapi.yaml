@@ -1,101 +1,27 @@
-openapi: "3.1.0"
+openapi: 3.1.0
 info:
-  title: "User API"
-  description: "User API"
-  version: "1.0.0"
+  title: User Service Papich API
+  description: "Документация API для микросервиса юзеров Папич. Управление юзерами\
+    , ролями и сессиями"
+  version: 1.0.0
 servers:
-  - url: "https://User"
+  - url: http://localhost:8081
+    description: Generated server url
+tags:
+  - name: Юзеры
+    description: Эндпоинты для работы с юзерами
+  - name: Сессии
+    description: Эндпоинты для работы с сессиями
+  - name: Роли/должности
+    description: Эндпоинты для работы с ролями/должностями юзеров
 paths:
-  /sessions/logout/{sessionId}:
-    patch:
-      summary: "PATCH sessions/logout/{sessionId}"
-      operationId: "logout"
-      parameters:
-        - name: "sessionId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-      responses:
-        "204":
-          description: "No Content"
-  /sessions:
-    post:
-      summary: "POST sessions"
-      operationId: "login"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/SessionLoginDto"
-        required: true
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/SessionResponseDto"
-  /sessions/auth/token:
-    post:
-      summary: "POST sessions/auth/token"
-      operationId: "refreshTokenPost"
-      parameters:
-        - name: "refreshToken"
-          in: "cookie"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/SessionRefreshResponse"
-    get:
-      summary: "GET sessions/auth/token"
-      operationId: "refreshToken"
-      parameters:
-        - name: "refreshToken"
-          in: "cookie"
-          required: true
-          schema:
-            type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/SessionRefreshResponse"
-  /users/links:
-    patch:
-      summary: "PATCH users/links"
-      operationId: "addLink"
-      parameters:
-        - name: "linkType"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-            enum:
-              - "TG"
-              - "VK"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserAddLinkDto"
-        required: true
-      responses:
-        "204":
-          description: "No Content"
   /users:
     post:
-      summary: "POST users"
-      operationId: "registerUser"
+      tags:
+        - Юзеры
+      summary: Создать (зарегистрировать) юзера
+      description: Создает нового юзера
+      operationId: registerUser
       requestBody:
         content:
           application/json:
@@ -104,508 +30,115 @@ paths:
         required: true
       responses:
         "201":
-          description: "Created"
+          description: Успешное создание (регистрация) юзера
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/UserResponseDto"
-  /users/profile:
-    get:
-      summary: "GET users/profile"
-      operationId: "getUser"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserResponseDto"
-  /users/get/by/id/{id}:
-    get:
-      summary: "GET users/get/by/id/{id}"
-      operationId: "getUserById"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserShortResponseDto"
-  /users/get/by/id/short/{id}:
-    get:
-      summary: "GET users/get/by/id/short/{id}"
-      operationId: "getUserByIdShort"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/with/roles/{id}:
-    get:
-      summary: "GET users/get/with/roles/{id}"
-      operationId: "getUserWithRoles"
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/UserResponseWithRoleDto"
-  /users/get/all:
-    get:
-      summary: "GET users/get/all"
-      operationId: "getAllUsers"
-      parameters:
-        - name: "page"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "1000000000"
-        - name: "firstName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "lastName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "middleName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "room"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserResponseDto"
-  /users/get:
-    get:
-      summary: "GET users/get"
-      operationId: "getAllUsersWithName"
-      parameters:
-        - name: "firstName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-        - name: "lastName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-        - name: "middleName"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  type: "string"
-  /users/get/all/by/ids:
-    get:
-      summary: "GET users/get/all/by/ids"
-      operationId: "getAllUsersWithIds"
-      parameters:
-        - name: "ids"
-          in: "query"
-          required: true
-          schema:
-            type: "array"
-            items:
-              type: "string"
-              format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserResponseDto"
-  /users/get/all/by/ids/short:
-    get:
-      summary: "GET users/get/all/by/ids/short"
-      operationId: "getAllUsersWithIdsShort"
-      parameters:
-        - name: "ids"
-          in: "query"
-          required: true
-          schema:
-            type: "array"
-            items:
-              type: "string"
-              format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/by/name:
-    get:
-      summary: "GET users/get/by/name"
-      operationId: "getUsersByName"
-      parameters:
-        - name: "name"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "page"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "size"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/by/role:
-    get:
-      summary: "GET users/get/by/role"
-      operationId: "getUsersByRole"
-      parameters:
-        - name: "role"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-            enum:
-              - "ADMINISTRATION"
-              - "HOSTEL_SUPERVISOR"
-              - "FLOOR_SUPERVISOR"
-              - "RESPONSIBLE_KITCHEN"
-              - "RESPONSIBLE_HALL"
-              - "RESPONSIBLE_GYM"
-              - "WORKER_GYM"
-              - "RESPONSIBLE_FIRE_SAFETY"
-              - "RESPONSIBLE_SANITARY"
-              - "RESPONSIBLE_INTERNET"
-              - "RESPONSIBLE_SOOP"
-              - "WORKER_FIRE_SAFETY"
-              - "WORKER_SANITARY"
-              - "WORKER_SOOP"
-              - "STUDENT"
-        - name: "page"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "size"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "onMyFloor"
-          in: "query"
-          required: false
-          schema:
-            type: "boolean"
-            default: "false"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/by/name/with/role:
-    get:
-      summary: "GET users/get/by/name/with/role"
-      operationId: "getUsersByNameWithRole"
-      parameters:
-        - name: "name"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "role"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-            enum:
-              - "ADMINISTRATION"
-              - "HOSTEL_SUPERVISOR"
-              - "FLOOR_SUPERVISOR"
-              - "RESPONSIBLE_KITCHEN"
-              - "RESPONSIBLE_HALL"
-              - "RESPONSIBLE_GYM"
-              - "WORKER_GYM"
-              - "RESPONSIBLE_FIRE_SAFETY"
-              - "RESPONSIBLE_SANITARY"
-              - "RESPONSIBLE_INTERNET"
-              - "RESPONSIBLE_SOOP"
-              - "WORKER_FIRE_SAFETY"
-              - "WORKER_SANITARY"
-              - "WORKER_SOOP"
-              - "STUDENT"
-        - name: "page"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "size"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/by/name/without/role:
-    get:
-      summary: "GET users/get/by/name/without/role"
-      operationId: "getUsersByNameWithoutRole"
-      parameters:
-        - name: "name"
-          in: "query"
-          required: false
-          schema:
-            type: "string"
-            default: ""
-        - name: "role"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-            enum:
-              - "ADMINISTRATION"
-              - "HOSTEL_SUPERVISOR"
-              - "FLOOR_SUPERVISOR"
-              - "RESPONSIBLE_KITCHEN"
-              - "RESPONSIBLE_HALL"
-              - "RESPONSIBLE_GYM"
-              - "WORKER_GYM"
-              - "RESPONSIBLE_FIRE_SAFETY"
-              - "RESPONSIBLE_SANITARY"
-              - "RESPONSIBLE_INTERNET"
-              - "RESPONSIBLE_SOOP"
-              - "WORKER_FIRE_SAFETY"
-              - "WORKER_SANITARY"
-              - "WORKER_SOOP"
-              - "STUDENT"
-        - name: "page"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-        - name: "size"
-          in: "query"
-          required: true
-          schema:
-            type: "integer"
-            format: "int32"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserShortResponseDto2"
-  /users/get/all/on/floor/{userId}:
-    get:
-      summary: "GET users/get/all/on/floor/{userId}"
-      operationId: "getAllOnFloor"
-      parameters:
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-        - name: "page"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "0"
-        - name: "size"
-          in: "query"
-          required: false
-          schema:
-            type: "integer"
-            format: "int32"
-            default: "10"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserNameResponseDto"
-  /users/get/room/{userId}:
-    get:
-      summary: "GET users/get/room/{userId}"
-      operationId: "getRoomNumber"
-      parameters:
-        - name: "userId"
-          in: "path"
-          required: true
-          schema:
-            type: "string"
-            format: "uuid"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "string"
-  /users/get/all/in/rooms:
-    get:
-      summary: "GET users/get/all/in/rooms"
-      operationId: "getAllInRooms"
-      parameters:
-        - name: "roomNumbers"
-          in: "query"
-          required: true
-          schema:
-            type: "array"
-            items:
-              type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/UserNameResponseDto"
-  /users/get/all/in/rooms/with/id:
-    get:
-      summary: "GET users/get/all/in/rooms/with/id"
-      operationId: "getAllInRoomsWithId"
-      parameters:
-        - name: "roomNumbers"
-          in: "query"
-          required: true
-          schema:
-            type: "array"
-            items:
-              type: "string"
-      responses:
-        "200":
-          description: "OK"
-          content:
-            '*/*':
-              schema:
-                type: "array"
-                items:
-                  type: "string"
-                  format: "uuid"
-  /roles/edit:
-    patch:
-      summary: "PATCH roles/edit"
-      operationId: "editRole"
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+  /sessions:
+    post:
+      tags:
+        - Сессии
+      summary: Войти в аккаунт
+      description: Создает новую сессию юзера
+      operationId: login
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RoleEditDto"
+              $ref: "#/components/schemas/SessionLoginDto"
         required: true
       responses:
         "200":
-          description: "OK"
+          description: Успешный вход в аккаунт
           content:
-            '*/*':
+            application/json:
               schema:
-                $ref: "#/components/schemas/RoleResponseDto"
+                $ref: "#/components/schemas/SessionResponseDto"
+        "401":
+          description: Указан неверный логин или пароль
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+  /sessions/auth/token:
+    get:
+      tags:
+        - Сессии
+      summary: Обновить access токен
+      description: Обновляет access и refresh токены для сессии по refresh токену
+      operationId: refreshToken
+      parameters:
+        - name: refreshToken
+          in: cookie
+          description: Refresh токен
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Успешное обновление токенов
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionRefreshResponse"
+        "401":
+          description: Запрос не авторизован (refresh токен протух или неверный)
+        "403":
+          description: Сессия уже протухла
+        "404":
+          description: Сессия не найдена
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+    post:
+      tags:
+        - Сессии
+      summary: Обновить access токен
+      description: Обновляет access и refresh токены для сессии по refresh токену
+      operationId: refreshTokenPost
+      parameters:
+        - name: refreshToken
+          in: cookie
+          description: Refresh токен
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Успешное обновление токенов
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionRefreshResponse"
+        "401":
+          description: Запрос не авторизован (refresh токен протух или неверный)
+        "403":
+          description: Сессия уже протухла
+        "404":
+          description: Сессия не найдена
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
   /roles:
     post:
-      summary: "POST roles"
-      operationId: "setRoleToUser"
+      tags:
+        - Роли/должности
+      summary: Создать роль
+      description: "Присваивает юзеру роль. Если у текущего юзера (отправившего за\
+        прос) такая же роль, то она передается: у текущего она удаляется, у указан\
+        ного - появляется"
+      operationId: setRoleToUser
       requestBody:
         content:
           application/json:
@@ -614,396 +147,1399 @@ paths:
         required: true
       responses:
         "201":
-          description: "Created"
+          description: Успешное создание (присваивание) роли
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/RoleResponseDto"
-  /roles/{userId}:
-    delete:
-      summary: "DELETE roles/{userId}"
-      operationId: "deleteRole"
+        "403":
+          description: Нет прав управлять ролью
+        "404":
+          description: Не найден юзер или роль
+        "409":
+          description: Юзер уже назначен на роль
+        "507":
+          description: Не удалось передать роль
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
+  /users/links:
+    patch:
+      tags:
+        - Юзеры
+      summary: Добавить юзеру ссылку на соцсеть
+      description: "Добавляет юзеру ссылку на ВК ли ТГ (имя). Если в теле не указа\
+        н ID юзера, то ссылка добавляется текущему юзеру (отправившему запрос)"
+      operationId: addLink
       parameters:
-        - name: "userId"
-          in: "path"
+        - name: linkType
+          in: query
+          description: Имя соцсети
           required: true
           schema:
-            type: "string"
-            format: "uuid"
-        - name: "role"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
+            type: string
             enum:
-              - "ADMINISTRATION"
-              - "HOSTEL_SUPERVISOR"
-              - "FLOOR_SUPERVISOR"
-              - "RESPONSIBLE_KITCHEN"
-              - "RESPONSIBLE_HALL"
-              - "RESPONSIBLE_GYM"
-              - "WORKER_GYM"
-              - "RESPONSIBLE_FIRE_SAFETY"
-              - "RESPONSIBLE_SANITARY"
-              - "RESPONSIBLE_INTERNET"
-              - "RESPONSIBLE_SOOP"
-              - "WORKER_FIRE_SAFETY"
-              - "WORKER_SANITARY"
-              - "WORKER_SOOP"
-              - "STUDENT"
+              - TG
+              - VK
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserAddLinkDto"
+        required: true
       responses:
         "204":
-          description: "No Content"
-  /roles/get/{id}:
-    get:
-      summary: "GET roles/get/{id}"
-      operationId: "getRole"
+          description: Успешное добавление ссылки
+        "401":
+          description: Запрос не авторизован
+        "403":
+          description: Нет прав управлять юзером
+        "404":
+          description: Юзер не найден
+        "409":
+          description: Кто-то изменил юзера во время выполнения запроса
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /sessions/logout/{sessionId}:
+    patch:
+      tags:
+        - Сессии
+      summary: Выйти из аккаунта
+      description: "Помечает сессию неактивной, удаляет refresh токен"
+      operationId: logout
       parameters:
-        - name: "id"
-          in: "path"
+        - name: sessionId
+          in: path
+          description: ID сессии
           required: true
           schema:
-            type: "string"
-            format: "uuid"
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Успешный выход из аккаунта
+        "401":
+          description: Запрос не авторизован
+        "403":
+          description: Попытка выхода из чужой сессии
+        "404":
+          description: Сессия не найдена
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /roles/edit:
+    patch:
+      tags:
+        - Роли/должности
+      summary: Изменить роль
+      description: Меняет юзеру роль
+      operationId: editRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RoleEditDto"
+        required: true
       responses:
         "200":
-          description: "OK"
+          description: Успешное изменение роли
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/RoleResponseDto"
+        "403":
+          description: Нет прав управлять ролью
+        "404":
+          description: Роль не найдена
+        "409":
+          description: "Юзер уже назначен на роль, или кто-то внес изменения во вр\
+            емя выполнения запроса"
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
+  /users/profile:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить инфу о текущем юзере
+      description: Возвращает всю инфу о текущем юзере (отправившем запрос)
+      operationId: getUser
+      responses:
+        "200":
+          description: Успешное получение инфы о юзере
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из части ФИО
+      description: "Возвращает список из имен или фамилий, или отчеств по параметр\
+        ам. Если указано имя, то возвращается список их похожих имен, аналогично с\
+        \ фамилией и отчеством. Пример: firstName=ва, ответ=[Вадим, Вован]"
+      operationId: getAllUsersWithName
+      parameters:
+        - name: firstName
+          in: query
+          description: Имя
+          required: false
+          schema:
+            type: string
+        - name: lastName
+          in: query
+          description: Фамилия
+          required: false
+          schema:
+            type: string
+        - name: middleName
+          in: query
+          description: Отчество
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Успешное получение частей ФИО
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/with/roles/{id}:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить инфу с ролями о юзере по ID
+      description: Возвращает инфу с ролями о юзере по ID
+      operationId: getUserWithRoles
+      parameters:
+        - name: id
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешное получение инфы о юзере
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseWithRoleDto"
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/room/{userId}:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить номер комнаты юзера
+      description: Возвращает номер комнаты юзера с указанным ID
+      operationId: getRoomNumber
+      parameters:
+        - name: userId
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: string
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/role:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из краткой инфы о юзерах с ролью
+      description: "Постранично возвращает список из краткой инфы о юзерах с ролью\
+        . Если указать параметр onMyFloor, то вернется список для юзеров с того же\
+        \ этажа, что и текущий (отправивший запрос). Пагинация при этом игнорирует\
+        ся"
+      operationId: getUsersByRole
+      parameters:
+        - name: role
+          in: query
+          description: Роль
+          required: true
+          schema:
+            type: string
+            enum:
+              - ADMINISTRATION
+              - HOSTEL_SUPERVISOR
+              - FLOOR_SUPERVISOR
+              - RESPONSIBLE_KITCHEN
+              - RESPONSIBLE_HALL
+              - RESPONSIBLE_GYM
+              - WORKER_GYM
+              - RESPONSIBLE_FIRE_SAFETY
+              - RESPONSIBLE_SANITARY
+              - RESPONSIBLE_INTERNET
+              - RESPONSIBLE_SOOP
+              - WORKER_FIRE_SAFETY
+              - WORKER_SANITARY
+              - WORKER_SOOP
+              - STUDENT
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: onMyFloor
+          in: query
+          description: Указывает на поиск в рамках этажа текущего юзера. Отключает пагинацию
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/name:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из краткой инфы о юзерах с ФИО
+      description: Постранично возвращает список из краткой инфы о юзерах с похожим
+        ФИО
+      operationId: getUsersByName
+      parameters:
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/name/without/role:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из краткой инфы о юзерах с ФИО и без роли
+      description: Постранично возвращает список из краткой инфы о юзерах с похожим
+        ФИО и без роли
+      operationId: getUsersByNameWithoutRole
+      parameters:
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: role
+          in: query
+          description: Роль
+          required: true
+          schema:
+            type: string
+            enum:
+              - ADMINISTRATION
+              - HOSTEL_SUPERVISOR
+              - FLOOR_SUPERVISOR
+              - RESPONSIBLE_KITCHEN
+              - RESPONSIBLE_HALL
+              - RESPONSIBLE_GYM
+              - WORKER_GYM
+              - RESPONSIBLE_FIRE_SAFETY
+              - RESPONSIBLE_SANITARY
+              - RESPONSIBLE_INTERNET
+              - RESPONSIBLE_SOOP
+              - WORKER_FIRE_SAFETY
+              - WORKER_SANITARY
+              - WORKER_SOOP
+              - STUDENT
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/name/with/role:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из краткой инфы о юзерах с ФИО и ролью
+      description: Постранично возвращает список из краткой инфы о юзерах с похожим
+        ФИО и ролью
+      operationId: getUsersByNameWithRole
+      parameters:
+        - name: name
+          in: query
+          description: ФИО
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: role
+          in: query
+          description: Роль
+          required: true
+          schema:
+            type: string
+            enum:
+              - ADMINISTRATION
+              - HOSTEL_SUPERVISOR
+              - FLOOR_SUPERVISOR
+              - RESPONSIBLE_KITCHEN
+              - RESPONSIBLE_HALL
+              - RESPONSIBLE_GYM
+              - WORKER_GYM
+              - RESPONSIBLE_FIRE_SAFETY
+              - RESPONSIBLE_SANITARY
+              - RESPONSIBLE_INTERNET
+              - RESPONSIBLE_SOOP
+              - WORKER_FIRE_SAFETY
+              - WORKER_SANITARY
+              - WORKER_SOOP
+              - STUDENT
+        - name: page
+          in: query
+          description: Номер страницы
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/id/{id}:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить инфу о юзере по ID
+      description: "Возвращает всю инфу о юзере по ID, но кроме ID"
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешное получение инфы о юзере
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserShortResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/by/id/short/{id}:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить краткую инфу о юзере по ID
+      description: Возвращает краткую инфу о юзере по ID
+      operationId: getUserByIdShort
+      parameters:
+        - name: id
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешное получение краткой инфы о юзере
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить инфу о всех юзерах
+      description: Постранично возвращает всю инфу о всех юзерах по набору параметров
+        (список)
+      operationId: getAllUsers
+      parameters:
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1000000000
+        - name: firstName
+          in: query
+          description: Имя
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: lastName
+          in: query
+          description: Фамилия
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: middleName
+          in: query
+          description: Отчество
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: room
+          in: query
+          description: Номер комнаты
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all/on/floor/{userId}:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из инфы с ФИО и контактами о юзерах на этаже
+      description: "Постранично возвращает список из инфы с ФИО и контактами о юзе\
+        рах, которые живут на том же этаже, что юзер, чей ID указан"
+      operationId: getAllOnFloor
+      parameters:
+        - name: userId
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: page
+          in: query
+          description: Номер страницы
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: size
+          in: query
+          description: Количество записей на странице
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserNameResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all/in/rooms:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из инфы с ФИО и контактами о юзерах в комнатах
+      description: "Возвращает список из инфы с ФИО и контактами о юзерах, которые\
+        \ живут в указанных комнатах"
+      operationId: getAllInRooms
+      parameters:
+        - name: roomNumbers
+          in: query
+          description: Номера комнат
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserNameResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all/in/rooms/with/id:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список ID юзеров в комнатах
+      description: "Возвращает список из ID юзеров, которые живут в указанных комн\
+        атах"
+      operationId: getAllInRoomsWithId
+      parameters:
+        - name: roomNumbers
+          in: query
+          description: Номера комнат
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all/by/ids:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из всей инфы о юзерах с ID
+      description: Возвращает список из полной инфы о юзерах с указанными ID
+      operationId: getAllUsersWithIds
+      parameters:
+        - name: ids
+          in: query
+          description: Список ID юзеров
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserResponseDto"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /users/get/all/by/ids/short:
+    get:
+      tags:
+        - Юзеры
+      summary: Получить список из краткой инфы о юзерах с ID
+      description: Возвращает список из краткой инфы о юзерах с указанными ID
+      operationId: getAllUsersWithIdsShort
+      parameters:
+        - name: ids
+          in: query
+          description: Список ID юзеров
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        "200":
+          description: Успешное получение инфы о юзерах
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserShortResponseDto2"
+        "401":
+          description: Запрос не авторизован
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+      security:
+        - bearerAuth: [ ]
+  /roles/get/{id}:
+    get:
+      tags:
+        - Роли/должности
+      summary: Получить роль по ID
+      description: Возвращает роль по ее ID
+      operationId: getRole
+      parameters:
+        - name: id
+          in: path
+          description: ID роли
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Успешное получение роли
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RoleResponseDto"
+        "404":
+          description: Роль не найдена
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
   /roles/get/user/roles/{userId}:
     get:
-      summary: "GET roles/get/user/roles/{userId}"
-      operationId: "getRoleByUserId"
+      tags:
+        - Роли/должности
+      summary: Получить все роли (связки юзера и роли в БД) юзера по его ID
+      description: Возвращает список ролей юзера по его ID
+      operationId: getRoleByUserId
       parameters:
-        - name: "userId"
-          in: "path"
+        - name: userId
+          in: path
+          description: ID юзера
           required: true
           schema:
-            type: "string"
-            format: "uuid"
+            type: string
+            format: uuid
       responses:
         "200":
-          description: "OK"
+          description: Успешное получение ролей
           content:
-            '*/*':
+            application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/RoleResponseDto"
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
   /roles/get/user/roles/all/{userId}:
     get:
-      summary: "GET roles/get/user/roles/all/{userId}"
-      operationId: "getAllRolesByUserId"
+      tags:
+        - Роли/должности
+      summary: "Получить все роли (названия, в том числе дочерние) юзера по его ID"
+      description: Возвращает список названий ролей юзера по его ID
+      operationId: getAllRolesByUserId
       parameters:
-        - name: "userId"
-          in: "path"
+        - name: userId
+          in: path
+          description: ID юзера
           required: true
           schema:
-            type: "string"
-            format: "uuid"
+            type: string
+            format: uuid
       responses:
         "200":
-          description: "OK"
+          description: Успешное получение ролей
           content:
-            '*/*':
+            application/json:
               schema:
-                type: "array"
+                type: array
                 items:
-                  type: "string"
+                  type: string
+        "404":
+          description: Юзер не найден
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
   /roles/get/roles/{role}:
     get:
-      summary: "GET roles/get/roles/{role}"
-      operationId: "getRolesByRole"
+      tags:
+        - Роли/должности
+      summary: Получить все роли (связки юзера и роли в БД) по имени енама роли
+      description: Возвращает список ролей по имени енама роли
+      operationId: getRolesByRole
       parameters:
-        - name: "role"
-          in: "path"
+        - name: role
+          in: path
+          description: Роль (имя енама)
           required: true
           schema:
-            type: "string"
+            type: string
             enum:
-              - "ADMINISTRATION"
-              - "HOSTEL_SUPERVISOR"
-              - "FLOOR_SUPERVISOR"
-              - "RESPONSIBLE_KITCHEN"
-              - "RESPONSIBLE_HALL"
-              - "RESPONSIBLE_GYM"
-              - "WORKER_GYM"
-              - "RESPONSIBLE_FIRE_SAFETY"
-              - "RESPONSIBLE_SANITARY"
-              - "RESPONSIBLE_INTERNET"
-              - "RESPONSIBLE_SOOP"
-              - "WORKER_FIRE_SAFETY"
-              - "WORKER_SANITARY"
-              - "WORKER_SOOP"
-              - "STUDENT"
+              - ADMINISTRATION
+              - HOSTEL_SUPERVISOR
+              - FLOOR_SUPERVISOR
+              - RESPONSIBLE_KITCHEN
+              - RESPONSIBLE_HALL
+              - RESPONSIBLE_GYM
+              - WORKER_GYM
+              - RESPONSIBLE_FIRE_SAFETY
+              - RESPONSIBLE_SANITARY
+              - RESPONSIBLE_INTERNET
+              - RESPONSIBLE_SOOP
+              - WORKER_FIRE_SAFETY
+              - WORKER_SANITARY
+              - WORKER_SOOP
+              - STUDENT
       responses:
         "200":
-          description: "OK"
+          description: Успешное получение ролей
           content:
-            '*/*':
+            application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/RoleResponseDto"
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
+  /roles/{userId}:
+    delete:
+      tags:
+        - Роли/должности
+      summary: Удалить роль
+      description: Удаляет роль с юзера (снимает с должности) по ID юзера и имени
+        енама роли
+      operationId: deleteRole
+      parameters:
+        - name: userId
+          in: path
+          description: ID юзера
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: role
+          in: query
+          description: Имя енама роли
+          required: true
+          schema:
+            type: string
+            enum:
+              - ADMINISTRATION
+              - HOSTEL_SUPERVISOR
+              - FLOOR_SUPERVISOR
+              - RESPONSIBLE_KITCHEN
+              - RESPONSIBLE_HALL
+              - RESPONSIBLE_GYM
+              - WORKER_GYM
+              - RESPONSIBLE_FIRE_SAFETY
+              - RESPONSIBLE_SANITARY
+              - RESPONSIBLE_INTERNET
+              - RESPONSIBLE_SOOP
+              - WORKER_FIRE_SAFETY
+              - WORKER_SANITARY
+              - WORKER_SOOP
+              - STUDENT
+      responses:
+        "204":
+          description: Успешное удаление роли
+        "403":
+          description: Нет прав управлять ролью
+        "404":
+          description: Не найден юзер
+        "409":
+          description: Юзер не назначен на роль
+        "507":
+          description: Не удалось удалить роль
+        "500":
+          description: Неизвестная ошибка сервера
+        "400":
+          description: "Неверный запрос от клиента, нарушение ограничений запроса\
+            \ (тело, параметры)"
+        "401":
+          description: Запрос не авторизован
+      security:
+        - bearerAuth: [ ]
 components:
   schemas:
-    SessionLoginDto:
-      type: "object"
+    UserRegisterDto:
+      type: object
+      description: Тело запроса на регистрацию юзера
       properties:
+        firstName:
+          type: string
+          description: Имя
+          example: Вадим
+          maxLength: 50
+          minLength: 1
+          pattern: "^[А-ЯЁ][а-яё]{1,50}$"
+        lastName:
+          type: string
+          description: Фамилия
+          example: Гудко
+          maxLength: 50
+          minLength: 1
+          pattern: "^[А-ЯЁ][а-яё]{1,50}$"
+        middleName:
+          type: string
+          description: Отчество (опционально)
+          example: Макарыч
+          maxLength: 50
+          minLength: 0
+          pattern: "^$|^([А-ЯЁ][а-яё]{0,50})$"
         email:
-          type: "string"
-          nullable: true
+          type: string
+          format: email
+          description: Имейл
+          maxLength: 100
+          minLength: 5
+        phoneNumber:
+          type: string
+          description: Номер телефона (опционально)
+          example: 79137235412
         password:
-          type: "string"
-          nullable: true
-    SessionResponseDto:
-      type: "object"
+          type: string
+          description: Пароль
+          minLength: 1
+        roomNumber:
+          type: string
+          description: Номер комнаты
+          minLength: 1
+          pattern: "^\\d{3}[АБаб]?$"
+      required:
+        - email
+        - firstName
+        - lastName
+        - password
+        - roomNumber
+    UserResponseDto:
+      type: object
+      description: "Ответ со всей инфой о юзере, кроме пароля"
       properties:
         id:
-          type: "string"
-          format: "uuid"
-          nullable: true
+          type: string
+          format: uuid
+          description: ID
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        middleName:
+          type: string
+          description: Отчество
+        email:
+          type: string
+          description: Имейл
+        phoneNumber:
+          type: string
+          description: Номер телефона
+        roomNumber:
+          type: string
+          description: Номер комнаты
+        tgLink:
+          type: string
+          description: Имя в ТГ
+        vkLink:
+          type: string
+          description: Имя в ВК
+    SessionLoginDto:
+      type: object
+      description: Тело запроса для входа в аккаунт
+      properties:
+        email:
+          type: string
+          format: email
+          description: Имейл
+          minLength: 1
+        password:
+          type: string
+          description: Пароль
+          minLength: 1
+      required:
+        - email
+        - password
+    SessionResponseDto:
+      type: object
+      description: Ответ с инфой о сессии
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID сессии
         accessToken:
-          type: "string"
-          nullable: true
+          type: string
+          description: Access токен
     SessionRefreshResponse:
-      type: "object"
+      type: object
+      description: Ответ с обновленным access токеном
       properties:
         token:
-          type: "string"
-          nullable: true
+          type: string
+          description: Access токен
+    RoleSetDto:
+      type: object
+      description: Тело запроса присваивания роли юзеру
+      properties:
+        user:
+          type: string
+          format: uuid
+          description: "ID юзера, которому присваивается роль"
+        role:
+          type: string
+          description: Присваиваемая роль в виде имени енама
+          enum:
+            - ADMINISTRATION
+            - HOSTEL_SUPERVISOR
+            - FLOOR_SUPERVISOR
+            - RESPONSIBLE_KITCHEN
+            - RESPONSIBLE_HALL
+            - RESPONSIBLE_GYM
+            - WORKER_GYM
+            - RESPONSIBLE_FIRE_SAFETY
+            - RESPONSIBLE_SANITARY
+            - RESPONSIBLE_INTERNET
+            - RESPONSIBLE_SOOP
+            - WORKER_FIRE_SAFETY
+            - WORKER_SANITARY
+            - WORKER_SOOP
+            - STUDENT
+      required:
+        - role
+        - user
+    RoleResponseDto:
+      type: object
+      description: Ответ с информацией о роли (связки юзера и роли в БД)
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID роли (связки юзера и роли в БД)
+        user:
+          type: string
+          format: uuid
+          description: "ID юзера, которому присвоили роль"
+        role:
+          type: string
+          description: "Название роли, которую присвоили юзеру"
+          example: Студент
     UserAddLinkDto:
-      type: "object"
+      type: object
+      description: Тело запроса добавления/изменения контактов (ссылок на соцсети)
+        юзера
       properties:
         link:
-          type: "string"
-          nullable: true
-    UserRegisterDto:
-      type: "object"
-      properties:
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        email:
-          type: "string"
-          nullable: true
-        phoneNumber:
-          type: "string"
-          nullable: true
-        password:
-          type: "string"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-    UserResponseDto:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        email:
-          type: "string"
-          nullable: true
-        phoneNumber:
-          type: "string"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-        tgLink:
-          type: "string"
-          nullable: true
-        vkLink:
-          type: "string"
-          nullable: true
-    UserShortResponseDto:
-      type: "object"
-      properties:
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        email:
-          type: "string"
-          nullable: true
-        phoneNumber:
-          type: "string"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-        tgLink:
-          type: "string"
-          nullable: true
-        vkLink:
-          type: "string"
-          nullable: true
-    UserShortResponseDto2:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        tgLink:
-          type: "string"
-          nullable: true
-        vkLink:
-          type: "string"
-          nullable: true
-    UserResponseWithRoleDto:
-      type: "object"
-      properties:
-        id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        email:
-          type: "string"
-          nullable: true
-        phoneNumber:
-          type: "string"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-        roles:
-          type: "array"
-          nullable: true
-          items:
-            type: "string"
-        tgLink:
-          type: "string"
-          nullable: true
-        vkLink:
-          type: "string"
-          nullable: true
-    UserNameResponseDto:
-      type: "object"
-      properties:
-        firstName:
-          type: "string"
-          nullable: true
-        lastName:
-          type: "string"
-          nullable: true
-        middleName:
-          type: "string"
-          nullable: true
-        roomNumber:
-          type: "string"
-          nullable: true
-        tgLink:
-          type: "string"
-          nullable: true
-        vkLink:
-          type: "string"
-          nullable: true
+          type: string
+          description: "Имя в ТГ или ВК либо ссылка на профиль ТГ или ВК. Допустим\
+            ые форматы: 1) @username - юзернейм с собакой, 2) username - юзернейм\
+            \ без собаки, 3) https://t.me/username - полная ссылка, 4) t.me/username\
+            \ - короткая ссылка"
+          example: '@kik_butovski'
+          minLength: 1
+        userId:
+          type: string
+          format: uuid
+          description: "ID юзера (опционально). Если null, то ссылка добавляется т\
+            екущему юзеру (отправившему запрос)"
+      required:
+        - link
     RoleEditDto:
-      type: "object"
+      type: object
+      description: Тело запроса изменения роли юзера
       properties:
         id:
-          type: "string"
-          format: "uuid"
-          nullable: true
+          type: string
+          format: uuid
+          description: "ID роли (связки юзера и роли в БД), которую нужно изменить"
         role:
-          type: "string"
-          nullable: true
+          type: string
+          description: "Имя енама роли, на которую происходит изменение"
           enum:
-            - "ADMINISTRATION"
-            - "HOSTEL_SUPERVISOR"
-            - "FLOOR_SUPERVISOR"
-            - "RESPONSIBLE_KITCHEN"
-            - "RESPONSIBLE_HALL"
-            - "RESPONSIBLE_GYM"
-            - "WORKER_GYM"
-            - "RESPONSIBLE_FIRE_SAFETY"
-            - "RESPONSIBLE_SANITARY"
-            - "RESPONSIBLE_INTERNET"
-            - "RESPONSIBLE_SOOP"
-            - "WORKER_FIRE_SAFETY"
-            - "WORKER_SANITARY"
-            - "WORKER_SOOP"
-            - "STUDENT"
-    RoleResponseDto:
-      type: "object"
+            - ADMINISTRATION
+            - HOSTEL_SUPERVISOR
+            - FLOOR_SUPERVISOR
+            - RESPONSIBLE_KITCHEN
+            - RESPONSIBLE_HALL
+            - RESPONSIBLE_GYM
+            - WORKER_GYM
+            - RESPONSIBLE_FIRE_SAFETY
+            - RESPONSIBLE_SANITARY
+            - RESPONSIBLE_INTERNET
+            - RESPONSIBLE_SOOP
+            - WORKER_FIRE_SAFETY
+            - WORKER_SANITARY
+            - WORKER_SOOP
+            - STUDENT
+      required:
+        - id
+        - role
+    UserResponseWithRoleDto:
+      type: object
+      description: Ответ со всей инфой о юзере вместе с ролями
       properties:
         id:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        user:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        role:
-          type: "string"
-          nullable: true
-    RoleSetDto:
-      type: "object"
+          type: string
+          format: uuid
+          description: ID
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        middleName:
+          type: string
+          description: Отчество
+        email:
+          type: string
+          description: Имейл
+        phoneNumber:
+          type: string
+          description: Номер телефона
+        roomNumber:
+          type: string
+          description: Номер комнаты
+        roles:
+          type: array
+          description: Список ролей
+          items:
+            type: string
+        tgLink:
+          type: string
+          description: Имя в ТГ
+        vkLink:
+          type: string
+          description: Имя в ВК
+    UserShortResponseDto2:
+      type: object
+      description: "Ответ с краткой инфой о юзере (ID, ФИО и ссылки на соцсети)"
       properties:
-        user:
-          type: "string"
-          format: "uuid"
-          nullable: true
-        role:
-          type: "string"
-          nullable: true
-          enum:
-            - "ADMINISTRATION"
-            - "HOSTEL_SUPERVISOR"
-            - "FLOOR_SUPERVISOR"
-            - "RESPONSIBLE_KITCHEN"
-            - "RESPONSIBLE_HALL"
-            - "RESPONSIBLE_GYM"
-            - "WORKER_GYM"
-            - "RESPONSIBLE_FIRE_SAFETY"
-            - "RESPONSIBLE_SANITARY"
-            - "RESPONSIBLE_INTERNET"
-            - "RESPONSIBLE_SOOP"
-            - "WORKER_FIRE_SAFETY"
-            - "WORKER_SANITARY"
-            - "WORKER_SOOP"
-            - "STUDENT"
+        id:
+          type: string
+          format: uuid
+          description: ID
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        middleName:
+          type: string
+          description: Отчество
+        tgLink:
+          type: string
+          description: Имя в ТГ
+        vkLink:
+          type: string
+          description: Имя в ВК
+    UserShortResponseDto:
+      type: object
+      description: "Ответ со всей инфой о юзере, кроме пароля и ID"
+      properties:
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        middleName:
+          type: string
+          description: Отчество
+        email:
+          type: string
+          description: Имейл
+        phoneNumber:
+          type: string
+          description: Номер телефона
+        roomNumber:
+          type: string
+          description: Номер комнаты
+        tgLink:
+          type: string
+          description: Имя в ТГ
+        vkLink:
+          type: string
+          description: Имя в ВК
+    UserNameResponseDto:
+      type: object
+      description: "Ответ с ФИО, комнатой и контактами юзера"
+      properties:
+        firstName:
+          type: string
+          description: Имя
+        lastName:
+          type: string
+          description: Фамилия
+        middleName:
+          type: string
+          description: Отчество
+        roomNumber:
+          type: string
+          description: Номер комнаты
+        tgLink:
+          type: string
+          description: Имя в ТГ
+        vkLink:
+          type: string
+          description: Имя в ВК
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

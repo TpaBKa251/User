@@ -10,12 +10,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.tpu.hostel.internal.common.logging.LogFilter;
-import ru.tpu.hostel.internal.common.logging.SecretArgument;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
+import ru.tpu.hostel.internal.utils.LogFilter;
 import ru.tpu.hostel.internal.utils.Roles;
+import ru.tpu.hostel.internal.utils.SecretArgument;
 import ru.tpu.hostel.internal.utils.TimeUtil;
 import ru.tpu.hostel.user.dto.request.UserAddLinkDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
@@ -53,10 +54,19 @@ public class UserServiceImpl implements UserDetailsService {
 
     private static final String ID = "id";
 
+    private static final String ROOM_NUMBER = "roomNumber";
+
     private static final LocalDate DEFAULT_DATE_OF_DOCUMENT = LocalDate.of(0, 1, 1);
 
     private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
             = "Кто-то уже изменил профиль. Обновите данные и повторите попытку";
+
+    private static final String ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE
+            = "У вас нет прав изменять контакты жителей другого этажа";
+
+    private static final List<String> STARTS_OF_LINKS = List.of("https:", "http:", "t.me", "vk.com");
+
+    private static final String START_OF_SOCIAL_NAME = "@";
 
     private final UserRepository userRepository;
 
@@ -172,8 +182,7 @@ public class UserServiceImpl implements UserDetailsService {
     public List<UserShortResponseDto2> getAllUsersByRole(Roles role, int page, int size, boolean onMyFloor) {
         if (onMyFloor) {
             ExecutionContext context = ExecutionContext.get();
-            String roomNumber = userRepository.findRoomNumberById(context.getUserID())
-                    .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
+            String roomNumber = getRoomNumberByUserId(context.getUserID());
             return userRepository.findAllByFloorAndRole(role, String.valueOf(roomNumber.charAt(0))).stream()
                     .map(UserMapper::mapUserToUserShortResponseDto2)
                     .toList();
@@ -210,7 +219,7 @@ public class UserServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
         String roomNumber = user.getRoomNumber();
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("roomNumber"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(ROOM_NUMBER));
 
         return userRepository
                 .findAllByRoomNumberStartingWithOrderByRoomNumber(String.valueOf(roomNumber.charAt(0)), pageable)
@@ -234,12 +243,11 @@ public class UserServiceImpl implements UserDetailsService {
         return userRepository.findAllIdsOfUsersInRooms(roomNumbers);
     }
 
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addLink(LinkType linkType, UserAddLinkDto userAddLinkDto) {
-        User user = userRepository.findByIdOptimistic(ExecutionContext.get().getUserID())
-                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
+        User user = getUserForLinkAddition(userAddLinkDto);
 
-        String socialMediaSiteName = getSocialMediaSiteName(userAddLinkDto.link());
+        String socialMediaSiteName = extractUsernameFromLink(userAddLinkDto.link());
 
         if (linkType == TG) {
             user.setTgLink(socialMediaSiteName);
@@ -254,14 +262,40 @@ public class UserServiceImpl implements UserDetailsService {
         }
     }
 
-    private String getSocialMediaSiteName(String link) {
-        if (link.startsWith("https:")
-                || link.startsWith("http:")
-                || link.startsWith("t.me")
-                || link.startsWith("vk.com")) {
-            return link.substring(link.lastIndexOf('/') + 1);
-        } else if (link.startsWith("@")) {
+    private User getUserForLinkAddition(UserAddLinkDto userAddLinkDto) {
+        ExecutionContext context = ExecutionContext.get();
+
+        if (userAddLinkDto.userId() == null) {
+            return getUserByIdWithOptimisticLock(context.getUserID());
+        }
+
+        if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
+            return getUserByIdWithOptimisticLock(userAddLinkDto.userId());
+        }
+
+        if (context.getUserRoles().contains(Roles.FLOOR_SUPERVISOR)) {
+            String currentUserRoomNumber = getRoomNumberByUserId(context.getUserID());
+            String userForLinkAdditionalRoomNumber = getRoomNumberByUserId(userAddLinkDto.userId());
+
+            if (currentUserRoomNumber.charAt(0) == userForLinkAdditionalRoomNumber.charAt(0)) {
+                return getUserByIdWithOptimisticLock(userAddLinkDto.userId());
+            }
+        }
+
+        throw new ServiceException.Forbidden(ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE);
+    }
+
+    private User getUserByIdWithOptimisticLock(UUID userId) {
+        return userRepository.findByIdOptimistic(userId)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
+    }
+
+    private String extractUsernameFromLink(String link) {
+        if (link.startsWith(START_OF_SOCIAL_NAME)) {
             return link.substring(1);
+        }
+        if (STARTS_OF_LINKS.stream().anyMatch(link::startsWith)) {
+            return link.substring(link.lastIndexOf('/') + 1);
         }
 
         return link;

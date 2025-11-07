@@ -33,11 +33,13 @@ public class RoleServiceImpl implements RoleService {
 
     private static final String ROLE_MANAGEMENT_EXCEPTION_MESSAGE = "У вас нет прав для управления этой должностью";
 
-    private static final String ROLE_NOT_FOUND_EXCEPTION_MESSAGE = "должность не найдена";
+    private static final String ROLE_NOT_FOUND_EXCEPTION_MESSAGE = "Должность не найдена";
 
     private static final String USER_NOT_FOUND_EXCEPTION_MESSAGE = "Пользователь не найден";
 
     private static final String USER_ALREADY_HAS_ROLE_EXCEPTION_MESSAGE = "Пользователь уже назначен на эту должность";
+
+    private static final String USER_DOES_NOT_HAVE_ROLE_EXCEPTION_MESSAGE = "Пользователь не назначен на эту должность";
 
     private final RoleRepository roleRepository;
 
@@ -173,6 +175,10 @@ public class RoleServiceImpl implements RoleService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
+
+        if (!user.getRoles().stream().map(Role::getRole).toList().contains(role)) {
+            throw new ServiceException.Conflict(USER_DOES_NOT_HAVE_ROLE_EXCEPTION_MESSAGE);
+        }
 
         if (!user.getRoles().removeIf(r -> r.getRole().equals(role))) {
             throw new ServiceException.InsufficientStorage("Не удалось снять пользователя с должности. Попробуйте позже.");
