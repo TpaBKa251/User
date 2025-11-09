@@ -14,6 +14,10 @@ on:
       - '**/config/**'
       - '**/docker-compose-api.yml'
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build:
     name: Build
@@ -46,11 +50,15 @@ jobs:
           name: app-jar
           path: build/libs/*.jar
           retention-days: 1
+          compression-level: 0
 
   tests:
     name: Run Tests
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        include: [{}]
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -69,7 +77,9 @@ jobs:
     name: Build and run in Docker
     runs-on: ubuntu-latest
     needs: build
-
+    strategy:
+      matrix:
+        include: [{}]
     steps:
       - uses: actions/checkout@v4
       - name: Download built jar
@@ -97,6 +107,9 @@ jobs:
     name: Sonar
     runs-on: ubuntu-latest
     needs: build
+    strategy:
+      matrix:
+        include: [{}]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -118,8 +131,8 @@ jobs:
   deploy:
     name: Deploy on Prod
     runs-on: ubuntu-latest
-    needs: [ dockerized, tests ]
-
+    needs: [dockerized, tests]
+    if: always() && (needs.dockerized.result == 'success' && needs.tests.result == 'success')
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
