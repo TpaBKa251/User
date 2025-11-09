@@ -9,7 +9,6 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import ru.tpu.hostel.internal.exception.ServiceException;
@@ -17,17 +16,16 @@ import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.repository.UserRepository;
 
 import javax.crypto.spec.SecretKeySpec;
-import java.rmi.server.ServerCloneException;
 import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+
+    private static final String USER_ID = "userId";
 
     private final UserRepository userRepository;
 
@@ -47,11 +45,11 @@ public class JwtService {
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("userId", user.getId().toString())
+                .claim(USER_ID, user.getId().toString())
                 .claim("roles", user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .map(role -> role.replace("ROLE_", ""))
-                        .collect(Collectors.toList()))
+                        .toList())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration.toMillis()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -61,21 +59,11 @@ public class JwtService {
     public String generateRefreshToken(User user) {
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("userId", user.getId().toString())
+                .claim(USER_ID, user.getId().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration.toMillis()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
-    }
-
-    public UUID getUserIdFromToken(Authentication authentication) {
-        String token = (String) authentication.getCredentials();
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return UUID.fromString(claims.get("userId", String.class));
     }
 
     public UUID getUserIdFromToken(String token) {
@@ -84,24 +72,7 @@ public class JwtService {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-        return UUID.fromString(claims.get("userId", String.class));
-    }
-
-
-    public List<String> getRolesFromToken(Authentication authentication) {
-        String token = (String) authentication.getCredentials();
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        List<?> rawRoles = claims.get("roles", List.class);
-
-        return rawRoles.stream()
-                .filter(role -> role instanceof String)
-                .map(role -> (String) role)
-                .collect(Collectors.toList());
+        return UUID.fromString(claims.get(USER_ID, String.class));
     }
 
     public void checkRefreshTokenValidity(String token) {
@@ -116,7 +87,7 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
 
-            UUID userId = UUID.fromString(claims.get("userId", String.class));
+            UUID userId = UUID.fromString(claims.get(USER_ID, String.class));
             if (!userId.equals(getUserIdFromToken(token))) {
                 throw new ServiceException.Unauthorized("Invalid token: userId is missing");
             }

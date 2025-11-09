@@ -1,25 +1,9 @@
-//package ru.tpu.hostel.user.repository;
-//
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import ru.tpu.hostel.internal.utils.Roles;
-//import ru.tpu.hostel.user.Data;
-//import ru.tpu.hostel.user.entity.Role;
-//import ru.tpu.hostel.user.entity.User;
-//import ru.tpu.hostel.user.repository.util.RepositoryTest;
-//
-//import java.util.List;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//
+package ru.tpu.hostel.user.repository;
+
 //@RepositoryTest
 //@DisplayName("Тесты для репозитория пользователей")
-//class UserRepositoryTest {
+@SuppressWarnings({"java:S125", "java:S2187", "unused"})
+class UserRepositoryTest {
 //
 //    @Autowired
 //    private UserRepository userRepository;
@@ -122,4 +106,4 @@
 //                .isEmpty();
 //    }
 //
-//}
+}

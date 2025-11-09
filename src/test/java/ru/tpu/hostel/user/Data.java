@@ -2,6 +2,7 @@ package ru.tpu.hostel.user;
 
 import ru.tpu.hostel.user.entity.User;
 
+@SuppressWarnings({"unused"})
 public class Data {
 
     public static final String FIRST_NAME_IVAN = "Иван";

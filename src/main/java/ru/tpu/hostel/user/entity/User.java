@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
@@ -27,6 +28,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "users", schema = "\"user\"")
 public class User implements UserDetails {
+
+    @Serial
+    private static final long serialVersionUID = 3896253837197471988L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -54,7 +58,7 @@ public class User implements UserDetails {
     @Column(name = "room_number", nullable = false)
     private String roomNumber;
 
-    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.LAZY)
     private Set<Role> roles;
 
     @Column(name = "tg_link")
@@ -83,6 +87,7 @@ public class User implements UserDetails {
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
+        if (!(o instanceof User user)) return false;
         Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy
                 ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
                 : o.getClass();
@@ -90,7 +95,6 @@ public class User implements UserDetails {
                 ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass()
                 : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        User user = (User) o;
         return getId() != null && Objects.equals(getId(), user.getId());
     }
 

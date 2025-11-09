@@ -15,8 +15,9 @@ import ru.tpu.hostel.user.external.rest.admin.dto.request.DocumentRequestDto;
 public interface ClientAdminService {
 
     @PostMapping("/balance")
-    ResponseEntity<?> addBalance(@RequestBody @Valid BalanceRequestDto balanceRequestDto);
+    ResponseEntity<String> addBalance(@RequestBody @Valid BalanceRequestDto balanceRequestDto);
 
     @PostMapping("/documents")
-    ResponseEntity<?> addDocument(@RequestBody @Valid DocumentRequestDto documentRequestDto);
+    ResponseEntity<String> addDocument(@RequestBody @Valid DocumentRequestDto documentRequestDto);
+
 }

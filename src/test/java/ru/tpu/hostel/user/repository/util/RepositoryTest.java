@@ -16,5 +16,6 @@ import java.lang.annotation.Target;
 @Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ExtendWith(PostgresTestContainerExtension.class)
+@SuppressWarnings("unused")
 public @interface RepositoryTest {
 }

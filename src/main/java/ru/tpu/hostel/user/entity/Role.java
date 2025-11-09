@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.Setter;
 import ru.tpu.hostel.internal.utils.Roles;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Getter
@@ -22,7 +24,10 @@ import java.util.UUID;
 @Entity
 @SuppressWarnings("java:S1700")
 @Table(name = "roles", schema = "\"user\"")
-public class Role {
+public class Role implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 4828464657708191997L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

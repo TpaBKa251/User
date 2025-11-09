@@ -1,37 +1,9 @@
-//package ru.tpu.hostel.user.service;
-//
-//import org.junit.jupiter.api.AfterEach;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.extension.ExtendWith;
-//import org.mockito.InjectMocks;
-//import org.mockito.Mock;
-//import org.mockito.junit.jupiter.MockitoExtension;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.PageRequest;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.data.domain.Sort;
-//import ru.tpu.hostel.internal.utils.Roles;
-//import ru.tpu.hostel.user.Data;
-//import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
-//import ru.tpu.hostel.user.entity.User;
-//import ru.tpu.hostel.user.repository.UserRepository;
-//import ru.tpu.hostel.user.service.impl.UserServiceImpl;
-//
-//import java.util.List;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.Assertions.tuple;
-//import static org.mockito.Mockito.times;
-//import static org.mockito.Mockito.verify;
-//import static org.mockito.Mockito.verifyNoMoreInteractions;
-//import static org.mockito.Mockito.when;
-//
+package ru.tpu.hostel.user.service;
+
 //@ExtendWith(MockitoExtension.class)
 //@DisplayName("Тесты сервиса пользователей UserServiceImpl")
-//class UserServiceImplTest {
+@SuppressWarnings({"java:S125", "java:S2187", "unused"})
+class UserServiceImplTest {
 //
 //    @Mock
 //    private UserRepository userRepository;
@@ -113,4 +85,4 @@
 //        assertThat(result).isEmpty();
 //        verify(userRepository, times(1)).findAllByRoles_Role(role, pageable);
 //    }
-//}
+}
