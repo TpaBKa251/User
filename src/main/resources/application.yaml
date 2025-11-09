@@ -87,3 +87,10 @@ otlp:
 rest:
   base-url:
     admin-service: http://administrationservice:8080
+
+springdoc:
+  api-docs:
+    enabled: false
+
+  swagger-ui:
+    enabled: false
