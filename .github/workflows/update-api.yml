@@ -12,33 +12,39 @@ jobs:
   update-openapi:
     name: Update API
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: hostelService
-          POSTGRES_USER: hostel
-          POSTGRES_PASSWORD: ilia
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5430:5432
 
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Set up Docker Compose
         run: |
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      - name: Build RabbitMQ
-        run: docker-compose -f docker-compose-api.yml up --build -d rabbitmq
+      - name: Start RabbitMQ
+        run: docker-compose -f docker-compose-api.yml up
+
+      - name: Wait for RabbitMQ
+        run: |
+          echo "Waiting for RabbitMQ..."
+          until docker-compose -f docker-compose-api.yml logs rabbitmq | grep -q "Server startup complete"; do
+            sleep 5
+            echo "Waiting for RabbitMQ to start..."
+          done
+          echo "RabbitMQ is ready!"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -52,7 +58,7 @@ jobs:
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew clean build
+          ./gradlew clean build -x test
 
       - name: Start application and get OpenAPI spec
         env:
@@ -75,17 +81,18 @@ jobs:
           
           if ! curl -f http://localhost:8081/actuator/health; then
             echo "Application failed to start within 150 seconds"
+            docker-compose -f docker-compose-api.yml logs rabbitmq || true
             exit 1
           fi
           
-          # Скачиваем спецификацию
           curl -f http://localhost:8081/api-docs.yaml -o openapi-temp.yaml
           
           kill $APP_PID || true
           wait $APP_PID || true
 
-      - name: Stop and remove containers
-        run: docker-compose -f docker-compose.yml down
+      - name: Cleanup containers
+        run: |
+          docker-compose -f docker-compose-api.yml down || true
 
       - name: Update OpenAPI file
         run: |

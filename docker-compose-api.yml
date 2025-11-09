@@ -1,5 +1,21 @@
 version: '3.9'
 services:
+  postgres:
+    container_name: hostelDB
+    image: postgres:15
+    hostname: hostelDB
+    environment:
+      - POSTGRES_DB=hostelService
+      - POSTGRES_USER=hostel
+      - POSTGRES_PASSWORD=ilia
+    ports:
+      - "5430:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   rabbitmq:
     image: rabbitmq:4.1.0-management
     container_name: rabbitmq
