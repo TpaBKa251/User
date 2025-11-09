@@ -5,20 +5,20 @@ info:
     , ролями и сессиями"
   version: 1.0.0
 servers:
-  - url: http://localhost:8081
-    description: Generated server url
+- url: http://localhost:8081
+  description: Generated server url
 tags:
-  - name: Юзеры
-    description: Эндпоинты для работы с юзерами
-  - name: Сессии
-    description: Эндпоинты для работы с сессиями
-  - name: Роли/должности
-    description: Эндпоинты для работы с ролями/должностями юзеров
+- name: Юзеры
+  description: Эндпоинты для работы с юзерами
+- name: Сессии
+  description: Эндпоинты для работы с сессиями
+- name: Роли/должности
+  description: Эндпоинты для работы с ролями/должностями юзеров
 paths:
   /users:
     post:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Создать (зарегистрировать) юзера
       description: Создает нового юзера
       operationId: registerUser
@@ -43,7 +43,7 @@ paths:
   /sessions:
     post:
       tags:
-        - Сессии
+      - Сессии
       summary: Войти в аккаунт
       description: Создает новую сессию юзера
       operationId: login
@@ -70,17 +70,17 @@ paths:
   /sessions/auth/token:
     get:
       tags:
-        - Сессии
+      - Сессии
       summary: Обновить access токен
       description: Обновляет access и refresh токены для сессии по refresh токену
       operationId: refreshToken
       parameters:
-        - name: refreshToken
-          in: cookie
-          description: Refresh токен
-          required: true
-          schema:
-            type: string
+      - name: refreshToken
+        in: cookie
+        description: Refresh токен
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Успешное обновление токенов
@@ -101,17 +101,17 @@ paths:
             \ (тело, параметры)"
     post:
       tags:
-        - Сессии
+      - Сессии
       summary: Обновить access токен
       description: Обновляет access и refresh токены для сессии по refresh токену
       operationId: refreshTokenPost
       parameters:
-        - name: refreshToken
-          in: cookie
-          description: Refresh токен
-          required: true
-          schema:
-            type: string
+      - name: refreshToken
+        in: cookie
+        description: Refresh токен
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Успешное обновление токенов
@@ -133,7 +133,7 @@ paths:
   /roles:
     post:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Создать роль
       description: "Присваивает юзеру роль. Если у текущего юзера (отправившего за\
         прос) такая же роль, то она передается: у текущего она удаляется, у указан\
@@ -168,25 +168,15 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/links:
     patch:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Добавить юзеру ссылку на соцсеть
       description: "Добавляет юзеру ссылку на ВК ли ТГ (имя). Если в теле не указа\
         н ID юзера, то ссылка добавляется текущему юзеру (отправившему запрос)"
       operationId: addLink
-      parameters:
-        - name: linkType
-          in: query
-          description: Имя соцсети
-          required: true
-          schema:
-            type: string
-            enum:
-              - TG
-              - VK
       requestBody:
         content:
           application/json:
@@ -210,22 +200,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /sessions/logout/{sessionId}:
     patch:
       tags:
-        - Сессии
+      - Сессии
       summary: Выйти из аккаунта
       description: "Помечает сессию неактивной, удаляет refresh токен"
       operationId: logout
       parameters:
-        - name: sessionId
-          in: path
-          description: ID сессии
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: sessionId
+        in: path
+        description: ID сессии
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "204":
           description: Успешный выход из аккаунта
@@ -241,11 +231,11 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/edit:
     patch:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Изменить роль
       description: Меняет юзеру роль
       operationId: editRole
@@ -277,11 +267,11 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/profile:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить инфу о текущем юзере
       description: Возвращает всю инфу о текущем юзере (отправившем запрос)
       operationId: getUser
@@ -302,35 +292,35 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из части ФИО
       description: "Возвращает список из имен или фамилий, или отчеств по параметр\
         ам. Если указано имя, то возвращается список их похожих имен, аналогично с\
         \ фамилией и отчеством. Пример: firstName=ва, ответ=[Вадим, Вован]"
       operationId: getAllUsersWithName
       parameters:
-        - name: firstName
-          in: query
-          description: Имя
-          required: false
-          schema:
-            type: string
-        - name: lastName
-          in: query
-          description: Фамилия
-          required: false
-          schema:
-            type: string
-        - name: middleName
-          in: query
-          description: Отчество
-          required: false
-          schema:
-            type: string
+      - name: firstName
+        in: query
+        description: Имя
+        required: false
+        schema:
+          type: string
+      - name: lastName
+        in: query
+        description: Фамилия
+        required: false
+        schema:
+          type: string
+      - name: middleName
+        in: query
+        description: Отчество
+        required: false
+        schema:
+          type: string
       responses:
         "200":
           description: Успешное получение частей ФИО
@@ -348,22 +338,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/with/roles/{id}:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить инфу с ролями о юзере по ID
       description: Возвращает инфу с ролями о юзере по ID
       operationId: getUserWithRoles
       parameters:
-        - name: id
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: id
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение инфы о юзере
@@ -381,22 +371,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/room/{userId}:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить номер комнаты юзера
       description: Возвращает номер комнаты юзера с указанным ID
       operationId: getRoomNumber
       parameters:
-        - name: userId
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: userId
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -414,11 +404,11 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/role:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из краткой инфы о юзерах с ролью
       description: "Постранично возвращает список из краткой инфы о юзерах с ролью\
         . Если указать параметр onMyFloor, то вернется список для юзеров с того же\
@@ -426,49 +416,49 @@ paths:
         ся"
       operationId: getUsersByRole
       parameters:
-        - name: role
-          in: query
-          description: Роль
-          required: true
-          schema:
-            type: string
-            enum:
-              - ADMINISTRATION
-              - HOSTEL_SUPERVISOR
-              - FLOOR_SUPERVISOR
-              - RESPONSIBLE_KITCHEN
-              - RESPONSIBLE_HALL
-              - RESPONSIBLE_GYM
-              - WORKER_GYM
-              - RESPONSIBLE_FIRE_SAFETY
-              - RESPONSIBLE_SANITARY
-              - RESPONSIBLE_INTERNET
-              - RESPONSIBLE_SOOP
-              - WORKER_FIRE_SAFETY
-              - WORKER_SANITARY
-              - WORKER_SOOP
-              - STUDENT
-        - name: page
-          in: query
-          description: Номер страницы
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: onMyFloor
-          in: query
-          description: Указывает на поиск в рамках этажа текущего юзера. Отключает пагинацию
-          required: false
-          schema:
-            type: boolean
-            default: false
+      - name: role
+        in: query
+        description: Роль
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
+      - name: page
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: onMyFloor
+        in: query
+        description: Указывает на поиск в рамках этажа текущего юзера. Отключает пагинацию
+        required: false
+        schema:
+          type: boolean
+          default: false
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -486,37 +476,37 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/name:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из краткой инфы о юзерах с ФИО
       description: Постранично возвращает список из краткой инфы о юзерах с похожим
         ФИО
       operationId: getUsersByName
       parameters:
-        - name: name
-          in: query
-          description: ФИО
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: page
-          in: query
-          description: Номер страницы
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: true
-          schema:
-            type: integer
-            format: int32
+      - name: name
+        in: query
+        description: ФИО
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: page
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -534,59 +524,59 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/name/without/role:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из краткой инфы о юзерах с ФИО и без роли
       description: Постранично возвращает список из краткой инфы о юзерах с похожим
         ФИО и без роли
       operationId: getUsersByNameWithoutRole
       parameters:
-        - name: name
-          in: query
-          description: ФИО
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: role
-          in: query
-          description: Роль
-          required: true
-          schema:
-            type: string
-            enum:
-              - ADMINISTRATION
-              - HOSTEL_SUPERVISOR
-              - FLOOR_SUPERVISOR
-              - RESPONSIBLE_KITCHEN
-              - RESPONSIBLE_HALL
-              - RESPONSIBLE_GYM
-              - WORKER_GYM
-              - RESPONSIBLE_FIRE_SAFETY
-              - RESPONSIBLE_SANITARY
-              - RESPONSIBLE_INTERNET
-              - RESPONSIBLE_SOOP
-              - WORKER_FIRE_SAFETY
-              - WORKER_SANITARY
-              - WORKER_SOOP
-              - STUDENT
-        - name: page
-          in: query
-          description: Номер страницы
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: true
-          schema:
-            type: integer
-            format: int32
+      - name: name
+        in: query
+        description: ФИО
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: role
+        in: query
+        description: Роль
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
+      - name: page
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -604,59 +594,59 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/name/with/role:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из краткой инфы о юзерах с ФИО и ролью
       description: Постранично возвращает список из краткой инфы о юзерах с похожим
         ФИО и ролью
       operationId: getUsersByNameWithRole
       parameters:
-        - name: name
-          in: query
-          description: ФИО
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: role
-          in: query
-          description: Роль
-          required: true
-          schema:
-            type: string
-            enum:
-              - ADMINISTRATION
-              - HOSTEL_SUPERVISOR
-              - FLOOR_SUPERVISOR
-              - RESPONSIBLE_KITCHEN
-              - RESPONSIBLE_HALL
-              - RESPONSIBLE_GYM
-              - WORKER_GYM
-              - RESPONSIBLE_FIRE_SAFETY
-              - RESPONSIBLE_SANITARY
-              - RESPONSIBLE_INTERNET
-              - RESPONSIBLE_SOOP
-              - WORKER_FIRE_SAFETY
-              - WORKER_SANITARY
-              - WORKER_SOOP
-              - STUDENT
-        - name: page
-          in: query
-          description: Номер страницы
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: true
-          schema:
-            type: integer
-            format: int32
+      - name: name
+        in: query
+        description: ФИО
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: role
+        in: query
+        description: Роль
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
+      - name: page
+        in: query
+        description: Номер страницы
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: true
+        schema:
+          type: integer
+          format: int32
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -674,22 +664,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/id/{id}:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить инфу о юзере по ID
       description: "Возвращает всю инфу о юзере по ID, но кроме ID"
       operationId: getUserById
       parameters:
-        - name: id
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: id
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение инфы о юзере
@@ -707,22 +697,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/by/id/short/{id}:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить краткую инфу о юзере по ID
       description: Возвращает краткую инфу о юзере по ID
       operationId: getUserByIdShort
       parameters:
-        - name: id
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: id
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение краткой инфы о юзере
@@ -740,60 +730,60 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить инфу о всех юзерах
       description: Постранично возвращает всю инфу о всех юзерах по набору параметров
         (список)
       operationId: getAllUsers
       parameters:
-        - name: page
-          in: query
-          description: Номер страницы
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 0
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 1000000000
-        - name: firstName
-          in: query
-          description: Имя
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: lastName
-          in: query
-          description: Фамилия
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: middleName
-          in: query
-          description: Отчество
-          required: false
-          schema:
-            type: string
-            default: ""
-        - name: room
-          in: query
-          description: Номер комнаты
-          required: false
-          schema:
-            type: string
-            default: ""
+      - name: page
+        in: query
+        description: Номер страницы
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 1000000000
+      - name: firstName
+        in: query
+        description: Имя
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: lastName
+        in: query
+        description: Фамилия
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: middleName
+        in: query
+        description: Отчество
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: room
+        in: query
+        description: Номер комнаты
+        required: false
+        schema:
+          type: string
+          default: ""
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -811,39 +801,39 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all/on/floor/{userId}:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из инфы с ФИО и контактами о юзерах на этаже
       description: "Постранично возвращает список из инфы с ФИО и контактами о юзе\
         рах, которые живут на том же этаже, что юзер, чей ID указан"
       operationId: getAllOnFloor
       parameters:
-        - name: userId
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: page
-          in: query
-          description: Номер страницы
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 0
-        - name: size
-          in: query
-          description: Количество записей на странице
-          required: false
-          schema:
-            type: integer
-            format: int32
-            default: 10
+      - name: userId
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: page
+        in: query
+        description: Номер страницы
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        description: Количество записей на странице
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -863,24 +853,24 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all/in/rooms:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из инфы с ФИО и контактами о юзерах в комнатах
       description: "Возвращает список из инфы с ФИО и контактами о юзерах, которые\
         \ живут в указанных комнатах"
       operationId: getAllInRooms
       parameters:
-        - name: roomNumbers
-          in: query
-          description: Номера комнат
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
+      - name: roomNumbers
+        in: query
+        description: Номера комнат
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -898,24 +888,24 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all/in/rooms/with/id:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список ID юзеров в комнатах
       description: "Возвращает список из ID юзеров, которые живут в указанных комн\
         атах"
       operationId: getAllInRoomsWithId
       parameters:
-        - name: roomNumbers
-          in: query
-          description: Номера комнат
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
+      - name: roomNumbers
+        in: query
+        description: Номера комнат
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -934,24 +924,24 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all/by/ids:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из всей инфы о юзерах с ID
       description: Возвращает список из полной инфы о юзерах с указанными ID
       operationId: getAllUsersWithIds
       parameters:
-        - name: ids
-          in: query
-          description: Список ID юзеров
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
+      - name: ids
+        in: query
+        description: Список ID юзеров
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -969,24 +959,24 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /users/get/all/by/ids/short:
     get:
       tags:
-        - Юзеры
+      - Юзеры
       summary: Получить список из краткой инфы о юзерах с ID
       description: Возвращает список из краткой инфы о юзерах с указанными ID
       operationId: getAllUsersWithIdsShort
       parameters:
-        - name: ids
-          in: query
-          description: Список ID юзеров
-          required: true
-          schema:
-            type: array
-            items:
-              type: string
-              format: uuid
+      - name: ids
+        in: query
+        description: Список ID юзеров
+        required: true
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Успешное получение инфы о юзерах
@@ -1004,22 +994,22 @@ paths:
           description: "Неверный запрос от клиента, нарушение ограничений запроса\
             \ (тело, параметры)"
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/get/{id}:
     get:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Получить роль по ID
       description: Возвращает роль по ее ID
       operationId: getRole
       parameters:
-        - name: id
-          in: path
-          description: ID роли
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: id
+        in: path
+        description: ID роли
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение роли
@@ -1037,22 +1027,22 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/get/user/roles/{userId}:
     get:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Получить все роли (связки юзера и роли в БД) юзера по его ID
       description: Возвращает список ролей юзера по его ID
       operationId: getRoleByUserId
       parameters:
-        - name: userId
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: userId
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение ролей
@@ -1072,22 +1062,22 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/get/user/roles/all/{userId}:
     get:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: "Получить все роли (названия, в том числе дочерние) юзера по его ID"
       description: Возвращает список названий ролей юзера по его ID
       operationId: getAllRolesByUserId
       parameters:
-        - name: userId
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
+      - name: userId
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
       responses:
         "200":
           description: Успешное получение ролей
@@ -1107,37 +1097,37 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/get/roles/{role}:
     get:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Получить все роли (связки юзера и роли в БД) по имени енама роли
       description: Возвращает список ролей по имени енама роли
       operationId: getRolesByRole
       parameters:
-        - name: role
-          in: path
-          description: Роль (имя енама)
-          required: true
-          schema:
-            type: string
-            enum:
-              - ADMINISTRATION
-              - HOSTEL_SUPERVISOR
-              - FLOOR_SUPERVISOR
-              - RESPONSIBLE_KITCHEN
-              - RESPONSIBLE_HALL
-              - RESPONSIBLE_GYM
-              - WORKER_GYM
-              - RESPONSIBLE_FIRE_SAFETY
-              - RESPONSIBLE_SANITARY
-              - RESPONSIBLE_INTERNET
-              - RESPONSIBLE_SOOP
-              - WORKER_FIRE_SAFETY
-              - WORKER_SANITARY
-              - WORKER_SOOP
-              - STUDENT
+      - name: role
+        in: path
+        description: Роль (имя енама)
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
       responses:
         "200":
           description: Успешное получение ролей
@@ -1155,45 +1145,45 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
   /roles/{userId}:
     delete:
       tags:
-        - Роли/должности
+      - Роли/должности
       summary: Удалить роль
       description: Удаляет роль с юзера (снимает с должности) по ID юзера и имени
         енама роли
       operationId: deleteRole
       parameters:
-        - name: userId
-          in: path
-          description: ID юзера
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: role
-          in: query
-          description: Имя енама роли
-          required: true
-          schema:
-            type: string
-            enum:
-              - ADMINISTRATION
-              - HOSTEL_SUPERVISOR
-              - FLOOR_SUPERVISOR
-              - RESPONSIBLE_KITCHEN
-              - RESPONSIBLE_HALL
-              - RESPONSIBLE_GYM
-              - WORKER_GYM
-              - RESPONSIBLE_FIRE_SAFETY
-              - RESPONSIBLE_SANITARY
-              - RESPONSIBLE_INTERNET
-              - RESPONSIBLE_SOOP
-              - WORKER_FIRE_SAFETY
-              - WORKER_SANITARY
-              - WORKER_SOOP
-              - STUDENT
+      - name: userId
+        in: path
+        description: ID юзера
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: role
+        in: query
+        description: Имя енама роли
+        required: true
+        schema:
+          type: string
+          enum:
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
       responses:
         "204":
           description: Успешное удаление роли
@@ -1213,7 +1203,7 @@ paths:
         "401":
           description: Запрос не авторизован
       security:
-        - bearerAuth: [ ]
+      - bearerAuth: []
 components:
   schemas:
     UserRegisterDto:
@@ -1261,11 +1251,11 @@ components:
           minLength: 1
           pattern: "^\\d{3}[АБаб]?$"
       required:
-        - email
-        - firstName
-        - lastName
-        - password
-        - roomNumber
+      - email
+      - firstName
+      - lastName
+      - password
+      - roomNumber
     UserResponseDto:
       type: object
       description: "Ответ со всей инфой о юзере, кроме пароля"
@@ -1312,8 +1302,8 @@ components:
           description: Пароль
           minLength: 1
       required:
-        - email
-        - password
+      - email
+      - password
     SessionResponseDto:
       type: object
       description: Ответ с инфой о сессии
@@ -1344,24 +1334,24 @@ components:
           type: string
           description: Присваиваемая роль в виде имени енама
           enum:
-            - ADMINISTRATION
-            - HOSTEL_SUPERVISOR
-            - FLOOR_SUPERVISOR
-            - RESPONSIBLE_KITCHEN
-            - RESPONSIBLE_HALL
-            - RESPONSIBLE_GYM
-            - WORKER_GYM
-            - RESPONSIBLE_FIRE_SAFETY
-            - RESPONSIBLE_SANITARY
-            - RESPONSIBLE_INTERNET
-            - RESPONSIBLE_SOOP
-            - WORKER_FIRE_SAFETY
-            - WORKER_SANITARY
-            - WORKER_SOOP
-            - STUDENT
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
       required:
-        - role
-        - user
+      - role
+      - user
     RoleResponseDto:
       type: object
       description: Ответ с информацией о роли (связки юзера и роли в БД)
@@ -1383,6 +1373,12 @@ components:
       description: Тело запроса добавления/изменения контактов (ссылок на соцсети)
         юзера
       properties:
+        linkType:
+          type: string
+          description: Имя соцсети
+          enum:
+          - TG
+          - VK
         link:
           type: string
           description: "Имя в ТГ или ВК либо ссылка на профиль ТГ или ВК. Допустим\
@@ -1397,7 +1393,8 @@ components:
           description: "ID юзера (опционально). Если null, то ссылка добавляется т\
             екущему юзеру (отправившему запрос)"
       required:
-        - link
+      - link
+      - linkType
     RoleEditDto:
       type: object
       description: Тело запроса изменения роли юзера
@@ -1410,24 +1407,24 @@ components:
           type: string
           description: "Имя енама роли, на которую происходит изменение"
           enum:
-            - ADMINISTRATION
-            - HOSTEL_SUPERVISOR
-            - FLOOR_SUPERVISOR
-            - RESPONSIBLE_KITCHEN
-            - RESPONSIBLE_HALL
-            - RESPONSIBLE_GYM
-            - WORKER_GYM
-            - RESPONSIBLE_FIRE_SAFETY
-            - RESPONSIBLE_SANITARY
-            - RESPONSIBLE_INTERNET
-            - RESPONSIBLE_SOOP
-            - WORKER_FIRE_SAFETY
-            - WORKER_SANITARY
-            - WORKER_SOOP
-            - STUDENT
+          - ADMINISTRATION
+          - HOSTEL_SUPERVISOR
+          - FLOOR_SUPERVISOR
+          - RESPONSIBLE_KITCHEN
+          - RESPONSIBLE_HALL
+          - RESPONSIBLE_GYM
+          - WORKER_GYM
+          - RESPONSIBLE_FIRE_SAFETY
+          - RESPONSIBLE_SANITARY
+          - RESPONSIBLE_INTERNET
+          - RESPONSIBLE_SOOP
+          - WORKER_FIRE_SAFETY
+          - WORKER_SANITARY
+          - WORKER_SOOP
+          - STUDENT
       required:
-        - id
-        - role
+      - id
+      - role
     UserResponseWithRoleDto:
       type: object
       description: Ответ со всей инфой о юзере вместе с ролями
