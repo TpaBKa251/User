@@ -5,8 +5,8 @@ on:
     branches:
       - master
     paths:
-      - '**/ru/tpu/hostel/user/controller/**'
-      - '**/ru/tpu/hostel/user/dto/**'
+      - '**/main/java/ru/tpu/hostel/user/controller/**'
+      - '**/main/java/ru/tpu/hostel/user/dto/**'
 
 jobs:
   update-openapi:
@@ -53,7 +53,7 @@ jobs:
           ./gradlew bootRun --args='--spring.profiles.active=dev' &
           APP_PID=$!
           
-          timeout 45s bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 3; done'
+          timeout 30s bash -c 'until curl -f http://localhost:8081/actuator/health; do sleep 2; done'
           
           if ! curl -f http://localhost:8081/actuator/health; then
             echo "Application failed to start within 45 seconds"
