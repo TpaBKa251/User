@@ -85,7 +85,7 @@ jobs:
 
       - name: Cleanup containers
         run: |
-          docker-compose -f docker-compose-api.yml down || true
+          docker compose -f docker-compose-api.yml down || true
 
       - name: Update OpenAPI file
         run: |
@@ -106,7 +106,7 @@ jobs:
           
           if ! git diff --staged --quiet; then
             echo "Changes detected, committing..."
-            git commit -m "chore: auto-update OpenAPI specification"
+            git commit -m "Обновлено API"
             git push
             echo "Changes pushed successfully"
           else
