@@ -29,6 +29,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set up Docker Compose
         run: |
@@ -61,7 +63,6 @@ jobs:
           ./gradlew bootRun --args='--spring.profiles.active=dev' &
           APP_PID=$!
           
-          # Ждем пока приложение поднимется (увеличиваем таймаут)
           echo "Waiting for application to start..."
           for i in {1..30}; do
             if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
@@ -72,7 +73,6 @@ jobs:
             echo "Waiting... attempt $i/30"
           done
           
-          # Проверяем что приложение действительно запустилось
           if ! curl -f http://localhost:8081/actuator/health; then
             echo "Application failed to start within 150 seconds"
             exit 1
@@ -81,7 +81,6 @@ jobs:
           # Скачиваем спецификацию
           curl -f http://localhost:8081/api-docs.yaml -o openapi-temp.yaml
           
-          # Останавливаем приложение
           kill $APP_PID || true
           wait $APP_PID || true
 
@@ -94,15 +93,14 @@ jobs:
             mkdir -p api
             mv openapi-temp.yaml api/User-openapi.yaml
             echo "OpenAPI spec updated"
+          
+            echo "=== DIFF ==="
+            git diff api/User-openapi.yaml || true
+            echo "============="
           else
             echo "Failed to download OpenAPI spec"
             exit 1
           fi
-
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Commit and push if changed
         run: |
@@ -110,9 +108,13 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add api/User-openapi.yaml
           
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
+          if ! git diff --staged --quiet; then
+            echo "Changes detected, committing..."
             git commit -m "chore: auto-update OpenAPI specification"
             git push
+            echo "Changes pushed successfully"
+          else
+            echo "No changes to commit in OpenAPI spec"
+            echo "=== Current file content ==="
+            head -20 api/User-openapi.yaml || true
           fi
