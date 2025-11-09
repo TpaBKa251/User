@@ -19,6 +19,11 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
 
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose    
+
       - name: Cache Docker images
         uses: actions/cache@v4
         with:
