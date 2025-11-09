@@ -11,6 +11,8 @@ on:
       - '**/.gitattributes'
       - '**/.github/workflows/ci-sonarcloud.yml'
       - '**/.github/workflows/update-api.yml'
+      - '**/config/**'
+      - '**/docker-compose-api.yml'
 
 jobs:
   cache:
@@ -79,16 +81,23 @@ jobs:
           name: app-jar
           path: ./build/libs
 
+      - name: Cache Docker images
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.docker/cache
+            /tmp/docker-cache
+          key: ${{ runner.os }}-docker-images-${{ hashFiles('docker-compose-test.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-docker-images-    
+
       - name: Set up Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image (single build)
-        env:
-          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
-          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
-        run: docker-compose -f docker-compose-test.yml up --build -d
+        run: |
+          docker compose -f docker-compose-test.yml pull --quiet
+          docker compose -f docker-compose-test.yml up -d
 
       - name: Wait for services to be healthy
         run: |
@@ -98,7 +107,7 @@ jobs:
           docker logs my-app || true
 
       - name: Stop and remove containers
-        run: docker-compose -f docker-compose-test.yml down
+        run: docker compose -f docker-compose-test.yml down || true
 
   sonar_analysis:
     name: Sonar
