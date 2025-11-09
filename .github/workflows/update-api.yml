@@ -1,0 +1,77 @@
+name: Update API
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - '**/ru/tpu/hostel/user/controller/**'
+      - '**/ru/tpu/hostel/user/dto/**'
+
+jobs:
+  update-openapi:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: hostelService
+          POSTGRES_USER: hostel
+          POSTGRES_PASSWORD: ilia
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5430:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+
+      - name: Build application
+        run: ./gradlew assemble
+
+      - name: Start application and get OpenAPI spec
+        run: |
+          # Запускаем приложение в фоне
+          ./gradlew bootRun -Dspring.profiles.active=dev &
+          APP_PID=$!
+          
+          # Ждем пока приложение поднимется
+          until curl -f http://localhost:8081/actuator/health; do
+            sleep 5
+          done
+          
+          # Скачиваем спецификацию
+          curl -f http://localhost:8081/api-docs.yaml -o openapi-temp.yaml
+          
+          # Останавливаем приложение
+          kill $APP_PID
+          wait $APP_PID
+
+      - name: Update OpenAPI file
+        run: |
+          if [ -f openapi-temp.yaml ]; then
+            mkdir -p api
+            mv openapi-temp.yaml api/User-openapi.yaml
+            echo "OpenAPI spec updated"
+          else
+            echo "Failed to download OpenAPI spec"
+            exit 1
+          fi
+
+      - name: Commit and push if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add api/User-openapi.yaml
+          git diff --staged --quiet || git commit -m "chore: update OpenAPI specification"
+          git push

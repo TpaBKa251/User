@@ -20,6 +20,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
+@SuppressWarnings("java:S1700")
 @Table(name = "roles", schema = "\"user\"")
 public class Role {
 

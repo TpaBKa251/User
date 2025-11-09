@@ -1,4 +1,4 @@
-package ru.tpu.hostel.user.entity;
+package ru.tpu.hostel.user.dto.request;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

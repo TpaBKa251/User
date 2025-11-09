@@ -2,11 +2,16 @@ package ru.tpu.hostel.user.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
 @Schema(description = "Тело запроса добавления/изменения контактов (ссылок на соцсети) юзера")
 public record UserAddLinkDto(
+
+        @Schema(description = "Имя соцсети")
+        @NotNull
+        LinkType linkType,
 
         @Schema(
                 description = "Имя в ТГ или ВК либо ссылка на профиль ТГ или ВК. "

@@ -26,7 +26,6 @@ import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
-import ru.tpu.hostel.user.entity.LinkType;
 import ru.tpu.hostel.user.service.impl.UserServiceImpl;
 
 import java.util.Arrays;
@@ -368,11 +367,8 @@ public class UserController {
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/links")
-    public void addLink(
-            @Parameter(description = "Имя соцсети") @RequestParam LinkType linkType,
-            @RequestBody @Valid UserAddLinkDto userAddLinkDto
-    ) {
-        userService.addLink(linkType, userAddLinkDto);
+    public void addLink(@RequestBody @Valid UserAddLinkDto userAddLinkDto) {
+        userService.addLink(userAddLinkDto);
     }
 
 }

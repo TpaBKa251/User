@@ -25,7 +25,6 @@ import ru.tpu.hostel.user.dto.response.UserResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseWithRoleDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto;
 import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
-import ru.tpu.hostel.user.entity.LinkType;
 import ru.tpu.hostel.user.entity.Role;
 import ru.tpu.hostel.user.entity.User;
 import ru.tpu.hostel.user.external.rest.admin.ClientAdminService;
@@ -41,7 +40,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.tpu.hostel.user.entity.LinkType.TG;
+import static ru.tpu.hostel.user.dto.request.LinkType.TG;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.CERTIFICATE;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAPHY;
 
@@ -244,12 +243,12 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void addLink(LinkType linkType, UserAddLinkDto userAddLinkDto) {
-        User user = getUserForLinkAddition(userAddLinkDto);
+    public void addLink(UserAddLinkDto userAddLinkDto) {
+        User user = getUserForLinkAddition(userAddLinkDto.userId());
 
         String socialMediaSiteName = extractUsernameFromLink(userAddLinkDto.link());
 
-        if (linkType == TG) {
+        if (userAddLinkDto.linkType() == TG) {
             user.setTgLink(socialMediaSiteName);
         } else {
             user.setVkLink(socialMediaSiteName);
@@ -262,23 +261,23 @@ public class UserServiceImpl implements UserDetailsService {
         }
     }
 
-    private User getUserForLinkAddition(UserAddLinkDto userAddLinkDto) {
+    private User getUserForLinkAddition(UUID userId) {
         ExecutionContext context = ExecutionContext.get();
 
-        if (userAddLinkDto.userId() == null) {
+        if (userId == null) {
             return getUserByIdWithOptimisticLock(context.getUserID());
         }
 
         if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
-            return getUserByIdWithOptimisticLock(userAddLinkDto.userId());
+            return getUserByIdWithOptimisticLock(userId);
         }
 
         if (context.getUserRoles().contains(Roles.FLOOR_SUPERVISOR)) {
             String currentUserRoomNumber = getRoomNumberByUserId(context.getUserID());
-            String userForLinkAdditionalRoomNumber = getRoomNumberByUserId(userAddLinkDto.userId());
+            String userForLinkAdditionalRoomNumber = getRoomNumberByUserId(userId);
 
             if (currentUserRoomNumber.charAt(0) == userForLinkAdditionalRoomNumber.charAt(0)) {
-                return getUserByIdWithOptimisticLock(userAddLinkDto.userId());
+                return getUserByIdWithOptimisticLock(userId);
             }
         }
 

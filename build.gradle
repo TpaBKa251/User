@@ -44,7 +44,7 @@ sonarqube {
         property "sonar.projectKey", "TpaBKa251_User"
         property "sonar.organization", "hostel-service" // Замените на имя вашей организации
         property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.login", System.getenv("SONAR_TOKEN") // Используется токен из секретов GitHub
+        property "sonar.token", System.getenv("SONAR_TOKEN") // Используется токен из секретов GitHub
         property "sonar.coverage.jacoco.xmlReportPaths", layout.buildDirectory.file("reports/jacoco/test/jacocoTestReport.xml")
         property "sonar.coverage.exclusions", "**/*Generated*.java,**/model/*.java" // Исключения из анализа
         property "sonar.java.binaries", "build/classes/java/main" // Путь к скомпилированным классам
