@@ -12,4 +12,5 @@ public enum LinkType {
     VK("ВК");
 
     private final String label;
+
 }
