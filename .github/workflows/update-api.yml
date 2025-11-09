@@ -49,20 +49,32 @@ jobs:
           INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
           chmod +x gradlew
-          ./gradlew bootRun -Dspring.profiles.active=dev &
+          ./gradlew bootRun --args='--spring.profiles.active=dev' &
           APP_PID=$!
           
-          # Ждем пока приложение поднимется
-          until curl -f http://localhost:8081/actuator/health; do
+          # Ждем пока приложение поднимется (увеличиваем таймаут)
+          echo "Waiting for application to start..."
+          for i in {1..30}; do
+            if curl -f http://localhost:8081/actuator/health > /dev/null 2>&1; then
+              echo "Application started successfully"
+              break
+            fi
             sleep 5
+            echo "Waiting... attempt $i/30"
           done
+          
+          # Проверяем что приложение действительно запустилось
+          if ! curl -f http://localhost:8081/actuator/health; then
+            echo "Application failed to start within 150 seconds"
+            exit 1
+          fi
           
           # Скачиваем спецификацию
           curl -f http://localhost:8081/api-docs.yaml -o openapi-temp.yaml
           
           # Останавливаем приложение
-          kill $APP_PID
-          wait $APP_PID
+          kill $APP_PID || true
+          wait $APP_PID || true
 
       - name: Update OpenAPI file
         run: |
@@ -79,8 +91,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
           git add api/User-openapi.yaml
           git diff --staged --quiet || git commit -m "chore: update OpenAPI specification"
           git push
