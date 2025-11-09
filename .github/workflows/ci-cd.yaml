@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - '**/api/**'
+      - '**/README.md'
+      - '**/.gitignore'
+      - '**/.gitattributes'
 
 jobs:
   cache:
@@ -94,7 +99,7 @@ jobs:
         run: docker-compose -f docker-compose-test.yml down
 
   sonar_analysis:
-    name: Build and analyze
+    name: Sonar
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

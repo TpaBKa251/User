@@ -9,6 +9,7 @@ on:
 
 jobs:
   update-openapi:
+    name: Update API
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -35,11 +36,19 @@ jobs:
           distribution: 'zulu'
 
       - name: Build application
-        run: ./gradlew assemble
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build
 
       - name: Start application and get OpenAPI spec
+        env:
+          INTERNAL_REPO_LOGIN: ${{ secrets.INTERNAL_REPO_LOGIN }}
+          INTERNAL_REPO_PASSWORD: ${{ secrets.INTERNAL_REPO_PASSWORD }}
         run: |
-          # Запускаем приложение в фоне
+          chmod +x gradlew
           ./gradlew bootRun -Dspring.profiles.active=dev &
           APP_PID=$!
           
