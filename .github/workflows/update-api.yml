@@ -37,15 +37,6 @@ jobs:
       - name: Start RabbitMQ
         run: docker-compose -f docker-compose-api.yml up
 
-      - name: Wait for RabbitMQ
-        run: |
-          echo "Waiting for RabbitMQ..."
-          until docker-compose -f docker-compose-api.yml logs rabbitmq | grep -q "Server startup complete"; do
-            sleep 5
-            echo "Waiting for RabbitMQ to start..."
-          done
-          echo "RabbitMQ is ready!"
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
