@@ -11,7 +11,7 @@ on:
       - '**/.gitattributes'
       - '**/.github/workflows/ci-sonarcloud.yml'
       - '**/.github/workflows/update-api.yml'
-      - '**/config/**'
+      - '/config/**'
       - '**/docker-compose-api.yml'
 
 jobs:
