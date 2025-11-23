@@ -17,7 +17,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       nodeSelector:
-        node-role.kubernetes.io/master: ""  # Использовать метку master
+        kubernetes.io/hostname: "vm-8ca664"  # Прямое указание ноды
       tolerations:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"
