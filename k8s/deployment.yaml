@@ -16,6 +16,8 @@ spec:
         app: userservice
     spec:
       automountServiceAccountToken: false
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""
       containers:
         - name: userservice
           image: ghcr.io/tpabka251/userservice:latest
