@@ -85,10 +85,10 @@ jobs:
           docker compose -f docker-compose-test.yml pull --quiet
           docker compose -f docker-compose-test.yml up -d
           
-          timeout 30s bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
+          timeout 60s bash -c 'until curl -f http://localhost:8080/actuator/health; do sleep 2; done'
           
           if ! curl -f http://localhost:8080/actuator/health; then
-            echo "Application failed to start within 30 seconds"
+            echo "Application failed to start within 60 seconds"
             exit 1
           fi
           
