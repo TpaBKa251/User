@@ -8,4 +8,4 @@ rabbitmq:
 
 otlp:
   tracing:
-    endpoint: http://10.43.140.102:4317
+    endpoint: http://tempo.monitoring.svc.cluster.local:4317
