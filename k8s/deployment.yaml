@@ -16,11 +16,11 @@ spec:
         app: spring-boot
         prometheus.io/scrape: "true"
         prometheus.io/port: "8080"
-        prometheus.io/path: "/actuator/prometheus"
+        prometheus.io/path: "actuator-prometheus"
     spec:
       automountServiceAccountToken: false
-#      nodeSelector:
-#        kubernetes.io/hostname: "vm-8ca664"
+      nodeSelector:
+        kubernetes.io/hostname: "monitoring"  # Прямое указание ноды
       tolerations:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"
