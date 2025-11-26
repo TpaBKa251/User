@@ -13,11 +13,14 @@ spec:
   template:
     metadata:
       labels:
-        app: userservice
+        app: spring-boot
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
     spec:
       automountServiceAccountToken: false
-      nodeSelector:
-        kubernetes.io/hostname: "vm-8ca664"  # Прямое указание ноды
+#      nodeSelector:
+#        kubernetes.io/hostname: "vm-8ca664"  # Прямое указание ноды
       tolerations:
         - key: "node-role.kubernetes.io/control-plane"
           operator: "Exists"
@@ -29,7 +32,8 @@ spec:
         - name: userservice
           image: ghcr.io/tpabka251/userservice:latest
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
           resources:
             requests:
               cpu: "100m"
