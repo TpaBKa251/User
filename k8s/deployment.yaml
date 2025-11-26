@@ -13,21 +13,11 @@ spec:
   template:
     metadata:
       labels:
-        app: spring-boot
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8080"
-        prometheus.io/path: "actuator-prometheus"
+        app: userservice
     spec:
       automountServiceAccountToken: false
       nodeSelector:
         kubernetes.io/hostname: "monitoring"  # Прямое указание ноды
-      tolerations:
-        - key: "node-role.kubernetes.io/control-plane"
-          operator: "Exists"
-          effect: "NoSchedule"
-        - key: "node-role.kubernetes.io/master"
-          operator: "Exists"
-          effect: "NoSchedule"
       containers:
         - name: userservice
           image: ghcr.io/tpabka251/userservice:latest
