@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Service
+metadata:
+  name: userservice-monitor
+  namespace: monitoring             # namespace, где у тебя Prometheus
+  labels:
+    release: prometheus             # важно: совпадать с release name, или настроением Prometheus
+spec:
+  selector:
+    matchLabels:
+      app: my-service
+  namespaceSelector:
+    matchNames:
+      - default
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

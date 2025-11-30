@@ -169,5 +169,6 @@ jobs:
             git pull origin master
             sudo kubectl apply -f k8s/deployment.yaml
             sudo kubectl apply -f k8s/service.yaml
+#            sudo kubectl apply -f k8s/servicemonitor.yaml
             sudo kubectl rollout restart deployment/userservice
             sudo kubectl rollout status deployment/userservice -w

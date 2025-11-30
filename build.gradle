@@ -52,7 +52,7 @@ sonarqube {
 }
 
 ext {
-    set('internalLibraryVersion', "1.4.1")
+    set('internalLibraryVersion', "1.5.5")
 }
 
 dependencyManagement {
@@ -84,9 +84,13 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'io.opentelemetry:opentelemetry-exporter-otlp:1.49.0'
+    implementation 'io.opentelemetry.contrib:opentelemetry-samplers:1.49.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-sdk-extension-autoconfigure-spi:1.49.0'
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc:2.22.0-alpha'
+
     implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
