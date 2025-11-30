@@ -7,7 +7,7 @@ jwt:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5430/hostelService
+    url: jdbc:otel:postgresql://localhost:5430/hostelService
 
 rabbitmq:
   notification-service:

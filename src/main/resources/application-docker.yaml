@@ -1,3 +1,7 @@
 otlp:
   tracing:
     export-enabled: false
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
