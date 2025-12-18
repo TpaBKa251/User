@@ -154,7 +154,9 @@ public class RoleServiceImpl implements RoleService {
     public List<String> getAllUserRoles(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
+
         List<Roles> roles = roleRepository.findByUser(user).stream().map(Role::getRole).toList();
+
         return Roles.getAllInheritedRoles(roles).stream().map(Roles::toString).toList();
     }
 
@@ -164,6 +166,15 @@ public class RoleServiceImpl implements RoleService {
                 .stream()
                 .map(RoleMapper::mapRoleToRoleResponseDto)
                 .toList();
+    }
+
+    //TODO: здесь делаю получение ролей босса юзера,
+    // а надо ли?
+    public List<RoleResponseDto> getUserNotWorkerRoles(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_EXCEPTION_MESSAGE));
+
+        List<Role> roles = roleRepository.findByUser(user);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)

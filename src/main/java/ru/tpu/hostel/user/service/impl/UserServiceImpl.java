@@ -43,29 +43,18 @@ import java.util.UUID;
 import static ru.tpu.hostel.user.dto.request.LinkType.TG;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.CERTIFICATE;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAPHY;
+import static ru.tpu.hostel.user.util.MessageConctants.USER_NOT_FOUND_MESSAGE;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserDetailsService {
 
-    private static final String USER_NOT_FOUND_MESSAGE = "Пользователь не найден";
-
     private static final String ID = "id";
 
     private static final String ROOM_NUMBER = "roomNumber";
 
     private static final LocalDate DEFAULT_DATE_OF_DOCUMENT = LocalDate.of(0, 1, 1);
-
-    private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
-            = "Кто-то уже изменил профиль. Обновите данные и повторите попытку";
-
-    private static final String ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE
-            = "У вас нет прав изменять контакты жителей другого этажа";
-
-    private static final List<String> STARTS_OF_LINKS = List.of("https:", "http:", "t.me", "vk.com");
-
-    private static final String START_OF_SOCIAL_NAME = "@";
 
     private final UserRepository userRepository;
 
@@ -240,64 +229,6 @@ public class UserServiceImpl implements UserDetailsService {
 
     public List<UUID> getAllIdsOfUsersInRooms(List<String> roomNumbers) {
         return userRepository.findAllIdsOfUsersInRooms(roomNumbers);
-    }
-
-    @Transactional(isolation = Isolation.READ_COMMITTED)
-    public void addLink(UserAddLinkDto userAddLinkDto) {
-        User user = getUserForLinkAddition(userAddLinkDto.userId());
-
-        String socialMediaSiteName = extractUsernameFromLink(userAddLinkDto.link());
-
-        if (userAddLinkDto.linkType() == TG) {
-            user.setTgLink(socialMediaSiteName);
-        } else {
-            user.setVkLink(socialMediaSiteName);
-        }
-
-        try {
-            userRepository.flush();
-        } catch (ObjectOptimisticLockingFailureException e) {
-            throw new ServiceException.Conflict(CONFLICT_VERSIONS_EXCEPTION_MESSAGE);
-        }
-    }
-
-    private User getUserForLinkAddition(UUID userId) {
-        ExecutionContext context = ExecutionContext.get();
-
-        if (userId == null) {
-            return getUserByIdWithOptimisticLock(context.getUserID());
-        }
-
-        if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
-            return getUserByIdWithOptimisticLock(userId);
-        }
-
-        if (context.getUserRoles().contains(Roles.FLOOR_SUPERVISOR)) {
-            String currentUserRoomNumber = getRoomNumberByUserId(context.getUserID());
-            String userForLinkAdditionalRoomNumber = getRoomNumberByUserId(userId);
-
-            if (currentUserRoomNumber.charAt(0) == userForLinkAdditionalRoomNumber.charAt(0)) {
-                return getUserByIdWithOptimisticLock(userId);
-            }
-        }
-
-        throw new ServiceException.Forbidden(ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE);
-    }
-
-    private User getUserByIdWithOptimisticLock(UUID userId) {
-        return userRepository.findByIdOptimistic(userId)
-                .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
-    }
-
-    private String extractUsernameFromLink(String link) {
-        if (link.startsWith(START_OF_SOCIAL_NAME)) {
-            return link.substring(1);
-        }
-        if (STARTS_OF_LINKS.stream().anyMatch(link::startsWith)) {
-            return link.substring(link.lastIndexOf('/') + 1);
-        }
-
-        return link;
     }
 
 }

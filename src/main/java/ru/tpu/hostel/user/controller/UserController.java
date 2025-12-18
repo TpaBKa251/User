@@ -348,27 +348,4 @@ public class UserController {
         return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
     }
 
-    @Operation(
-            summary = "Добавить юзеру ссылку на соцсеть",
-            description = "Добавляет юзеру ссылку на ВК ли ТГ (имя или ID). Если в теле не указан ID юзера, то ссылка "
-                    + "добавляется текущему юзеру (отправившему запрос)",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Успешное добавление ссылки"),
-                    @ApiResponse(responseCode = "401", description = "Запрос не авторизован", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет прав управлять юзером", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Юзер не найден", content = @Content),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "Кто-то изменил юзера во время выполнения запроса",
-                            content = @Content
-                    )
-            },
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/links")
-    public void addLink(@RequestBody @Valid UserAddLinkDto userAddLinkDto) {
-        userService.addLink(userAddLinkDto);
-    }
-
 }

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 @Schema(description = "Тело запроса добавления/изменения контактов (ссылок на соцсети) юзера")
-public record UserAddLinkDto(
+public record AddLinkRequestDto(
 
         @Schema(description = "Имя соцсети")
         @NotNull
