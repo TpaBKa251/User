@@ -8,6 +8,7 @@ CREATE TABLE "user"."main_contacts"
     email        VARCHAR(255) NOT NULL UNIQUE,
     tg_link      VARCHAR(1000),
     vk_link      VARCHAR(1000),
+    version      bigint,
     CONSTRAINT pk_main_contacts PRIMARY KEY (id)
 );
 

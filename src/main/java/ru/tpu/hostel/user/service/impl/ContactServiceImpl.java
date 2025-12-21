@@ -1,6 +1,7 @@
 package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +25,13 @@ import java.util.UUID;
 
 import static ru.tpu.hostel.user.util.MessageConctants.USER_NOT_FOUND_MESSAGE;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    private static final String CONFLICT_VERSIONS_EXCEPTION_MESSAGE
-            = "Кто-то уже изменил профиль. Обновите данные и повторите попытку";
+    private static final String ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE
+            = "У вас нет прав изменять карточки контактов";
 
     private static final String ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE
             = "У вас нет прав изменять контакты жителей другого этажа";
@@ -48,11 +50,17 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactResponseDto addContact(ContactAddRequestDto contactAddRequestDto) {
-        Contact contact = ContactMapper.mapToContact(contactAddRequestDto);
+        ExecutionContext context = ExecutionContext.get();
 
-        Contact savedContact = contactRepository.save(contact);
+        if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
+            Contact contact = ContactMapper.mapToContact(contactAddRequestDto);
 
-        return ContactMapper.mapToContactResponseDto(savedContact);
+            Contact savedContact = contactRepository.save(contact);
+
+            return ContactMapper.mapToContactResponseDto(savedContact);
+        }
+
+        throw new ServiceException.Forbidden(ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE);
     }
 
     @Override
@@ -68,7 +76,14 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public void deleteContact(UUID id) {
-        contactRepository.deleteById(id);
+        ExecutionContext context = ExecutionContext.get();
+
+        if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
+            contactRepository.deleteById(id);
+            return;
+        }
+
+        throw new ServiceException.Forbidden(ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
@@ -141,7 +156,4 @@ public class ContactServiceImpl implements ContactService {
         return excludedRoles;
     }
 
-//    private boolean isStudentOrWorker(String role) {
-//        if
-//    }
 }

@@ -15,13 +15,7 @@ public record UserNameResponseDto(
         String middleName,
 
         @Schema(description = "Номер комнаты")
-        String roomNumber,
-
-        @Schema(description = "Имя в ТГ")
-        String tgLink,
-
-        @Schema(description = "Имя в ВК")
-        String vkLink
+        String roomNumber
 
 ) {
 }

@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.user.dto.request.AddLinkRequestDto;
 import ru.tpu.hostel.user.dto.request.ContactAddRequestDto;
-import ru.tpu.hostel.user.dto.request.UserAddLinkDto;
 import ru.tpu.hostel.user.dto.response.ContactResponseDto;
 import ru.tpu.hostel.user.service.ContactService;
 
