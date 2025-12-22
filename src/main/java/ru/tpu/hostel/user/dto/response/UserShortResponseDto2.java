@@ -17,7 +17,13 @@ public record UserShortResponseDto2(
         String lastName,
 
         @Schema(description = "Отчество")
-        String middleName
+        String middleName,
+
+        @Schema(description = "Имя в ТГ")
+        String tgLink,
+
+        @Schema(description = "Имя в ВК")
+        String vkLink
 
 ) {
 }

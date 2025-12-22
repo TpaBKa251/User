@@ -30,7 +30,13 @@ public record UserResponseWithRoleDto(
         String roomNumber,
 
         @Schema(description = "Список ролей")
-        List<String> roles
+        List<String> roles,
+
+        @Schema(description = "Имя в ТГ")
+        String tgLink,
+
+        @Schema(description = "Имя в ВК")
+        String vkLink
 
 ) {
 }

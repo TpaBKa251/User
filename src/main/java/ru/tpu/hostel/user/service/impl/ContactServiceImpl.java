@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static ru.tpu.hostel.user.util.MessageConctants.USER_NOT_FOUND_MESSAGE;
+import static ru.tpu.hostel.user.util.CommonMessages.USER_NOT_FOUND_MESSAGE;
 
 @Slf4j
 @Service
