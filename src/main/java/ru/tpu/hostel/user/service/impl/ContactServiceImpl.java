@@ -104,6 +104,7 @@ public class ContactServiceImpl implements ContactService {
         );
 
         contactRepository.saveAll(contacts);
+        contactRepository.flush();
     }
 
     private User getUserForLinkAddition(UUID userId) {

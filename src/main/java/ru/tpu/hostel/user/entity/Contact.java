@@ -6,7 +6,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Version;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -17,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "main_contacts", schema = "\"user\"")
+@Table(name = "contacts", schema = "user")
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -56,8 +55,10 @@ public class Contact {
     @Column(name = "vk_link", length = 1000)
     private String vkLink;
 
-    @Column(name = "version", nullable = false)
-    @Version
+    @Column(name = "custom_contact")
+    private Boolean customContact;
+
+    @Column(name = "version")
     private Long version;
 
 }

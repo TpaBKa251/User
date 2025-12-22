@@ -63,7 +63,7 @@ public class ContactController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/links")
+    @PostMapping("/links")
     public void addLink(@RequestBody @Valid AddLinkRequestDto addLinkRequestDto) {
         contactService.addLink(addLinkRequestDto);
     }

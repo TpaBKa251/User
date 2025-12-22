@@ -12,6 +12,7 @@ import ru.tpu.hostel.user.util.CommonMethods;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.tpu.hostel.internal.utils.Roles.STUDENT;
 import static ru.tpu.hostel.user.dto.request.LinkType.TG;
 
 @UtilityClass
@@ -29,8 +30,24 @@ public class ContactMapper {
 
         contact.setRole(contactAddRequestDto.role());
         contact.setEmail(contactAddRequestDto.email());
-        contact.setTgLink(contactAddRequestDto.tgLink());
-        contact.setVkLink(contactAddRequestDto.vkLink());
+
+        String tgLink = contactAddRequestDto.tgLink();
+
+        if (tgLink != null) {
+            contact.setTgLink(tgLink.substring(1));
+        } else {
+            contact.setTgLink(null);
+        }
+
+        String vkLink = contactAddRequestDto.vkLink();
+
+        if (contactAddRequestDto.vkLink() != null) {
+            contact.setVkLink(vkLink.substring(vkLink.lastIndexOf('/') + 1));
+        } else {
+            contact.setVkLink(null);
+        }
+
+        contact.setCustomContact(true);
 
         return contact;
     }
@@ -68,9 +85,30 @@ public class ContactMapper {
                 contact.setVkLink(socialMediaSiteName);
             }
 
+            contact.setCustomContact(false);
+
             contacts.add(contact);
         });
 
+        contacts.add(getStudentContact(user, socialMediaSiteName, linkType));
+
         return contacts;
+    }
+
+    private Contact getStudentContact(User user, String socialMediaSiteName, LinkType linkType) {
+        Contact contact = new Contact();
+        contact.setFirstName(user.getFirstName());
+        contact.setLastName(user.getLastName());
+        contact.setMiddleName(user.getMiddleName());
+        contact.setRole(STUDENT.toString());
+        contact.setEmail(user.getEmail());
+
+        if (linkType == TG) {
+            contact.setTgLink(socialMediaSiteName);
+        } else {
+            contact.setVkLink(socialMediaSiteName);
+        }
+
+        return contact;
     }
 }

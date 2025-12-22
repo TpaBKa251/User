@@ -8,15 +8,19 @@ public record ContactResponseDto(
         @Schema(description = "ID")
         UUID id,
 
+        @Schema(description = "ФИО человека")
         String fullName,
 
         @Schema(description = "Название роли, которую присвоили юзеру", example = "Студент")
         String role,
 
+        @Schema(description = "Имейл")
         String email,
 
+        @Schema(description = "имя в ТГ")
         String tgLink,
 
+        @Schema(description = "ссылка на ВК")
         String vkLink
 ) {
 }
