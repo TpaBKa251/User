@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.tpu.hostel.internal.utils.Roles;
-import ru.tpu.hostel.user.dto.request.UserAddLinkDto;
 import ru.tpu.hostel.user.dto.request.UserRegisterDto;
 import ru.tpu.hostel.user.dto.response.UserNameResponseDto;
 import ru.tpu.hostel.user.dto.response.UserResponseDto;
@@ -346,29 +344,6 @@ public class UserController {
             @Parameter(description = "Номера комнат") @RequestParam String[] roomNumbers
     ) {
         return userService.getAllIdsOfUsersInRooms(Arrays.stream(roomNumbers).toList());
-    }
-
-    @Operation(
-            summary = "Добавить юзеру ссылку на соцсеть",
-            description = "Добавляет юзеру ссылку на ВК ли ТГ (имя или ID). Если в теле не указан ID юзера, то ссылка "
-                    + "добавляется текущему юзеру (отправившему запрос)",
-            responses = {
-                    @ApiResponse(responseCode = "204", description = "Успешное добавление ссылки"),
-                    @ApiResponse(responseCode = "401", description = "Запрос не авторизован", content = @Content),
-                    @ApiResponse(responseCode = "403", description = "Нет прав управлять юзером", content = @Content),
-                    @ApiResponse(responseCode = "404", description = "Юзер не найден", content = @Content),
-                    @ApiResponse(
-                            responseCode = "409",
-                            description = "Кто-то изменил юзера во время выполнения запроса",
-                            content = @Content
-                    )
-            },
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/links")
-    public void addLink(@RequestBody @Valid UserAddLinkDto userAddLinkDto) {
-        userService.addLink(userAddLinkDto);
     }
 
 }
