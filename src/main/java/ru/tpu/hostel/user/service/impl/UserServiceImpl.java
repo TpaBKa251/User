@@ -241,8 +241,9 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     private Contact getContactByEmail(String email) {
+        Contact defaultContact = new Contact();
         return contactRepository.findFirstByEmailOrderByVersionDesc(email)
-                .orElseThrow(() -> new ServiceException.NotFound(CONTACT_NOT_FOUND_MESSAGE));
+                .orElse(defaultContact);
     }
 
 }
