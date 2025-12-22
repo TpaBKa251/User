@@ -111,6 +111,7 @@ public class UserServiceImpl implements UserDetailsService {
         return UserMapper.mapUserToUserShortResponseDto(user, contact);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseWithRoleDto getUserWithRole(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
