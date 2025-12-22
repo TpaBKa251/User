@@ -16,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "contacts", schema = "user")
+@Table(name = "contacts", schema = "\"user\"")
 public class Contact {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

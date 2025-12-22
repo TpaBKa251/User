@@ -1,12 +1,25 @@
 version: '3.9'
 services:
+  postgres:
+    container_name: hostelDB
+    image: postgres:15
+    hostname: hostelDB
+    environment:
+      - POSTGRES_DB=hostelService
+      - POSTGRES_USER=hostel
+      - POSTGRES_PASSWORD=ilia
+    ports:
+      - "5430:5432"
+    networks:
+      - shared-network
+
   rabbitmq:
     image: rabbitmq:4.1.0-management
     container_name: rabbitmq
     restart: always
     ports:
-      - "5672:5672"  # Порт для общения с микросервисами
-      - "15672:15672" # Web UI для управления RabbitMQ
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - ./config/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json
       - ./config/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
@@ -29,6 +42,9 @@ services:
     hostname: userservice
     ports:
       - "8081:8080"
+    depends_on:
+      - postgres
+      - rabbitmq
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://hostelDB:5432/hostelService
       - SPRING_DATASOURCE_USERNAME=hostel

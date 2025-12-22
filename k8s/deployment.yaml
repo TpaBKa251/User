@@ -17,7 +17,7 @@ spec:
     spec:
       automountServiceAccountToken: false
       nodeSelector:
-        kubernetes.io/hostname: "monitoring"  # Прямое указание ноды
+        kubernetes.io/hostname: "monitoring"
       containers:
         - name: userservice
           image: ghcr.io/tpabka251/userservice:latest
@@ -34,18 +34,18 @@ spec:
               memory: "512Mi"
           livenessProbe:
             httpGet:
-              path: /actuator/health  # эндпоинт health для проверки состояния
+              path: /actuator/health
               port: 8080
-            initialDelaySeconds: 300    # Задержка перед первым запросом
-            periodSeconds: 60          # Интервал проверки
-            timeoutSeconds: 30          # Время ожидания ответа
-            failureThreshold: 3        # Количество неудачных попыток до перезапуска
+            initialDelaySeconds: 300
+            periodSeconds: 60
+            timeoutSeconds: 30
+            failureThreshold: 3
 
           readinessProbe:
             httpGet:
-              path: /actuator/health  # тот же эндпоинт для проверки готовности
+              path: /actuator/health
               port: 8080
-            initialDelaySeconds: 120    # Задержка перед первым запросом
-            periodSeconds: 20          # Интервал проверки
-            timeoutSeconds: 30         # Время ожидания ответа
+            initialDelaySeconds: 120
+            periodSeconds: 20
+            timeoutSeconds: 30
             failureThreshold: 3

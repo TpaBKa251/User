@@ -1,9 +1,26 @@
-FROM eclipse-temurin:25-jdk
+FROM eclipse-temurin:25-jdk AS builder
 WORKDIR /app
-COPY . .
+
+COPY gradle/ gradle/
+COPY gradlew .
+COPY gradle.properties .
+COPY build.gradle .
+COPY settings.gradle .
+
+RUN chmod +x gradlew
+RUN ./gradlew dependencies
+
+COPY src/ src/
+
 ARG INTERNAL_REPO_LOGIN
 ARG INTERNAL_REPO_PASSWORD
-ENV INTERNAL_REPO_LOGIN=$INTERNAL_REPO_LOGIN
-ENV INTERNAL_REPO_PASSWORD=$INTERNAL_REPO_PASSWORD
+
+RUN ./gradlew bootJar -Dspring.profiles.active=docker \
+    -Prepo.login=$INTERNAL_REPO_LOGIN \
+    -Prepo.password=$INTERNAL_REPO_PASSWORD
+
+FROM eclipse-temurin:25-jre-jammy AS runtime
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
 EXPOSE 8080
-CMD ["java", "-Dspring.profiles.active=docker", "-jar", "/app/build/libs/User-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Dspring.profiles.active=docker", "-jar", "app.jar"]
