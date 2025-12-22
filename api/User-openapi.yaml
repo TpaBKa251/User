@@ -169,10 +169,55 @@ paths:
           description: Запрос не авторизован
       security:
       - bearerAuth: []
-  /users/links:
-    patch:
+  /contacts:
+    get:
       tags:
-      - Юзеры
+      - contact-controller
+      operationId: getAllContacts
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactResponseDto"
+    post:
+      tags:
+      - contact-controller
+      operationId: addContact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactAddRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResponseDto"
+    delete:
+      tags:
+      - contact-controller
+      operationId: deleteContact
+      parameters:
+      - name: id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /contacts/links:
+    post:
+      tags:
+      - contact-controller
       summary: Добавить юзеру ссылку на соцсеть
       description: "Добавляет юзеру ссылку на ВК ли ТГ (имя или ID). Если в теле н\
         е указан ID юзера, то ссылка добавляется текущему юзеру (отправившему запр\
@@ -182,7 +227,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/UserAddLinkDto"
+              $ref: "#/components/schemas/AddLinkRequestDto"
         required: true
       responses:
         "204":
@@ -195,11 +240,6 @@ paths:
           description: Юзер не найден
         "409":
           description: Кто-то изменил юзера во время выполнения запроса
-        "500":
-          description: Неизвестная ошибка сервера
-        "400":
-          description: "Неверный запрос от клиента, нарушение ограничений запроса\
-            \ (тело, параметры)"
       security:
       - bearerAuth: []
   /sessions/logout/{sessionId}:
@@ -1369,7 +1409,61 @@ components:
           type: string
           description: "Название роли, которую присвоили юзеру"
           example: Студент
-    UserAddLinkDto:
+    ContactAddRequestDto:
+      type: object
+      properties:
+        fullName:
+          type: string
+          description: ФИО человека
+        role:
+          type: string
+          description: Присваиваемая роль в виде имени енама
+        email:
+          type: string
+          format: email
+          description: Имейл
+          maxLength: 100
+          minLength: 5
+        tgLink:
+          type: string
+          description: "Имя в ТГ или ссылка на профиль ТГ. Допустимые форматы: 1)\
+            \ @username - юзернейм с собакой, 2) username - юзернейм без собаки, 3)\
+            \ https://t.me/username - полная ссылка, 4) t.me/username - короткая с\
+            сылка"
+          example: '@kik_butovski'
+        vkLink:
+          type: string
+          description: "ссылка на профиль ВК. Допустимые форматы: 1) https://t.me/username\
+            \ - полная ссылка, "
+          example: '@kik_butovski'
+      required:
+      - email
+      - fullName
+      - role
+    ContactResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID
+        fullName:
+          type: string
+          description: ФИО человека
+        role:
+          type: string
+          description: "Название роли, которую присвоили юзеру"
+          example: Студент
+        email:
+          type: string
+          description: Имейл
+        tgLink:
+          type: string
+          description: имя в ТГ
+        vkLink:
+          type: string
+          description: ссылка на ВК
+    AddLinkRequestDto:
       type: object
       description: Тело запроса добавления/изменения контактов (ссылок на соцсети)
         юзера
