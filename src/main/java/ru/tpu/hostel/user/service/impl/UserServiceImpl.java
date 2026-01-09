@@ -41,7 +41,6 @@ import java.util.UUID;
 
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.CERTIFICATE;
 import static ru.tpu.hostel.user.external.rest.admin.dto.DocumentType.FLUOROGRAPHY;
-import static ru.tpu.hostel.user.util.CommonMessages.CONTACT_NOT_FOUND_MESSAGE;
 import static ru.tpu.hostel.user.util.CommonMessages.USER_NOT_FOUND_MESSAGE;
 
 @Service
@@ -243,7 +242,7 @@ public class UserServiceImpl implements UserDetailsService {
 
     private Contact getContactByEmail(String email) {
         Contact defaultContact = new Contact();
-        return contactRepository.findFirstByEmailOrderByVersionDesc(email)
+        return contactRepository.findFirstByEmail(email)
                 .orElse(defaultContact);
     }
 

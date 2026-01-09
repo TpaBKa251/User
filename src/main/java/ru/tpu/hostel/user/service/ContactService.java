@@ -12,4 +12,5 @@ public interface ContactService {
     List<ContactResponseDto> getAllContacts();
     void deleteContact(UUID id);
     void addLink(AddLinkRequestDto addLinkRequestDto);
+    void editLink(AddLinkRequestDto addLinkRequestDto);
 }

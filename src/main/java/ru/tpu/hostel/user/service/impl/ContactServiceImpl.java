@@ -2,6 +2,8 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static ru.tpu.hostel.user.dto.request.LinkType.TG;
 import static ru.tpu.hostel.user.util.CommonMessages.USER_NOT_FOUND_MESSAGE;
 
 @Slf4j
@@ -30,11 +33,14 @@ import static ru.tpu.hostel.user.util.CommonMessages.USER_NOT_FOUND_MESSAGE;
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
+    public static final String SOMEONE_CHANGE_CONTACTS_TRY_LATER = "Кто-то уже изменил ссылки. Обновите данные и повторите попытку";
     private static final String ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE
             = "У вас нет прав изменять карточки контактов";
 
     private static final String ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE
             = "У вас нет прав изменять контакты жителей другого этажа";
+
+    private static final String USER_ALREADY_HAS_LINKS_EXCEPTION_MESSAGE = "Пользователь уже имеет эти ссылки";
 
     private static final List<String> STARTS_OF_LINKS = List.of("https:", "http:", "t.me", "vk.com");
 
@@ -89,6 +95,7 @@ public class ContactServiceImpl implements ContactService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void addLink(AddLinkRequestDto addLinkRequestDto) {
         User user = getUserForLinkAddition(addLinkRequestDto.userId());
+
         List<Roles> userRoles = roleService.getAllUserRoles(addLinkRequestDto.userId())
                 .stream()
                 .map(Roles::valueOf)
@@ -105,6 +112,31 @@ public class ContactServiceImpl implements ContactService {
 
         contactRepository.saveAll(contacts);
         contactRepository.flush();
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Override
+    public void editLink(AddLinkRequestDto addLinkRequestDto) {
+        User user = getUserForLinkAddition(addLinkRequestDto.userId());
+
+        String socialMediaSiteName = extractUsernameFromLink(addLinkRequestDto.link());
+
+        contactRepository.findAllByEmail(user.getEmail())
+                .forEach(contact -> {
+                    try {
+                        if (addLinkRequestDto.linkType() == TG) {
+                            contactRepository.updateTgLink(contact.getId(), socialMediaSiteName);
+                        } else {
+                            contactRepository.updateVkLink(contact.getId(), socialMediaSiteName);
+                        }
+
+                        contactRepository.flush();
+                    } catch (DataIntegrityViolationException e) {
+                        throw new ServiceException.Conflict(USER_ALREADY_HAS_LINKS_EXCEPTION_MESSAGE);
+                    } catch (ObjectOptimisticLockingFailureException e) {
+                        throw new ServiceException.Conflict(SOMEONE_CHANGE_CONTACTS_TRY_LATER);
+                    }
+        });
     }
 
     private User getUserForLinkAddition(UUID userId) {

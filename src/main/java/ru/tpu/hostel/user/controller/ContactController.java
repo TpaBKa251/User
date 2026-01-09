@@ -67,4 +67,10 @@ public class ContactController {
     public void addLink(@RequestBody @Valid AddLinkRequestDto addLinkRequestDto) {
         contactService.addLink(addLinkRequestDto);
     }
+
+    @PatchMapping("/links")
+    public void updateLink(@RequestBody @Valid AddLinkRequestDto addLinkRequestDto) {
+        contactService.editLink(addLinkRequestDto);
+    }
+
 }
