@@ -242,6 +242,19 @@ paths:
           description: Кто-то изменил юзера во время выполнения запроса
       security:
       - bearerAuth: []
+    patch:
+      tags:
+      - contact-controller
+      operationId: updateLink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddLinkRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
   /sessions/logout/{sessionId}:
     patch:
       tags:
