@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -89,7 +90,14 @@ public class SessionServiceImpl implements SessionService {
         }
 
         session.setRefreshToken(null);
-        sessionRepository.save(session);
+
+        try {
+            sessionRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(
+                    "Хватит 10 запросов одновременно отправлять (сессия уже изменена другим потоком)"
+            );
+        }
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, "")
                 .httpOnly(true)
@@ -122,7 +130,14 @@ public class SessionServiceImpl implements SessionService {
         String newRefreshToken = jwtService.generateRefreshToken(session.getUserId());
         session.setRefreshToken(newRefreshToken);
         session.setExpirationTime(LocalDateTime.now().plusDays(30));
-        sessionRepository.save(session);
+
+        try {
+            sessionRepository.flush();
+        } catch (ObjectOptimisticLockingFailureException e) {
+            throw new ServiceException.Conflict(
+                    "Хватит 10 запросов одновременно отправлять (сессия уже изменена другим потоком)"
+            );
+        }
 
         ResponseCookie cookie = ResponseCookie.from(REFRESH_TOKEN_COOKIE, newRefreshToken)
                 .httpOnly(true)
