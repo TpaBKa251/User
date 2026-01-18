@@ -117,7 +117,7 @@ public class ContactServiceImpl implements ContactService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     public void editLink(AddLinkRequestDto addLinkRequestDto) {
-        User user = getUserForLinkAddition(addLinkRequestDto.userId());
+        User user = getUserByI(addLinkRequestDto.userId());
 
         String socialMediaSiteName = extractUsernameFromLink(addLinkRequestDto.link());
 
@@ -136,7 +136,7 @@ public class ContactServiceImpl implements ContactService {
                     } catch (ObjectOptimisticLockingFailureException e) {
                         throw new ServiceException.Conflict(SOMEONE_CHANGE_CONTACTS_TRY_LATER);
                     }
-        });
+                });
     }
 
     private User getUserForLinkAddition(UUID userId) {
