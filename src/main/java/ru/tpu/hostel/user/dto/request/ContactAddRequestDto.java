@@ -10,7 +10,7 @@ public record ContactAddRequestDto(
         @NotNull(message = "ФИО не может быть пустым")
         String fullName,
 
-        @Schema(description = "Присваиваемая роль в виде имени енама")
+        @Schema(description = "Присваиваемая роль")
         @NotNull(message = "Роль не может быть пустой")
         String role,
 

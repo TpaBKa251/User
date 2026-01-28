@@ -2,11 +2,13 @@ package ru.tpu.hostel.user.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import ru.tpu.hostel.internal.exception.ServiceException;
 import ru.tpu.hostel.internal.utils.ExecutionContext;
 import ru.tpu.hostel.internal.utils.Roles;
@@ -21,7 +23,10 @@ import ru.tpu.hostel.user.repository.UserRepository;
 import ru.tpu.hostel.user.service.ContactService;
 import ru.tpu.hostel.user.service.RoleService;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -46,6 +51,27 @@ public class ContactServiceImpl implements ContactService {
 
     private static final String START_OF_SOCIAL_NAME = "@";
 
+    private static final List<Roles> ALL_ROLES = List.of(
+            Roles.ADMINISTRATION,
+            Roles.HOSTEL_SUPERVISOR,
+            Roles.FLOOR_SUPERVISOR,
+            Roles.RESPONSIBLE_KITCHEN,
+            Roles.RESPONSIBLE_HALL,
+            Roles.RESPONSIBLE_GYM,
+            Roles.WORKER_GYM,
+            Roles.RESPONSIBLE_FIRE_SAFETY,
+            Roles.RESPONSIBLE_SANITARY,
+            Roles.RESPONSIBLE_INTERNET,
+            Roles.RESPONSIBLE_SOOP,
+            Roles.WORKER_FIRE_SAFETY,
+            Roles.WORKER_SANITARY,
+            Roles.WORKER_SOOP,
+            Roles.STUDENT
+    );
+    public static final String CANT_SAVE_PHOTO_EXCEPTION_MESSAGE = "Ошибка при сохранении фото в файловую систему";
+
+    public static final String FILE_IS_EMPTY_EXCEPTION_MESSAGE = "Файл пустой";
+
     private final UserServiceImpl userService;
 
     private final RoleService roleService;
@@ -54,12 +80,31 @@ public class ContactServiceImpl implements ContactService {
 
     private final UserRepository userRepository;
 
+    @Value("${app.upload.dir}")
+    private String uploadDir;
+
     @Override
-    public ContactResponseDto addContact(ContactAddRequestDto contactAddRequestDto) {
+    public ContactResponseDto addContact(MultipartFile photoFile, ContactAddRequestDto contactAddRequestDto) {
+        if (photoFile.isEmpty()) {
+            throw new ServiceException.NotFound(FILE_IS_EMPTY_EXCEPTION_MESSAGE);
+        }
+
+        String extension = getExtension(photoFile.getOriginalFilename());
+        String fileName = UUID.randomUUID() + extension;
+
+        Path targetPath = Paths.get(uploadDir).resolve(fileName);
+
+        try {
+            Files.createDirectories(targetPath.getParent());
+            photoFile.transferTo(targetPath.toFile());
+        } catch (IOException e) {
+            throw new ServiceException.InternalServerError(CANT_SAVE_PHOTO_EXCEPTION_MESSAGE);
+        }
+
         ExecutionContext context = ExecutionContext.get();
 
         if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
-            Contact contact = ContactMapper.mapToContact(contactAddRequestDto);
+            Contact contact = ContactMapper.mapToContact(fileName, contactAddRequestDto);
 
             Contact savedContact = contactRepository.save(contact);
 
@@ -70,10 +115,19 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public List<ContactResponseDto> getAllContacts() {
-        List<String> excludedRoles = getAllExcludedRoles();
+    public List<ContactResponseDto> getAllCustomContacts() {
+        List<Contact> contacts = contactRepository.getAllCustomContacts();
 
-        List<Contact> contacts = contactRepository.getAllMainContacts(excludedRoles);
+        return contacts.stream()
+                .map(ContactMapper::mapToContactResponseDto)
+                .toList();
+    }
+
+    @Override
+    public List<ContactResponseDto> getAllUsersWithRoleContacts() {
+        List<String> selectedRoles = getAllSelectedRoles();
+
+        List<Contact> contacts = contactRepository.getAllMainContacts(selectedRoles);
 
         return contacts.stream()
                 .map(ContactMapper::mapToContactResponseDto)
@@ -117,7 +171,7 @@ public class ContactServiceImpl implements ContactService {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Override
     public void editLink(AddLinkRequestDto addLinkRequestDto) {
-        User user = getUserByI(addLinkRequestDto.userId());
+        User user = getUserById(addLinkRequestDto.userId());
 
         String socialMediaSiteName = extractUsernameFromLink(addLinkRequestDto.link());
 
@@ -143,11 +197,11 @@ public class ContactServiceImpl implements ContactService {
         ExecutionContext context = ExecutionContext.get();
 
         if (userId == null) {
-            return getUserByI(context.getUserID());
+            return getUserById(context.getUserID());
         }
 
         if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
-            return getUserByI(userId);
+            return getUserById(userId);
         }
 
         if (context.getUserRoles().contains(Roles.FLOOR_SUPERVISOR)) {
@@ -155,14 +209,14 @@ public class ContactServiceImpl implements ContactService {
             String userForLinkAdditionalRoomNumber = userService.getRoomNumberByUserId(userId);
 
             if (currentUserRoomNumber.charAt(0) == userForLinkAdditionalRoomNumber.charAt(0)) {
-                return getUserByI(userId);
+                return getUserById(userId);
             }
         }
 
         throw new ServiceException.Forbidden(ADDING_LINK_FORBIDDEN_EXCEPTION_MESSAGE);
     }
 
-    private User getUserByI(UUID userId) {
+    private User getUserById(UUID userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ServiceException.NotFound(USER_NOT_FOUND_MESSAGE));
     }
@@ -178,15 +232,19 @@ public class ContactServiceImpl implements ContactService {
         return link;
     }
 
-    private List<String> getAllExcludedRoles() {
-        List<String> excludedRoles = new ArrayList<>();
-        excludedRoles.add(Roles.WORKER_GYM.toString());
-        excludedRoles.add(Roles.WORKER_FIRE_SAFETY.toString());
-        excludedRoles.add(Roles.WORKER_SANITARY.toString());
-        excludedRoles.add(Roles.WORKER_SOOP.toString());
-        excludedRoles.add(Roles.STUDENT.toString());
+    private List<String> getAllSelectedRoles() {
+        return ALL_ROLES.stream()
+                .filter(role -> !role.name().startsWith("WORKER"))
+                .filter(role -> role != Roles.STUDENT)
+                .map(Enum::toString)
+                .toList();
+    }
 
-        return excludedRoles;
+    private String getExtension(String filename) {
+        if (filename == null || !filename.contains(".")) {
+            return "";
+        }
+        return filename.substring(filename.lastIndexOf("."));
     }
 
 }

@@ -17,7 +17,7 @@ import static ru.tpu.hostel.user.dto.request.LinkType.TG;
 
 @UtilityClass
 public class ContactMapper {
-    public static Contact mapToContact(ContactAddRequestDto contactAddRequestDto) {
+    public static Contact mapToContact(String fileName, ContactAddRequestDto contactAddRequestDto) {
         String[] fullName = contactAddRequestDto.fullName().split(" ");
 
         Contact contact = new Contact();
@@ -48,6 +48,7 @@ public class ContactMapper {
         }
 
         contact.setCustomContact(true);
+        contact.setPhotoUrl("/images/" + fileName);
 
         return contact;
     }
@@ -58,6 +59,7 @@ public class ContactMapper {
                 CommonMethods.getFullName(contact),
                 contact.getRole(),
                 contact.getEmail(),
+                contact.getPhotoUrl(),
                 contact.getTgLink(),
                 contact.getVkLink()
         );

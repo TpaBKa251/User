@@ -14,8 +14,11 @@ import java.util.UUID;
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
-    @Query("SELECT c FROM Contact c WHERE c.role not in :excludedRoles")
-    List<Contact> getAllMainContacts(@Param("excludedRoles") List<String> excludedRoles);
+    @Query("SELECT c FROM Contact c WHERE c.customContact = true ")
+    List<Contact> getAllCustomContacts();
+
+    @Query("SELECT c FROM Contact c WHERE c.role in :selectedRoles")
+    List<Contact> getAllMainContacts(@Param("selectedRoles") List<String> selectedRoles);
 
     Optional<Contact> findFirstByEmail(String email);
 
