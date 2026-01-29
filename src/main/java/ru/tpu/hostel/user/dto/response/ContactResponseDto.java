@@ -17,6 +17,9 @@ public record ContactResponseDto(
         @Schema(description = "Имейл")
         String email,
 
+        @Schema(description = "Ссылка на фото")
+        String photoUrl,
+
         @Schema(description = "имя в ТГ")
         String tgLink,
 

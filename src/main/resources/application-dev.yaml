@@ -1,6 +1,10 @@
 server:
   port: 8081
 
+app:
+  upload:
+    dir: C:\Users\gazco\IdeaProjects\User\images
+
 jwt:
   accessTokenLifetime: 36500d
   refreshTokenLifetime: 365000d

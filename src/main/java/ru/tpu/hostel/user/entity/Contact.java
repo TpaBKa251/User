@@ -63,4 +63,8 @@ public class Contact {
     @Version
     private Long version;
 
+    @Size(max = 1000)
+    @Column(name = "photo_url")
+    private String photoUrl;
+
 }
