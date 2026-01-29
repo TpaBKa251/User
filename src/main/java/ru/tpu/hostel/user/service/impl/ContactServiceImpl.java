@@ -84,7 +84,12 @@ public class ContactServiceImpl implements ContactService {
     private String uploadDir;
 
     @Override
+    @Transactional
     public ContactResponseDto addContact(MultipartFile photoFile, ContactAddRequestDto contactAddRequestDto) {
+        if (!ExecutionContext.get().getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
+            throw new ServiceException.Forbidden(ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE);
+        }
+
         if (photoFile.isEmpty()) {
             throw new ServiceException.NotFound(FILE_IS_EMPTY_EXCEPTION_MESSAGE);
         }
@@ -94,6 +99,9 @@ public class ContactServiceImpl implements ContactService {
 
         Path targetPath = Paths.get(uploadDir).resolve(fileName);
 
+        Contact contact = ContactMapper.mapToContact(fileName, contactAddRequestDto);
+        Contact savedContact = contactRepository.save(contact);
+
         try {
             Files.createDirectories(targetPath.getParent());
             photoFile.transferTo(targetPath.toFile());
@@ -101,17 +109,7 @@ public class ContactServiceImpl implements ContactService {
             throw new ServiceException.InternalServerError(CANT_SAVE_PHOTO_EXCEPTION_MESSAGE);
         }
 
-        ExecutionContext context = ExecutionContext.get();
-
-        if (context.getUserRoles().contains(Roles.HOSTEL_SUPERVISOR)) {
-            Contact contact = ContactMapper.mapToContact(fileName, contactAddRequestDto);
-
-            Contact savedContact = contactRepository.save(contact);
-
-            return ContactMapper.mapToContactResponseDto(savedContact);
-        }
-
-        throw new ServiceException.Forbidden(ADDING_CONTACT_FORBIDDEN_EXCEPTION_MESSAGE);
+        return ContactMapper.mapToContactResponseDto(savedContact);
     }
 
     @Override
@@ -135,6 +133,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Transactional
     public void deleteContact(UUID id) {
         ExecutionContext context = ExecutionContext.get();
 
@@ -147,6 +146,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
+    @Override
     public void addLink(AddLinkRequestDto addLinkRequestDto) {
         User user = getUserForLinkAddition(addLinkRequestDto.userId());
 

@@ -48,7 +48,7 @@ public class ContactMapper {
         }
 
         contact.setCustomContact(true);
-        contact.setPhotoUrl("/images/" + fileName);
+        contact.setPhotoUrl("/users/images/" + fileName);
 
         return contact;
     }
