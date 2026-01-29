@@ -170,36 +170,36 @@ paths:
       security:
       - bearerAuth: []
   /contacts:
-    get:
-      tags:
-      - contact-controller
-      operationId: getAllContacts
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/ContactResponseDto"
     post:
       tags:
       - contact-controller
+      summary: Добавить кастомные контактов
+      description: "Добавляет кастомные контакты любого человека, не являющегося з\
+        арегистрированным пользователем"
       operationId: addContact
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: "#/components/schemas/ContactAddRequestDto"
-        required: true
+              type: object
+              properties:
+                photoFile:
+                  type: string
+                  format: binary
+                contact:
+                  $ref: "#/components/schemas/ContactAddRequestDto"
+              required:
+              - contact
+              - photoFile
       responses:
         "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ContactResponseDto"
+          description: Успешное добавление контактов
+        "401":
+          description: Запрос не авторизован
+        "403":
+          description: Нет прав добавлять кастомные контакты
+      security:
+      - bearerAuth: []
     delete:
       tags:
       - contact-controller
@@ -1200,6 +1200,39 @@ paths:
           description: Запрос не авторизован
       security:
       - bearerAuth: []
+  /contacts/users:
+    get:
+      tags:
+      - contact-controller
+      summary: "Получить все контакты зарегистрированных пользователей, имеющих ос\
+        новные роли"
+      description: "Возвращает контакты всех пользователей, у которых есть основны\
+        е роли: ADMINISTRATION, HOSTEL_SUPERVISOR, FLOOR_SUPERVISOR, RESPONSIBLE_KITCHEN,\
+        \ RESPONSIBLE_HALL, RESPONSIBLE_GYM, RESPONSIBLE_FIRE_SAFETY, RESPONSIBLE_SANITARY,\
+        \ RESPONSIBLE_INTERNET, RESPONSIBLE_SOOP"
+      operationId: getAllUsersWithRoleContacts
+      responses:
+        "200":
+          description: Успешное получение кастомных контактов
+        "401":
+          description: Запрос не авторизован
+      security:
+      - bearerAuth: []
+  /contacts/custom:
+    get:
+      tags:
+      - contact-controller
+      summary: Получить все кастомные контакты
+      description: "Возвращает все контакты, которые были добавлены вручную для ст\
+        раницы с контактами."
+      operationId: getAllCustomContacts
+      responses:
+        "200":
+          description: Успешное получение кастомных контактов
+        "401":
+          description: Запрос не авторизован
+      security:
+      - bearerAuth: []
   /roles/{userId}:
     delete:
       tags:
@@ -1430,7 +1463,7 @@ components:
           description: ФИО человека
         role:
           type: string
-          description: Присваиваемая роль в виде имени енама
+          description: Присваиваемая роль
         email:
           type: string
           format: email
@@ -1453,29 +1486,6 @@ components:
       - email
       - fullName
       - role
-    ContactResponseDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: ID
-        fullName:
-          type: string
-          description: ФИО человека
-        role:
-          type: string
-          description: "Название роли, которую присвоили юзеру"
-          example: Студент
-        email:
-          type: string
-          description: Имейл
-        tgLink:
-          type: string
-          description: имя в ТГ
-        vkLink:
-          type: string
-          description: ссылка на ВК
     AddLinkRequestDto:
       type: object
       description: Тело запроса добавления/изменения контактов (ссылок на соцсети)
