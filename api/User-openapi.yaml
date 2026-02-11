@@ -200,20 +200,6 @@ paths:
           description: Нет прав добавлять кастомные контакты
       security:
       - bearerAuth: []
-    delete:
-      tags:
-      - contact-controller
-      operationId: deleteContact
-      parameters:
-      - name: id
-        in: query
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        "200":
-          description: OK
   /contacts/links:
     post:
       tags:
@@ -1291,6 +1277,22 @@ paths:
           description: Запрос не авторизован
       security:
       - bearerAuth: []
+  /contacts/{contactId}:
+    delete:
+      tags:
+      - contact-controller
+      operationId: deleteContact
+      parameters:
+      - name: contactId
+        in: path
+        description: ID кастомного контакта
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
 components:
   schemas:
     UserRegisterDto:
