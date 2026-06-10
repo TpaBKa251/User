@@ -1,109 +1,100 @@
 package ru.tpu.hostel.user.repository;
 
-//@RepositoryTest
-//@DisplayName("Тесты для репозитория пользователей")
-@SuppressWarnings({"java:S125", "java:S2187", "unused"})
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import ru.tpu.hostel.internal.utils.Roles;
+import ru.tpu.hostel.user.TestData;
+import ru.tpu.hostel.user.entity.Role;
+import ru.tpu.hostel.user.entity.User;
+import ru.tpu.hostel.user.repository.util.RepositoryTest;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+@RepositoryTest
 class UserRepositoryTest {
-//
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Autowired
-//    private RoleRepository roleRepository;
-//
-//    @BeforeEach
-//    void setUp() {
-//        userRepository.deleteAll();
-//        roleRepository.deleteAll();
-//
-//        User adminUser1 = Data.getNewUser(
-//                Data.FIRST_NAME_IVAN,
-//                Data.LAST_NAME_IVANOV,
-//                Data.EMAIL_IVANOV,
-//                Data.PASSWORD_IVANOV,
-//                Data.ROOM_NUMBER_101
-//        );
-//
-//        User adminUser2 = Data.getNewUser(Data.FIRST_NAME_LEONID,
-//                Data.LAST_NAME_LEONIDOV,
-//                Data.EMAIL_LEONIDOV,
-//                Data.PASSWORD_LEONIDOV,
-//                Data.ROOM_NUMBER_102
-//        );
-//
-//        User user1 = Data.getNewUser(
-//                Data.FIRST_NAME_BOGDAN,
-//                Data.LAST_NAME_BOGDANOV,
-//                Data.EMAIL_BOGDANOV,
-//                Data.PASSWORD_BOGDANOV,
-//                Data.ROOM_NUMBER_103
-//        );
-//
-//        User user2 = Data.getNewUser(
-//                Data.FIRST_NAME_LEV,
-//                Data.LAST_NAME_LEVY,
-//                Data.EMAIL_LEVY,
-//                Data.PASSWORD_LEVY,
-//                Data.ROOM_NUMBER_104
-//        );
-//
-//        userRepository.saveAll(List.of(adminUser1, adminUser2, user1, user2));
-//
-//        Role adminRole1 = new Role();
-//        adminRole1.setRole(Roles.ADMINISTRATION);
-//        adminRole1.setUser(adminUser1);
-//
-//        Role adminRole2 = new Role();
-//        adminRole2.setRole(Roles.ADMINISTRATION);
-//        adminRole2.setUser(adminUser2);
-//
-//        Role studentRole1 = new Role();
-//        studentRole1.setRole(Roles.STUDENT);
-//        studentRole1.setUser(user1);
-//
-//        Role studentRole2 = new Role();
-//        studentRole2.setRole(Roles.STUDENT);
-//        studentRole2.setUser(user2);
-//
-//        Role soopRole = new Role();
-//        soopRole.setRole(Roles.RESPONSIBLE_SOOP);
-//        soopRole.setUser(user1);
-//
-//        roleRepository.saveAll(List.of(adminRole1, adminRole2, studentRole1, studentRole2, soopRole));
-//    }
-//
-//    @Test
-//    @DisplayName("Поиск по роли в случае, когда есть несколько пользователей с такой ролью")
-//    void findAllByRoleManyPersons() {
-//            Pageable pageable = PageRequest.of(0, 10);
-//            Page<User> result = userRepository.findAllByRoles_Role(Roles.ADMINISTRATION, pageable);
-//
-//            assertThat(result.getContent())
-//                    .hasSize(2)
-//                    .extracting(User::getEmail)
-//                    .containsExactlyInAnyOrder(Data.EMAIL_IVANOV, Data.EMAIL_LEONIDOV);
-//    }
-//
-//    @Test
-//    @DisplayName("Поиск по роли в случае, когда есть один пользователь с такой ролью")
-//    void findAllByRoleOnePerson() {
-//        Pageable pageable = PageRequest.of(0, 10);
-//        Page<User> result = userRepository.findAllByRoles_Role(Roles.RESPONSIBLE_SOOP, pageable);
-//
-//        assertThat(result.getContent())
-//                .hasSize(1)
-//                .extracting(User::getEmail)
-//                .containsExactly(Data.EMAIL_BOGDANOV);
-//    }
-//
-//    @Test
-//    @DisplayName("Поиск по роли в случае, когда нет пользователей с такой ролью")
-//    void findAllByRoleNoPersons() {
-//        Pageable pageable = PageRequest.of(0, 10);
-//        Page<User> result = userRepository.findAllByRoles_Role(Roles.RESPONSIBLE_KITCHEN, pageable);
-//
-//        assertThat(result.getContent())
-//                .isEmpty();
-//    }
-//
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
+
+    private User ivanov;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+        ivanov = userRepository.save(buildUser(
+                TestData.FIRST_NAME_IVAN, TestData.LAST_NAME_IVANOV, TestData.EMAIL_IVANOV, TestData.ROOM_NUMBER_101));
+        userRepository.save(buildUser(
+                TestData.FIRST_NAME_BOGDAN, TestData.LAST_NAME_BOGDANOV, TestData.EMAIL_BOGDANOV, TestData.ROOM_NUMBER_201));
+
+        Role role = new Role();
+        role.setRole(Roles.STUDENT);
+        role.setUser(ivanov);
+        roleRepository.save(role);
+    }
+
+    private User buildUser(String firstName, String lastName, String email, String roomNumber) {
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        user.setPassword(TestData.PASSWORD_ENCODED);
+        user.setRoomNumber(roomNumber);
+        return user;
+    }
+
+    @Test
+    void findByEmailWhenExists() {
+        Optional<User> result = userRepository.findByEmail(TestData.EMAIL_IVANOV);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getLastName()).isEqualTo(TestData.LAST_NAME_IVANOV);
+    }
+
+    @Test
+    void findByEmailWhenNotExists() {
+        Optional<User> result = userRepository.findByEmail(TestData.EMAIL_LEONIDOV);
+
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void findAllByRolesRoleWithSuccess() {
+        Pageable pageable = PageRequest.of(TestData.PAGE, TestData.SIZE);
+
+        var result = userRepository.findAllByRoles_Role(Roles.STUDENT, pageable);
+
+        assertThat(result.getContent())
+                .extracting(User::getEmail)
+                .containsExactly(TestData.EMAIL_IVANOV);
+    }
+
+    @Test
+    void findRoomNumberByIdWithSuccess() {
+        Optional<String> result = userRepository.findRoomNumberById(ivanov.getId());
+
+        assertThat(result).contains(TestData.ROOM_NUMBER_101);
+    }
+
+    @Test
+    void findAllIdsOfUsersInRoomsWithSuccess() {
+        List<java.util.UUID> result = userRepository.findAllIdsOfUsersInRooms(List.of(TestData.ROOM_NUMBER_101));
+
+        assertThat(result).containsExactly(ivanov.getId());
+    }
+
+    @Test
+    void findDistinctByFirstNameLikeIgnoreCaseWithSuccess() {
+        List<String> result = userRepository.findDistinctByFirstNameLikeIgnoreCase(TestData.FIRST_NAME_IVAN);
+
+        assertThat(result).contains(TestData.FIRST_NAME_IVAN);
+    }
 }

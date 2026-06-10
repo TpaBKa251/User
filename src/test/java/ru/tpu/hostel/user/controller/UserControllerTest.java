@@ -1,85 +1,108 @@
 package ru.tpu.hostel.user.controller;
 
-//@SpringBootTest
-//@AutoConfigureMockMvc
-//@DisplayName("Интеграционные тесты контроллера сессии SessionController")
-//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-//@ExtendWith(PostgresTestContainerExtension.class)
-@SuppressWarnings({"java:S125", "java:S2187", "unused"})
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.tpu.hostel.internal.utils.Roles;
+import ru.tpu.hostel.user.TestData;
+import ru.tpu.hostel.user.dto.response.UserResponseDto;
+import ru.tpu.hostel.user.dto.response.UserShortResponseDto2;
+import ru.tpu.hostel.user.service.impl.UserServiceImpl;
+
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(UserController.class)
+@AutoConfigureMockMvc(addFilters = false)
 class UserControllerTest {
-//
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @MockitoBean
-//    private UserServiceImpl userService;
-//
-//    private List<UserShortResponseDto2> adminUsers;
-//
-//    @BeforeEach
-//    void setUp() {
-//        adminUsers = List.of(
-//                new UserShortResponseDto2(
-//                        UUID.randomUUID(),
-//                        Data.FIRST_NAME_IVAN,
-//                        Data.LAST_NAME_IVANOV,
-//                        null, "", ""),
-//                new UserShortResponseDto2(
-//                        UUID.randomUUID(),
-//                        Data.FIRST_NAME_LEONID,
-//                        Data.LAST_NAME_LEONIDOV,
-//                        null, "", "")
-//        );
-//    }
-//
-//    @AfterEach
-//    void commonVerify() {
-//        verifyNoMoreInteractions(userService);
-//    }
-//
-//    @Test
-//    @DisplayName("Получение списка пользователей по роли")
-//    void testGetUsersByRole_Success() throws Exception {
-//        Roles role = Roles.ADMINISTRATION;
-//        int page = 0;
-//        int size = 10;
-//
-//        when(userService.getAllUsersByRole(role, page, size, false)).thenReturn(adminUsers);
-//
-//        mockMvc.perform(get("/users/get/by/role")
-//                        .param("role", role.name())
-//                        .param("page", String.valueOf(page))
-//                        .param("size", String.valueOf(size)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.length()").value(adminUsers.size()))
-//                .andExpect(jsonPath("$[0].id").value(adminUsers.get(0).id().toString()))
-//                .andExpect(jsonPath("$[0].firstName").value(adminUsers.get(0).firstName()))
-//                .andExpect(jsonPath("$[0].lastName").value(adminUsers.get(0).lastName()))
-//                .andExpect(jsonPath("$[0].middleName").value(adminUsers.get(0).middleName()))
-//                .andExpect(jsonPath("$[1].id").value(adminUsers.get(1).id().toString()))
-//                .andExpect(jsonPath("$[1].firstName").value(adminUsers.get(1).firstName()))
-//                .andExpect(jsonPath("$[1].lastName").value(adminUsers.get(1).lastName()))
-//                .andExpect(jsonPath("$[1].middleName").value(adminUsers.get(1).middleName()));
-//
-//        verify(userService, times(1)).getAllUsersByRole(role, page, size, false);
-//    }
-//
-//    @Test
-//    @DisplayName("Получение списка пользователей по роли (пустой список)")
-//    void testGetUsersByRole_EmptyList() throws Exception {
-//        Roles role = Roles.STUDENT;
-//        int page = 0;
-//        int size = 10;
-//
-//        when(userService.getAllUsersByRole(role, page, size, false)).thenReturn(Collections.emptyList());
-//
-//        mockMvc.perform(get("/users/get/by/role")
-//                        .param("role", role.name())
-//                        .param("page", String.valueOf(page))
-//                        .param("size", String.valueOf(size)))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.length()").value(0));
-//
-//        verify(userService, times(1)).getAllUsersByRole(role, page, size, false);
-//    }
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private UserServiceImpl userService;
+
+    private UserResponseDto userResponseDto() {
+        return new UserResponseDto(
+                TestData.USER_ID,
+                TestData.FIRST_NAME_IVAN,
+                TestData.LAST_NAME_IVANOV,
+                TestData.MIDDLE_NAME,
+                TestData.EMAIL_IVANOV,
+                TestData.PHONE,
+                TestData.ROOM_NUMBER_101,
+                TestData.TG_LINK,
+                TestData.VK_LINK
+        );
+    }
+
+    @Test
+    void registerUserWithSuccess() throws Exception {
+        when(userService.registerUser(any())).thenReturn(userResponseDto());
+
+        mockMvc.perform(post("/users")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(TestData.userRegisterDto())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(TestData.USER_ID.toString()));
+    }
+
+    @Test
+    void getUserWithSuccess() throws Exception {
+        when(userService.getUser()).thenReturn(userResponseDto());
+
+        mockMvc.perform(get("/users/profile"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(TestData.EMAIL_IVANOV));
+    }
+
+    @Test
+    void getAllUsersWithSuccess() throws Exception {
+        when(userService.getAllUsers(anyInt(), anyInt(), any(), any(), any(), any()))
+                .thenReturn(List.of(userResponseDto()));
+
+        mockMvc.perform(get("/users/get/all"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    void getRoomNumberWithSuccess() throws Exception {
+        when(userService.getRoomNumberByUserId(TestData.USER_ID)).thenReturn(TestData.ROOM_NUMBER_101);
+
+        mockMvc.perform(get("/users/get/room/{userId}", TestData.USER_ID))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void getUsersByRoleWithSuccess() throws Exception {
+        UserShortResponseDto2 dto = new UserShortResponseDto2(
+                TestData.USER_ID, TestData.FIRST_NAME_IVAN, TestData.LAST_NAME_IVANOV,
+                TestData.MIDDLE_NAME, TestData.TG_LINK, TestData.VK_LINK);
+        when(userService.getAllUsersByRole(eq(Roles.STUDENT), anyInt(), anyInt(), anyBoolean()))
+                .thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/users/get/by/role")
+                        .param("role", Roles.STUDENT.name())
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
 }
